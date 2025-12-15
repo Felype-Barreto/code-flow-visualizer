@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRoute } from "wouter";
 import Layout from "@/components/layout";
 import { lessons } from "@/lib/lessons";
+import { Language } from "@/lib/types";
 import CodeEditor from "@/components/code-editor";
 import CallStack from "@/components/visualizer/call-stack";
 import HeapMemory from "@/components/visualizer/heap-memory";
@@ -9,6 +10,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { Play, Pause, SkipBack, SkipForward, RotateCcw, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function LessonPage() {
@@ -16,12 +18,16 @@ export default function LessonPage() {
   const lessonId = params?.id || "functions";
   const lesson = lessons[lessonId];
   
+  const [language, setLanguage] = useState<Language>('javascript');
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1500); // ms per step
+  const [speed, setSpeed] = useState(1500);
 
-  const currentStep = lesson?.steps[currentStepIndex] || lesson?.steps[0];
-  const totalSteps = lesson?.steps.length || 0;
+  // Get current variant based on language, fallback to javascript if not found
+  const variant = lesson?.variants[language] || lesson?.variants['javascript'];
+  
+  const currentStep = variant?.steps[currentStepIndex] || variant?.steps[0];
+  const totalSteps = variant?.steps.length || 0;
 
   // Auto-play effect
   useEffect(() => {
@@ -40,17 +46,17 @@ export default function LessonPage() {
     return () => clearInterval(interval);
   }, [isPlaying, totalSteps, speed]);
 
-  // Reset when lesson changes
+  // Reset when lesson or language changes
   useEffect(() => {
     setCurrentStepIndex(0);
     setIsPlaying(false);
-  }, [lessonId]);
+  }, [lessonId, language]);
 
-  if (!lesson) {
+  if (!lesson || !variant || !currentStep) {
     return (
       <Layout>
         <div className="flex items-center justify-center h-screen">
-          <h1 className="text-2xl text-muted-foreground">Lição não encontrada</h1>
+          <h1 className="text-2xl text-muted-foreground">Lição não encontrada ou incompleta</h1>
         </div>
       </Layout>
     );
@@ -75,10 +81,24 @@ export default function LessonPage() {
     <Layout>
       <div className="h-[calc(100vh-64px)] flex flex-col">
         {/* Toolbar */}
-        <div className="h-16 border-b border-white/10 bg-card/30 flex items-center px-6 justify-between shrink-0">
-          <div className="flex items-center gap-4">
-             <h2 className="font-bold text-lg">{lesson.title}</h2>
-             <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-muted-foreground">
+        <div className="h-16 border-b border-white/10 bg-card/30 flex items-center px-6 justify-between shrink-0 gap-4">
+          <div className="flex items-center gap-4 flex-1">
+             <h2 className="font-bold text-lg whitespace-nowrap">{lesson.title}</h2>
+             
+             {/* Language Selector */}
+             <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
+               <SelectTrigger className="w-[140px] h-8 bg-white/5 border-white/10">
+                 <SelectValue placeholder="Linguagem" />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="javascript">JavaScript</SelectItem>
+                 <SelectItem value="csharp">C#</SelectItem>
+                 <SelectItem value="java">Java</SelectItem>
+                 {lesson.variants.c && <SelectItem value="c">C</SelectItem>}
+               </SelectContent>
+             </Select>
+
+             <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-muted-foreground whitespace-nowrap">
                Passo {currentStepIndex + 1} / {totalSteps}
              </span>
           </div>
@@ -103,7 +123,7 @@ export default function LessonPage() {
               <SkipForward className="w-4 h-4" />
             </Button>
 
-            <div className="w-32 ml-4">
+            <div className="w-32 ml-4 hidden md:block">
                <span className="text-[10px] text-muted-foreground mb-1 block">Velocidade</span>
                <Slider 
                  value={[3000 - speed]} 
@@ -123,7 +143,7 @@ export default function LessonPage() {
             {/* Left Panel: Code */}
             <ResizablePanel defaultSize={40} minSize={30}>
               <div className="h-full p-4 flex flex-col gap-4">
-                <CodeEditor code={lesson.code} activeLine={currentStep.line} />
+                <CodeEditor code={variant.code} activeLine={currentStep.line} />
                 
                 {/* Explanation Box */}
                 <div className="bg-card/50 border border-white/10 rounded-lg p-4 flex-1 overflow-auto">
@@ -132,7 +152,7 @@ export default function LessonPage() {
                   </h3>
                   <AnimatePresence mode="wait">
                     <motion.p 
-                      key={currentStepIndex}
+                      key={`${language}-${currentStepIndex}`}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}

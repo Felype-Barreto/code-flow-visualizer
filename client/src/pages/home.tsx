@@ -1,6 +1,6 @@
 import Layout from "@/components/layout";
 import { Link } from "wouter";
-import { ArrowRight, Code, Box, Layers, Play } from "lucide-react";
+import { ArrowRight, Code, Box, Layers, Play, Repeat } from "lucide-react";
 import { motion } from "framer-motion";
 import generatedImage from "@assets/generated_images/blueprint_style_programming_visualization_concept.png";
 
@@ -22,7 +22,7 @@ export default function Home() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                   </span>
-                  Modo de Aprendizado Visual Ativo
+                  Suporte para JS, Java, C# e C
                 </div>
                 
                 <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/50">
@@ -62,27 +62,34 @@ export default function Home() {
         <section className="container mx-auto px-4 py-20 border-t border-white/5">
           <h2 className="text-3xl font-bold mb-12">Módulos de Aprendizado</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <LessonCard 
               icon={<Code className="w-8 h-8 text-blue-400" />}
-              title="Funções & Call Stack"
-              description="Entenda como o computador gerencia chamadas de função, escopo local e retorno de valores."
+              title="Funções & Stack"
+              description="Gerenciamento de chamadas e escopo."
               href="/lesson/functions"
               color="blue"
             />
             <LessonCard 
               icon={<Box className="w-8 h-8 text-emerald-400" />}
-              title="Objetos & Referências"
-              description="Descubra a diferença entre valor e referência, e como objetos vivem na memória Heap."
+              title="Objetos & Refs"
+              description="Valor vs Referência na Heap."
               href="/lesson/objects"
               color="emerald"
             />
             <LessonCard 
               icon={<Layers className="w-8 h-8 text-amber-400" />}
-              title="Classes & Instâncias"
-              description="Aprenda o que realmente acontece quando você usa 'new' e como o 'this' funciona."
+              title="Classes"
+              description="Instâncias, 'new' e 'this'."
               href="/lesson/classes"
               color="amber"
+            />
+            <LessonCard 
+              icon={<Repeat className="w-8 h-8 text-purple-400" />}
+              title="Recursão"
+              description="Visualizando o crescimento da pilha."
+              href="/lesson/recursion"
+              color="purple"
             />
           </div>
         </section>
@@ -96,21 +103,22 @@ function LessonCard({ icon, title, description, href, color }: any) {
     blue: "hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]",
     emerald: "hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]",
     amber: "hover:border-amber-500/50 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]",
+    purple: "hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]",
   };
 
   return (
     <Link href={href}>
       <motion.div 
         whileHover={{ y: -5 }}
-        className={`bg-card/40 border border-white/10 p-8 rounded-xl cursor-pointer transition-all duration-300 group h-full flex flex-col ${colorClasses[color as keyof typeof colorClasses]}`}
+        className={`bg-card/40 border border-white/10 p-6 rounded-xl cursor-pointer transition-all duration-300 group h-full flex flex-col ${colorClasses[color as keyof typeof colorClasses]}`}
       >
         <div className="mb-6 p-4 bg-white/5 w-fit rounded-lg group-hover:scale-110 transition-transform duration-300">
           {icon}
         </div>
-        <h3 className="text-xl font-bold mb-3 group-hover:text-white transition-colors">{title}</h3>
-        <p className="text-muted-foreground leading-relaxed flex-1">{description}</p>
-        <div className="mt-6 flex items-center text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0">
-          Iniciar Módulo <ArrowRight className="w-4 h-4 ml-2" />
+        <h3 className="text-lg font-bold mb-2 group-hover:text-white transition-colors">{title}</h3>
+        <p className="text-sm text-muted-foreground leading-relaxed flex-1">{description}</p>
+        <div className="mt-6 flex items-center text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0">
+          Iniciar <ArrowRight className="w-3 h-3 ml-2" />
         </div>
       </motion.div>
     </Link>

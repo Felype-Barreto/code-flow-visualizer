@@ -26,6 +26,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <NavLink href="/lesson/functions" active={location.includes("functions")}>Funções</NavLink>
             <NavLink href="/lesson/objects" active={location.includes("objects")}>Objetos</NavLink>
             <NavLink href="/lesson/classes" active={location.includes("classes")}>Classes</NavLink>
+            <NavLink href="/lesson/recursion" active={location.includes("recursion")}>Recursão</NavLink>
           </nav>
         </div>
       </header>
