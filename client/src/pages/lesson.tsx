@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRoute } from "wouter";
 import Layout from "@/components/layout";
 import { lessons } from "@/lib/lessons";
@@ -7,16 +7,19 @@ import CodeEditor from "@/components/code-editor";
 import CallStack from "@/components/visualizer/call-stack";
 import HeapMemory from "@/components/visualizer/heap-memory";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { Play, Pause, SkipBack, SkipForward, RotateCcw, ChevronRight } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, RotateCcw, ChevronRight, HelpCircle, Info, Layers, Box } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function LessonPage() {
   const [match, params] = useRoute("/lesson/:id");
   const lessonId = params?.id || "functions";
   const lesson = lessons[lessonId];
+  const isMobile = useIsMobile();
   
   const [language, setLanguage] = useState<Language>('javascript');
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -81,13 +84,12 @@ export default function LessonPage() {
     <Layout>
       <div className="h-[calc(100vh-64px)] flex flex-col">
         {/* Toolbar */}
-        <div className="h-16 border-b border-white/10 bg-card/30 flex items-center px-6 justify-between shrink-0 gap-4">
-          <div className="flex items-center gap-4 flex-1">
-             <h2 className="font-bold text-lg whitespace-nowrap">{lesson.title}</h2>
+        <div className="h-auto md:h-16 border-b border-white/10 bg-card/30 flex flex-col md:flex-row items-center px-4 py-2 md:py-0 justify-between shrink-0 gap-4">
+          <div className="flex flex-wrap items-center gap-3 flex-1 w-full md:w-auto">
+             <h2 className="font-bold text-lg whitespace-nowrap hidden md:block">{lesson.title}</h2>
              
-             {/* Language Selector */}
              <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
-               <SelectTrigger className="w-[140px] h-8 bg-white/5 border-white/10">
+               <SelectTrigger className="w-[120px] h-8 bg-white/5 border-white/10 text-xs">
                  <SelectValue placeholder="Linguagem" />
                </SelectTrigger>
                <SelectContent>
@@ -99,32 +101,35 @@ export default function LessonPage() {
              </Select>
 
              <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-muted-foreground whitespace-nowrap">
-               Passo {currentStepIndex + 1} / {totalSteps}
+               Passo {currentStepIndex + 1}/{totalSteps}
              </span>
+
+             <div className="ml-auto md:ml-0">
+               <HelpDialog />
+             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={handleReset} title="Reiniciar">
+          <div className="flex items-center gap-2 w-full md:w-auto justify-center pb-2 md:pb-0">
+            <Button variant="ghost" size="icon" onClick={handleReset} title="Reiniciar" className="h-8 w-8">
               <RotateCcw className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={handlePrev} disabled={currentStepIndex === 0}>
+            <Button variant="ghost" size="icon" onClick={handlePrev} disabled={currentStepIndex === 0} className="h-8 w-8">
               <SkipBack className="w-4 h-4" />
             </Button>
             
             <Button 
               size="icon" 
-              className={isPlaying ? "bg-amber-500 hover:bg-amber-600" : "bg-primary hover:bg-primary/90"}
+              className={isPlaying ? "bg-amber-500 hover:bg-amber-600 h-8 w-8" : "bg-primary hover:bg-primary/90 h-8 w-8"}
               onClick={() => setIsPlaying(!isPlaying)}
             >
               {isPlaying ? <Pause className="w-4 h-4 text-black" /> : <Play className="w-4 h-4 text-black ml-0.5" />}
             </Button>
             
-            <Button variant="ghost" size="icon" onClick={handleNext} disabled={currentStepIndex === totalSteps - 1}>
+            <Button variant="ghost" size="icon" onClick={handleNext} disabled={currentStepIndex === totalSteps - 1} className="h-8 w-8">
               <SkipForward className="w-4 h-4" />
             </Button>
 
-            <div className="w-32 ml-4 hidden md:block">
-               <span className="text-[10px] text-muted-foreground mb-1 block">Velocidade</span>
+            <div className="w-24 ml-2 hidden md:block">
                <Slider 
                  value={[3000 - speed]} 
                  min={500} 
@@ -138,25 +143,25 @@ export default function LessonPage() {
 
         {/* Main Content Resizable Panels */}
         <div className="flex-1 overflow-hidden">
-          <ResizablePanelGroup direction="horizontal">
+          <ResizablePanelGroup direction={isMobile ? "vertical" : "horizontal"}>
             
             {/* Left Panel: Code */}
-            <ResizablePanel defaultSize={40} minSize={30}>
-              <div className="h-full p-4 flex flex-col gap-4">
+            <ResizablePanel defaultSize={isMobile ? 50 : 40} minSize={30}>
+              <div className="h-full p-2 md:p-4 flex flex-col gap-2 md:gap-4">
                 <CodeEditor code={variant.code} activeLine={currentStep.line} />
                 
                 {/* Explanation Box */}
-                <div className="bg-card/50 border border-white/10 rounded-lg p-4 flex-1 overflow-auto">
+                <div className="bg-card/50 border border-white/10 rounded-lg p-3 md:p-4 flex-1 overflow-auto min-h-[100px]">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-2">
-                    <ChevronRight className="w-3 h-3" /> O que está acontecendo?
+                    <ChevronRight className="w-3 h-3" /> Explicação
                   </h3>
                   <AnimatePresence mode="wait">
                     <motion.p 
                       key={`${language}-${currentStepIndex}`}
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="text-lg leading-relaxed font-light"
+                      exit={{ opacity: 0, y: -5 }}
+                      className="text-sm md:text-lg leading-relaxed font-light"
                     >
                       {currentStep.explanation}
                     </motion.p>
@@ -168,21 +173,21 @@ export default function LessonPage() {
             <ResizableHandle withHandle className="bg-white/5" />
 
             {/* Right Panel: Visualization */}
-            <ResizablePanel defaultSize={60}>
-              <ResizablePanelGroup direction="vertical">
+            <ResizablePanel defaultSize={isMobile ? 50 : 60}>
+              <ResizablePanelGroup direction={isMobile ? "horizontal" : "vertical"}>
                 
-                {/* Top Right: Call Stack */}
+                {/* Stack */}
                 <ResizablePanel defaultSize={50} minSize={20}>
-                  <div className="h-full p-4 bg-[#0d1220]/50">
+                  <div className="h-full p-2 md:p-4 bg-[#0d1220]/50 border-r md:border-r-0 md:border-b border-white/5">
                     <CallStack stack={currentStep.stack} />
                   </div>
                 </ResizablePanel>
 
                 <ResizableHandle withHandle className="bg-white/5" />
 
-                {/* Bottom Right: Heap */}
+                {/* Heap */}
                 <ResizablePanel defaultSize={50} minSize={20}>
-                   <div className="h-full p-4 bg-[#0d1220]/50">
+                   <div className="h-full p-2 md:p-4 bg-[#0d1220]/50">
                     <HeapMemory heap={currentStep.heap} />
                   </div>
                 </ResizablePanel>
@@ -194,7 +199,7 @@ export default function LessonPage() {
         </div>
         
         {/* Progress Bar */}
-        <div className="h-1 bg-white/5 w-full">
+        <div className="h-1 bg-white/5 w-full shrink-0">
           <motion.div 
             className="h-full bg-primary shadow-[0_0_10px_rgba(6,182,212,0.5)]"
             initial={{ width: 0 }}
@@ -204,5 +209,62 @@ export default function LessonPage() {
         </div>
       </div>
     </Layout>
+  );
+}
+
+function HelpDialog() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="text-muted-foreground gap-2">
+          <HelpCircle className="w-4 h-4" />
+          <span className="hidden md:inline">Legenda</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md bg-[#0f172a] border-white/10">
+        <DialogHeader>
+          <DialogTitle>Como usar este visualizador?</DialogTitle>
+          <DialogDescription>Entenda o que cada área representa.</DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 mt-4">
+          <div className="flex gap-3 items-start p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+            <div className="p-2 bg-blue-500 rounded-md shrink-0">
+              <Layers className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h4 className="font-bold text-blue-400 text-sm">Call Stack (Pilha)</h4>
+              <p className="text-xs text-gray-400 mt-1">
+                Aqui é onde o código "lembra" onde está. Cada função chamada cria um novo bloco aqui. Variáveis simples (números, booleanos) vivem aqui.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 items-start p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <div className="p-2 bg-emerald-500 rounded-md shrink-0">
+              <Box className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h4 className="font-bold text-emerald-400 text-sm">Heap Memory (Memória)</h4>
+              <p className="text-xs text-gray-400 mt-1">
+                Aqui vivem os dados complexos: Objetos, Arrays e Classes. Eles são grandes demais para a Pilha, então ficam aqui e são acessados por "referência" (flechas invisíveis).
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex gap-3 items-start p-3 rounded-lg bg-white/5 border border-white/10">
+             <div className="p-2 bg-white/10 rounded-md shrink-0">
+              <Play className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h4 className="font-bold text-white text-sm">Controles</h4>
+              <p className="text-xs text-gray-400 mt-1">
+                Use os botões no topo para Pausar, Avançar ou mudar a Velocidade da animação.
+              </p>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -1,9 +1,21 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Terminal, Box, Layers, Cpu } from "lucide-react";
+import { Terminal, Menu, X } from "lucide-react";
+import { useState } from "react";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const navItems = [
+    { href: "/", label: "Início" },
+    { href: "/lesson/functions", label: "Funções" },
+    { href: "/lesson/objects", label: "Objetos" },
+    { href: "/lesson/classes", label: "Classes" },
+    { href: "/lesson/recursion", label: "Recursão" },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col font-sans text-foreground">
@@ -21,17 +33,47 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
 
+          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6">
-            <NavLink href="/" active={location === "/"}>Início</NavLink>
-            <NavLink href="/lesson/functions" active={location.includes("functions")}>Funções</NavLink>
-            <NavLink href="/lesson/objects" active={location.includes("objects")}>Objetos</NavLink>
-            <NavLink href="/lesson/classes" active={location.includes("classes")}>Classes</NavLink>
-            <NavLink href="/lesson/recursion" active={location.includes("recursion")}>Recursão</NavLink>
+            {navItems.map((item) => (
+              <NavLink key={item.href} href={item.href} active={location === item.href || (item.href !== "/" && location.includes(item.href))}>
+                {item.label}
+              </NavLink>
+            ))}
           </nav>
+
+          {/* Mobile Nav */}
+          <div className="md:hidden">
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="w-6 h-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] border-l border-white/10 bg-[#0f172a]">
+                <SheetTitle className="sr-only">Menu de Navegação</SheetTitle>
+                <SheetDescription className="sr-only">Navegue pelas lições disponíveis</SheetDescription>
+                <div className="flex flex-col gap-4 mt-8">
+                  {navItems.map((item) => (
+                    <Link key={item.href} href={item.href} onClick={() => setIsOpen(false)}>
+                      <span className={cn(
+                        "block px-4 py-3 rounded-lg text-lg font-medium transition-colors",
+                        location.includes(item.href) && item.href !== "/" || location === item.href
+                          ? "bg-primary/10 text-primary" 
+                          : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                      )}>
+                        {item.label}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </header>
 
-      <main className="flex-1 relative">
+      <main className="flex-1 relative flex flex-col">
         {/* Decorative Grid Lines */}
         <div className="absolute inset-0 pointer-events-none blueprint-grid -z-10 opacity-30" />
         
