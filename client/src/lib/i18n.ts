@@ -42,6 +42,8 @@ export interface Translations {
   expected: string;
   received: string;
   error: string;
+  writeCodeFirst: string;
+  nextExercise: string;
   
   // Hints and solutions
   hintTitle: string;
@@ -139,6 +141,8 @@ export const translations: Record<Language, Translations> = {
     expected: 'Expected',
     received: 'Received',
     error: 'Error',
+    writeCodeFirst: 'Write your code first!',
+    nextExercise: 'Next',
     
     // Hints and solutions
     hintTitle: 'Hint',
@@ -235,6 +239,8 @@ export const translations: Record<Language, Translations> = {
     expected: 'Esperado',
     received: 'Recebido',
     error: 'Erro',
+    writeCodeFirst: 'Escreva seu código primeiro!',
+    nextExercise: 'Próximo',
     
     // Hints and solutions
     hintTitle: 'Dica',
@@ -331,6 +337,8 @@ export const translations: Record<Language, Translations> = {
     expected: 'Esperado',
     received: 'Recibido',
     error: 'Error',
+    writeCodeFirst: '¡Escribe tu código primero!',
+    nextExercise: 'Siguiente',
     
     // Hints and solutions
     hintTitle: 'Pista',
@@ -426,8 +434,8 @@ export const translations: Record<Language, Translations> = {
     input: '输入',
     expected: '预期',
     received: '收到',
-    error: '错误',
-    
+    error: '错误',    writeCodeFirst: '请先编写代码！',
+    nextExercise: '下一个',    
     // Hints and solutions
     hintTitle: '提示',
     solutionTitle: '解决方案',
@@ -523,6 +531,8 @@ export const translations: Record<Language, Translations> = {
     expected: 'अपेक्षित',
     received: 'प्राप्त',
     error: 'त्रुटि',
+    writeCodeFirst: 'पहले अपना कोड लिखें!',
+    nextExercise: 'अगला',
     
     // Hints and solutions
     hintTitle: 'संकेत',

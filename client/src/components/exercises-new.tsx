@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TestResult {
   name: string;
@@ -31,8 +32,15 @@ interface ExecutionState {
 }
 
 export function ExercisesViewNew() {
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  
+  // Debug log
+  useEffect(() => {
+    console.log('Current language in exercises:', language);
+    console.log('Translation sample (testCode):', t.testCode);
+  }, [language, t]);
   
   const [selectedExercise, setSelectedExercise] = useState<Exercise>(exercises[0]);
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");
@@ -85,7 +93,7 @@ export function ExercisesViewNew() {
 
   const runTests = () => {
     if (!code.trim()) {
-      toast({ title: "❌ Erro", description: "Escreva seu código primeiro!", variant: "destructive" });
+      toast({ title: `❌ ${t.error}`, description: t.writeCodeFirst, variant: "destructive" });
       return;
     }
 
@@ -96,7 +104,7 @@ export function ExercisesViewNew() {
       // Extract function name
       const functionMatch = code.match(/function\s+(\w+)\s*\(/);
       if (!functionMatch) {
-        setTestResults([{ name: "Erro", passed: false, error: "Nenhuma função encontrada. Declare sua função com 'function'." }]);
+        setTestResults([{ name: t.error, passed: false, error: t.noFunctionFound }]);
         setExecutionState(prev => ({ ...prev, isExecuting: false }));
         return;
       }
@@ -108,7 +116,7 @@ export function ExercisesViewNew() {
       try {
         eval(`${code}; userFunction = ${functionName};`);
       } catch (e) {
-        setTestResults([{ name: "Erro de Sintaxe", passed: false, error: (e as any).message }]);
+        setTestResults([{ name: t.syntaxError, passed: false, error: (e as any).message }]);
         setExecutionState(prev => ({ ...prev, isExecuting: false, errorMessage: (e as any).message }));
         return;
       }
@@ -151,14 +159,14 @@ export function ExercisesViewNew() {
         ...prev,
         isExecuting: false,
         stack: [stackFrame],
-        logs: results.map(r => r.passed ? `✅ ${r.name}` : `❌ ${r.name}: ${r.error || 'Resultado incorreto'}`),
+        logs: results.map(r => r.passed ? `✅ ${r.name}` : `❌ ${r.name}: ${r.error || t.received}`),
       }));
 
       if (allPassed) {
-        toast({ title: "🎉 Parabéns!", description: "Todos os testes passaram!", variant: "default" });
+        toast({ title: "🎉 " + t.allTestsPassed, description: t.allTestsPassed, variant: "default" });
       }
     } catch (e) {
-      setTestResults([{ name: "Erro", passed: false, error: (e as any).message }]);
+      setTestResults([{ name: t.error, passed: false, error: (e as any).message }]);
       setExecutionState(prev => ({ ...prev, isExecuting: false, errorMessage: (e as any).message }));
     }
   };
@@ -279,7 +287,7 @@ export function ExercisesViewNew() {
                         }}
                         className="gap-2"
                       >
-                        <Lightbulb className="w-4 h-4" /> Dica
+                        <Lightbulb className="w-4 h-4" /> {t.hint}
                       </Button>
                     )}
                     {currentVariant?.solution && (
@@ -292,7 +300,7 @@ export function ExercisesViewNew() {
                         }}
                         className="gap-2"
                       >
-                        <Eye className="w-4 h-4" /> Solução
+                        <Eye className="w-4 h-4" /> {t.viewSolution}
                       </Button>
                     )}
                   </div>
@@ -332,13 +340,13 @@ export function ExercisesViewNew() {
               <div className="h-full p-4 flex flex-col">
                 <Card className="flex-1 flex flex-col p-4 bg-card/50 border-white/10">
                   <h4 className="text-sm font-bold mb-2 flex items-center gap-2 text-slate-50">
-                    <ChevronRight className="w-3 h-3" /> Seu Código
+                    <ChevronRight className="w-3 h-3" /> {t.editor}
                   </h4>
                   <textarea
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     className="flex-1 w-full p-3 font-mono text-sm bg-[#0d1220] text-slate-50 rounded border border-white/10 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Escreva seu código aqui..."
+                    placeholder="// Write your code here..."
                     spellCheck="false"
                   />
                   
@@ -361,11 +369,11 @@ export function ExercisesViewNew() {
             {/* Stack */}
             <ResizablePanel defaultSize={30} minSize={15}>
               <div className="h-full p-4 bg-[#0d1220]/50 border-b border-white/5 overflow-auto">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">📚 Call Stack</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">📚 {t.variables}</h4>
                 {executionState.stack.length > 0 ? (
                   <CallStack stack={executionState.stack} />
                 ) : (
-                  <p className="text-xs text-muted-foreground">Execute para visualizar variáveis</p>
+                  <p className="text-xs text-muted-foreground">{t.executeToSeeSteps}</p>
                 )}
               </div>
             </ResizablePanel>
@@ -375,11 +383,11 @@ export function ExercisesViewNew() {
             {/* Heap */}
             <ResizablePanel defaultSize={30} minSize={15}>
               <div className="h-full p-4 bg-[#0d1220]/50 border-b border-white/5 overflow-auto">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3">💾 Heap Memory</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3">💾 {t.memory}</h4>
                 {executionState.heap.length > 0 ? (
                   <HeapMemory heap={executionState.heap} />
                 ) : (
-                  <p className="text-xs text-muted-foreground">Execute para visualizar objetos</p>
+                  <p className="text-xs text-muted-foreground">{t.executeToSeeSteps}</p>
                 )}
               </div>
             </ResizablePanel>
@@ -389,9 +397,9 @@ export function ExercisesViewNew() {
             {/* Resultados */}
             <ResizablePanel defaultSize={40} minSize={20}>
               <div className="h-full p-4 bg-[#0d1220]/50 overflow-auto">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-yellow-400 mb-3">📊 Resultados dos Testes</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-yellow-400 mb-3">📊 {t.tests}</h4>
                 {testResults.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">Execute os testes para ver resultados</p>
+                  <p className="text-xs text-muted-foreground">{t.runToSeeResults}</p>
                 ) : (
                   <div className="space-y-2">
                     {testResults.map((result, idx) => (
@@ -417,13 +425,13 @@ export function ExercisesViewNew() {
                             {!result.passed && !result.error && (
                               <div className="text-xs mt-1 space-y-1">
                                 <p className="break-words">
-                                  <span className="text-muted-foreground">Esperado:</span>{" "}
+                                  <span className="text-muted-foreground">{t.expected}:</span>{" "}
                                   <code className="bg-green-500/20 px-1 rounded text-green-300">
                                     {JSON.stringify(result.expected)}
                                   </code>
                                 </p>
                                 <p className="break-words">
-                                  <span className="text-muted-foreground">Obtido:</span>{" "}
+                                  <span className="text-muted-foreground">{t.received}:</span>{" "}
                                   <code className="bg-red-500/20 px-1 rounded text-red-300">
                                     {JSON.stringify(result.result)}
                                   </code>
@@ -444,11 +452,11 @@ export function ExercisesViewNew() {
                         <div className="flex items-center gap-3">
                           <CheckCircle2 className="w-6 h-6 text-primary" />
                           <div className="flex-1">
-                            <p className="font-bold text-primary">🎉 Perfeito!</p>
-                            <p className="text-xs text-muted-foreground">Todos os testes passaram!</p>
+                            <p className="font-bold text-primary">🎉 {t.allTestsPassed}!</p>
+                            <p className="text-xs text-muted-foreground">{t.allTestsPassed}</p>
                           </div>
                           <Button size="sm" onClick={handleNextExercise} className="gap-2">
-                            Próximo <SkipForward className="w-3 h-3" />
+                            {t.nextExercise} <SkipForward className="w-3 h-3" />
                           </Button>
                         </div>
                       </motion.div>
@@ -508,7 +516,7 @@ export function ExercisesViewNew() {
             onClick={resetExecution}
             variant="ghost"
             size="icon"
-            title="Limpar"
+            title={t.clear}
             className="h-8 w-8"
           >
             <RotateCcw className="w-4 h-4" />
@@ -521,7 +529,7 @@ export function ExercisesViewNew() {
             className="gap-2 bg-primary hover:bg-primary/90"
           >
             <Play className="w-4 h-4" />
-            {executionState.isExecuting ? "Executando..." : "Executar Testes"}
+            {executionState.isExecuting ? t.executing : t.testCode}
           </Button>
 
           <div className="w-24 ml-2 hidden md:block">
