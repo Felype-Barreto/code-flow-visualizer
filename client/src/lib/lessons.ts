@@ -112,15 +112,15 @@ main();`,
       code: `using System;
 
 class Program {
-    static int Somar(int a, int b) {
-        int resultado = a + b;
-        return resultado;
+    static int Add(int a, int b) {
+        int result = a + b;
+        return result;
     }
 
     static void Main() {
         int x = 5;
         int y = 3;
-        int total = Somar(x, y);
+        int total = Add(x, y);
         Console.WriteLine(total);
     }
 }`,
@@ -158,27 +158,27 @@ class Program {
           line: 12,
           stack: [
              { id: "Main", name: "Main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false },
-             { id: "Somar", name: "Somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }
+             { id: "Add", name: "Add(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }
           ],
           heap: [],
-          explanation: "We call 'Somar'. A new Frame is pushed. Values are copied."
+          explanation: "We call 'Add'. A new Frame is pushed. Values are copied."
         },
         {
           stepId: 5,
           line: 5,
           stack: [
              { id: "Main", name: "Main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false },
-             { id: "Somar", name: "Somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive", changed: true }], active: true }
+             { id: "Add", name: "Add(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "result", value: 8, type: "primitive", changed: true }], active: true }
           ],
           heap: [],
-          explanation: "The calculation occurs and is saved in the local variable 'resultado'."
+          explanation: "The calculation occurs and is saved in the local variable 'result'."
         },
         {
           stepId: 6,
           line: 6,
           stack: [
              { id: "Main", name: "Main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false },
-             { id: "Somar", name: "Somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive" }], active: true, isClosing: true }
+             { id: "Add", name: "Add(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "result", value: 8, type: "primitive" }], active: true, isClosing: true }
           ],
           heap: [],
           explanation: "The method returns 8 and the Frame is popped."
