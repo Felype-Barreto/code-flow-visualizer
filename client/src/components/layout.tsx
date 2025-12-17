@@ -7,21 +7,23 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Auth from "@/components/auth";
 import { LanguageSelector } from "@/components/language-selector";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const { t } = useLanguage();
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
   const lessons = [
-    { href: "/lesson/functions", label: "Funções", icon: Code },
-    { href: "/lesson/conditionals", label: "Condicionais", icon: Code },
-    { href: "/lesson/loops-arrays", label: "Loops & Arrays", icon: Code },
-    { href: "/lesson/objects", label: "Objetos", icon: Code },
-    { href: "/lesson/classes", label: "Classes", icon: Code },
-    { href: "/lesson/recursion", label: "Recursão", icon: Code },
-    { href: "/lesson/closures", label: "Closures", icon: Code },
-    { href: "/lesson/async-await", label: "Async/Await", icon: Code },
-    { href: "/lesson/debugging", label: "Depuração", icon: Code },
+    { href: "/lesson/functions", labelKey: "lessonFunctions", icon: Code },
+    { href: "/lesson/conditionals", labelKey: "lessonConditionals", icon: Code },
+    { href: "/lesson/loops-arrays", labelKey: "lessonLoopsArrays", icon: Code },
+    { href: "/lesson/objects", labelKey: "lessonObjects", icon: Code },
+    { href: "/lesson/classes", labelKey: "lessonClasses", icon: Code },
+    { href: "/lesson/recursion", labelKey: "lessonRecursion", icon: Code },
+    { href: "/lesson/closures", labelKey: "lessonClosures", icon: Code },
+    { href: "/lesson/async-await", labelKey: "lessonAsyncAwait", icon: Code },
+    { href: "/lesson/debugging", labelKey: "lessonDebugging", icon: Code },
   ];
 
   const isLessonActive = lessons.some(lesson => location.includes(lesson.href));
@@ -45,7 +47,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
             <NavLink href="/" active={location === "/"}>
-              Home
+              {t.home}
             </NavLink>
 
             <DropdownMenu>
@@ -55,7 +57,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   isLessonActive ? "text-primary bg-primary/10" : "text-muted-foreground"
                 )}>
                   <GraduationCap className="w-4 h-4" />
-                  Aprender
+                  {t.learn}
                   <ChevronDown className="w-3 h-3" />
                 </button>
               </DropdownMenuTrigger>
@@ -68,7 +70,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         location.includes(lesson.href) ? "text-primary" : ""
                       )}>
                         <lesson.icon className="w-4 h-4" />
-                        {lesson.label}
+                        {t[lesson.labelKey as keyof typeof t]}
                       </div>
                     </Link>
                   </DropdownMenuItem>
@@ -78,7 +80,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             <NavLink href="/exercises" active={location.includes("/exercises")}>
               <Dumbbell className="w-4 h-4" />
-              Exercícios
+              {t.exercises}
             </NavLink>
 
             <NavLink href="/pro" active={location.includes("/pro")}>
@@ -112,12 +114,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors",
                       location === "/" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                     )}>
-                      Home
+                      {t.home}
                     </span>
                   </Link>
 
                   <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Aprender
+                    {t.learn}
                   </div>
                   {lessons.map((lesson) => (
                     <Link key={lesson.href} href={lesson.href} onClick={() => setIsOpen(false)}>
@@ -126,7 +128,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         location.includes(lesson.href) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                       )}>
                         <lesson.icon className="w-4 h-4" />
-                        {lesson.label}
+                        {t[lesson.labelKey as keyof typeof t]}
                       </span>
                     </Link>
                   ))}
@@ -137,7 +139,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       location.includes("/exercises") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                     )}>
                       <Dumbbell className="w-4 h-4" />
-                      Exercícios
+                      {t.exercises}
                     </span>
                   </Link>
 

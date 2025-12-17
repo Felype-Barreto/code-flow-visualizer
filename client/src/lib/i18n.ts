@@ -5,6 +5,20 @@ export interface Translations {
   challenges: string;
   jsOrPython: string;
   progress: string;
+  home: string;
+  learn: string;
+  pro: string;
+  
+  // Lesson names
+  lessonFunctions: string;
+  lessonConditionals: string;
+  lessonLoopsArrays: string;
+  lessonObjects: string;
+  lessonClasses: string;
+  lessonRecursion: string;
+  lessonClosures: string;
+  lessonAsyncAwait: string;
+  lessonDebugging: string;
   
   // Exercise selection
   exercises: string;
@@ -104,6 +118,20 @@ export const translations: Record<Language, Translations> = {
     challenges: 'Challenges',
     jsOrPython: 'JavaScript or Python',
     progress: 'Progress',
+    home: 'Home',
+    learn: 'Learn',
+    pro: 'Pro',
+    
+    // Lesson names
+    lessonFunctions: 'Functions',
+    lessonConditionals: 'Conditionals',
+    lessonLoopsArrays: 'Loops & Arrays',
+    lessonObjects: 'Objects',
+    lessonClasses: 'Classes',
+    lessonRecursion: 'Recursion',
+    lessonClosures: 'Closures',
+    lessonAsyncAwait: 'Async/Await',
+    lessonDebugging: 'Debugging',
     
     // Exercise selection
     exercises: 'Exercises',
@@ -202,6 +230,20 @@ export const translations: Record<Language, Translations> = {
     challenges: 'Desafios',
     jsOrPython: 'JavaScript ou Python',
     progress: 'Progresso',
+    home: 'Início',
+    learn: 'Aprender',
+    pro: 'Pro',
+    
+    // Lesson names
+    lessonFunctions: 'Funções',
+    lessonConditionals: 'Condicionais',
+    lessonLoopsArrays: 'Loops & Arrays',
+    lessonObjects: 'Objetos',
+    lessonClasses: 'Classes',
+    lessonRecursion: 'Recursão',
+    lessonClosures: 'Closures',
+    lessonAsyncAwait: 'Async/Await',
+    lessonDebugging: 'Depuração',
     
     // Exercise selection
     exercises: 'Exercícios',
@@ -300,6 +342,20 @@ export const translations: Record<Language, Translations> = {
     challenges: 'Desafíos',
     jsOrPython: 'JavaScript o Python',
     progress: 'Progreso',
+    home: 'Inicio',
+    learn: 'Aprender',
+    pro: 'Pro',
+    
+    // Lesson names
+    lessonFunctions: 'Funciones',
+    lessonConditionals: 'Condicionales',
+    lessonLoopsArrays: 'Bucles y Arrays',
+    lessonObjects: 'Objetos',
+    lessonClasses: 'Clases',
+    lessonRecursion: 'Recursión',
+    lessonClosures: 'Closures',
+    lessonAsyncAwait: 'Async/Await',
+    lessonDebugging: 'Depuración',
     
     // Exercise selection
     exercises: 'Ejercicios',
@@ -398,6 +454,20 @@ export const translations: Record<Language, Translations> = {
     challenges: '挑战',
     jsOrPython: 'JavaScript 或 Python',
     progress: '进度',
+    home: '首页',
+    learn: '学习',
+    pro: 'Pro',
+    
+    // Lesson names
+    lessonFunctions: '函数',
+    lessonConditionals: '条件语句',
+    lessonLoopsArrays: '循环与数组',
+    lessonObjects: '对象',
+    lessonClasses: '类',
+    lessonRecursion: '递归',
+    lessonClosures: '闭包',
+    lessonAsyncAwait: '异步/等待',
+    lessonDebugging: '调试',
     
     // Exercise selection
     exercises: '练习',
@@ -494,6 +564,20 @@ export const translations: Record<Language, Translations> = {
     challenges: 'चुनौतियाँ',
     jsOrPython: 'JavaScript या Python',
     progress: 'प्रगति',
+    home: 'मुख्य',
+    learn: 'सीखें',
+    pro: 'Pro',
+    
+    // Lesson names
+    lessonFunctions: 'फंक्शन',
+    lessonConditionals: 'शर्तें',
+    lessonLoopsArrays: 'लूप और ऐरे',
+    lessonObjects: 'ऑब्जेक्ट',
+    lessonClasses: 'क्लास',
+    lessonRecursion: 'रिकर्शन',
+    lessonClosures: 'क्लोजर',
+    lessonAsyncAwait: 'एसिंक/प्रतीक्षा',
+    lessonDebugging: 'डीबगिंग',
     
     // Exercise selection
     exercises: 'अभ्यास',
