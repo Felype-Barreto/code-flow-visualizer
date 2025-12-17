@@ -255,86 +255,102 @@ export function ExercisesViewNew() {
       <ResizablePanelGroup direction="horizontal">
         {/* Painel Esquerdo: Descrição + Editor */}
         <ResizablePanel defaultSize={50} minSize={35}>
-          <div className="h-full p-4 flex flex-col gap-4 overflow-y-auto">
+          <ResizablePanelGroup direction="vertical">
             {/* Descrição do Exercício */}
-            <Card className="p-4 bg-card/50 border-white/10 flex-shrink-0">
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="text-lg font-bold">{selectedExercise.title}</h3>
-                <span className="text-xs px-2 py-1 bg-primary/20 text-primary rounded-full">
-                  {selectedExercise.difficulty}
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">{selectedExercise.description}</p>
+            <ResizablePanel defaultSize={30} minSize={20}>
+              <div className="h-full p-4 overflow-y-auto">
+                <Card className="p-4 bg-card/50 border-white/10 h-full">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-lg font-bold text-slate-50">{selectedExercise.title}</h3>
+                    <span className="text-xs px-2 py-1 bg-primary/20 text-primary rounded-full">
+                      {selectedExercise.difficulty}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-300 mb-3">{selectedExercise.description}</p>
               
-              <div className="flex gap-2">
-                {currentVariant?.hint && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setShowHint(!showHint)}
-                    className="gap-2"
-                  >
-                    <Lightbulb className="w-4 h-4" /> Dica
-                  </Button>
-                )}
-                {currentVariant?.solution && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setShowSolution(!showSolution)}
-                    className="gap-2"
-                  >
-                    <Eye className="w-4 h-4" /> Solução
-                  </Button>
-                )}
-              </div>
+                  <div className="flex gap-2">
+                    {currentVariant?.hint && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          setShowHint(!showHint);
+                          if (!showHint) setShowSolution(false);
+                        }}
+                        className="gap-2"
+                      >
+                        <Lightbulb className="w-4 h-4" /> Dica
+                      </Button>
+                    )}
+                    {currentVariant?.solution && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          setShowSolution(!showSolution);
+                          if (!showSolution) setShowHint(false);
+                        }}
+                        className="gap-2"
+                      >
+                        <Eye className="w-4 h-4" /> Solução
+                      </Button>
+                    )}
+                  </div>
 
-              <AnimatePresence>
-                {showHint && currentVariant?.hint && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mt-3 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded"
-                  >
-                    <p className="text-sm text-yellow-200">💡 {currentVariant.hint}</p>
-                  </motion.div>
-                )}
-                {showSolution && currentVariant?.solution && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mt-3 p-3 bg-green-500/10 border border-green-500/30 rounded"
-                  >
-                    <pre className="text-xs overflow-x-auto">
-                      <code className="text-green-200">{currentVariant.solution}</code>
-                    </pre>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </Card>
+                  <AnimatePresence>
+                    {showHint && currentVariant?.hint && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-3 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded"
+                      >
+                        <p className="text-sm text-yellow-200">💡 {currentVariant.hint}</p>
+                      </motion.div>
+                    )}
+                    {showSolution && currentVariant?.solution && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-3 p-3 bg-green-500/10 border border-green-500/30 rounded"
+                      >
+                        <pre className="text-xs overflow-x-auto">
+                          <code className="text-green-200">{currentVariant.solution}</code>
+                        </pre>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </Card>
+              </div>
+            </ResizablePanel>
+
+            <ResizableHandle withHandle className="bg-white/10 hover:bg-primary/50 transition-colors" />
 
             {/* Editor de Código */}
-            <Card className="flex-1 flex flex-col p-4 min-h-0">
-              <h4 className="text-sm font-bold mb-2 flex items-center gap-2">
-                <ChevronRight className="w-3 h-3" /> Seu Código
-              </h4>
-              <textarea
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className="flex-1 w-full p-3 font-mono text-sm bg-slate-900 text-slate-50 rounded border border-white/20 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Escreva seu código aqui..."
-                spellCheck="false"
-              />
-              
-              {executionState.errorMessage && (
-                <div className="mt-2 p-2 bg-red-500/10 border border-red-500/30 rounded">
-                  <p className="text-xs text-red-300">❌ {executionState.errorMessage}</p>
-                </div>
-              )}
-            </Card>
-          </div>
+            <ResizablePanel defaultSize={70} minSize={40}>
+              <div className="h-full p-4 flex flex-col">
+                <Card className="flex-1 flex flex-col p-4 bg-card/50 border-white/10">
+                  <h4 className="text-sm font-bold mb-2 flex items-center gap-2 text-slate-50">
+                    <ChevronRight className="w-3 h-3" /> Seu Código
+                  </h4>
+                  <textarea
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    className="flex-1 w-full p-3 font-mono text-sm bg-[#0d1220] text-slate-50 rounded border border-white/10 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Escreva seu código aqui..."
+                    spellCheck="false"
+                  />
+                  
+                  {executionState.errorMessage && (
+                    <div className="mt-2 p-2 bg-red-500/10 border border-red-500/30 rounded">
+                      <p className="text-xs text-red-300">❌ {executionState.errorMessage}</p>
+                    </div>
+                  )}
+                </Card>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </ResizablePanel>
 
         <ResizableHandle withHandle className="bg-white/5" />
