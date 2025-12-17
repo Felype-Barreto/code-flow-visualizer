@@ -10,9 +10,9 @@ import { Lesson } from "./types";
 // ==========================================
 const functionLesson: Lesson = {
   id: "functions",
-  title: "Como funcionam as Funções?",
-  description: "Entenda o conceito de 'Escopo' e 'Call Stack' (Pilha de Chamadas). Veja como variáveis são criadas e destruídas.",
-  difficulty: "Iniciante",
+  title: "How do Functions Work?",
+  description: "Understand the concept of 'Scope' and 'Call Stack'. See how variables are created and destroyed.",
+  difficulty: "Beginner",
   variants: {
     javascript: {
       code: `function somar(a, b) {
@@ -34,21 +34,21 @@ main();`,
           line: 11,
           stack: [],
           heap: [],
-          explanation: "O programa começa. O interpretador lê as definições das funções, mas nada é executado até chamarmos alguém."
+          explanation: "The program starts. The interpreter reads function definitions, but nothing is executed until we call someone."
         },
         {
           stepId: 1,
           line: 11,
           stack: [{ id: "main", name: "main()", variables: [], active: true }],
           heap: [],
-          explanation: "A função 'main()' é chamada. Um novo 'Stack Frame' (quadro) é criado na pilha de memória para ela."
+          explanation: "The function 'main()' is called. A new 'Stack Frame' is created for it."
         },
         {
           stepId: 2,
           line: 7,
           stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive", changed: true }], active: true }],
           heap: [],
-          explanation: "A variável 'x' é declarada e inicializada com o valor 5 dentro do escopo de 'main'."
+          explanation: "Variable 'x' is declared and initialized with value 5 within 'main' scope."
         },
         {
           stepId: 3,
@@ -60,7 +60,7 @@ main();`,
             active: true 
           }],
           heap: [],
-          explanation: "A variável 'y' é declarada e inicializada com o valor 3."
+          explanation: "Variable 'y' is declared and initialized with value 3."
         },
         {
           stepId: 4,
@@ -70,7 +70,7 @@ main();`,
             { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }
           ],
           heap: [],
-          explanation: "A função 'somar' é chamada. Um NOVO quadro é colocado NO TOPO da pilha. Os valores de x e y são copiados."
+          explanation: "Function 'somar' is called. A NEW frame is pushed to the stack. Values are copied."
         },
         {
           stepId: 5,
@@ -80,7 +80,7 @@ main();`,
             { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive", changed: true }], active: true }
           ],
           heap: [],
-          explanation: "O cálculo é feito e armazenado na variável local 'resultado'."
+          explanation: "The calculation is done and stored in the local variable 'resultado'."
         },
         {
           stepId: 6,
@@ -90,21 +90,21 @@ main();`,
             { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive" }], active: true, isClosing: true }
           ],
           heap: [],
-          explanation: "A função retorna 8. O quadro da função 'somar' será removido."
+          explanation: "The function returns 8. The 'somar' frame will be removed."
         },
         {
           stepId: 7,
           line: 9,
           stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 8, type: "primitive", changed: true }], active: true }],
           heap: [],
-          explanation: "Voltamos para 'main'. O valor retornado (8) é atribuído à variável 'total'."
+          explanation: "We return to 'main'. The returned value (8) is assigned to 'total'."
         },
         {
           stepId: 8,
           line: 10,
           stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 8, type: "primitive" }], active: true }],
           heap: [],
-          explanation: "O valor é exibido. Fim da execução."
+          explanation: "The value is displayed. Execution ends."
         }
       ]
     },
@@ -130,28 +130,28 @@ class Program {
           line: 9,
           stack: [],
           heap: [],
-          explanation: "Em C#, a execução começa pelo método estático 'Main'. O CLR carrega o programa."
+          explanation: "In C#, execution starts with the static method 'Main'. The CLR loads the program."
         },
         {
           stepId: 1,
           line: 9,
           stack: [{ id: "Main", name: "Main()", variables: [], active: true }],
           heap: [],
-          explanation: "O método 'Main' é alocado na Stack."
+          explanation: "The 'Main' method is allocated on the Stack."
         },
         {
           stepId: 2,
           line: 10,
           stack: [{ id: "Main", name: "Main()", variables: [{ name: "x", value: 5, type: "primitive", changed: true }], active: true }],
           heap: [],
-          explanation: "A variável inteira 'x' é alocada na Stack (Value Type)."
+          explanation: "Integer variable 'x' is allocated on the Stack (Value Type)."
         },
         {
           stepId: 3,
           line: 11,
           stack: [{ id: "Main", name: "Main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive", changed: true }], active: true }],
           heap: [],
-          explanation: "A variável 'y' é alocada."
+          explanation: "Variable 'y' is allocated."
         },
         {
           stepId: 4,
@@ -161,7 +161,7 @@ class Program {
              { id: "Somar", name: "Somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }
           ],
           heap: [],
-          explanation: "Chamamos 'Somar'. Um novo Frame é empilhado. Os valores são copiados."
+          explanation: "We call 'Somar'. A new Frame is pushed. Values are copied."
         },
         {
           stepId: 5,
@@ -171,7 +171,7 @@ class Program {
              { id: "Somar", name: "Somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive", changed: true }], active: true }
           ],
           heap: [],
-          explanation: "O cálculo ocorre e é salvo na variável local 'resultado'."
+          explanation: "The calculation occurs and is saved in the local variable 'resultado'."
         },
         {
           stepId: 6,
@@ -181,21 +181,21 @@ class Program {
              { id: "Somar", name: "Somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive" }], active: true, isClosing: true }
           ],
           heap: [],
-          explanation: "O método retorna 8 e o Frame é desempilhado."
+          explanation: "The method returns 8 and the Frame is popped."
         },
         {
           stepId: 7,
           line: 12,
           stack: [{ id: "Main", name: "Main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 8, type: "primitive", changed: true }], active: true }],
           heap: [],
-          explanation: "De volta ao Main, 'total' recebe 8."
+          explanation: "Back to Main, 'total' receives 8."
         },
          {
           stepId: 8,
           line: 13,
           stack: [{ id: "Main", name: "Main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 8, type: "primitive" }], active: true }],
           heap: [],
-          explanation: "Imprime no console. Fim."
+          explanation: "Print to console. Done."
         }
       ]
     },
@@ -219,28 +219,28 @@ class Program {
           line: 7,
           stack: [],
           heap: [],
-          explanation: "A JVM inicia a execução pelo método 'main'."
+          explanation: "The JVM starts execution with the 'main' method."
         },
         {
           stepId: 1,
           line: 7,
           stack: [{ id: "main", name: "main()", variables: [], active: true }],
           heap: [],
-          explanation: "O Frame do método main é criado na Stack."
+          explanation: "The main method's Stack Frame is created."
         },
         {
            stepId: 2,
            line: 8,
            stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive", changed: true }], active: true }],
            heap: [],
-           explanation: "Variável primitiva 'x' (int) é criada na Stack."
+           explanation: "Primitive variable 'x' (int) is created on the Stack."
         },
         {
            stepId: 3,
            line: 9,
            stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive", changed: true }], active: true }],
            heap: [],
-           explanation: "Variável primitiva 'y' é criada."
+           explanation: "Primitive variable 'y' is created."
         },
         {
            stepId: 4,
@@ -250,7 +250,7 @@ class Program {
              { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }
            ],
            heap: [],
-           explanation: "Método 'somar' é chamado. Novo quadro na pilha."
+           explanation: "Method 'somar' is called. New frame on the stack."
         },
         {
            stepId: 5,
@@ -260,7 +260,7 @@ class Program {
              { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive", changed: true }], active: true }
            ],
            heap: [],
-           explanation: "Cálculo realizado e armazenado em 'resultado'."
+           explanation: "Calculation performed and stored in 'resultado'."
         },
         {
            stepId: 6,
@@ -270,21 +270,21 @@ class Program {
              { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive" }], active: true, isClosing: true }
            ],
            heap: [],
-           explanation: "Retorno do método 'somar'. O quadro será destruído."
+           explanation: "The method returns 8 and the Frame is popped."
         },
         {
            stepId: 7,
            line: 10,
            stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 8, type: "primitive", changed: true }], active: true }],
            heap: [],
-           explanation: "De volta ao main, valor atribuído a 'total'."
+           explanation: "Back in main, value assigned to 'total'."
         },
         {
            stepId: 8,
            line: 11,
            stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 8, type: "primitive" }], active: true }],
            heap: [],
-           explanation: "Impressão no console."
+           explanation: "Print to console."
         }
       ]
     },
@@ -304,15 +304,15 @@ int main() {
     return 0;
 }`,
       steps: [
-        { stepId: 0, line: 8, stack: [], heap: [], explanation: "O ponto de entrada em C é a função 'main'." },
-        { stepId: 1, line: 8, stack: [{ id: "main", name: "main()", variables: [], active: true }], heap: [], explanation: "O Stack Frame para main é alocado." },
-        { stepId: 2, line: 9, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Inteiro 'x' alocado na pilha." },
-        { stepId: 3, line: 10, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Inteiro 'y' alocado na pilha." },
-        { stepId: 4, line: 11, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false }, { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Chamada de função 'somar'. Argumentos passados por cópia." },
-        { stepId: 5, line: 4, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false }, { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Variável local 'resultado' alocada no frame de 'somar'." },
-        { stepId: 6, line: 5, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false }, { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive" }], active: true, isClosing: true }], heap: [], explanation: "Retorno da função." },
-        { stepId: 7, line: 11, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 8, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Valor retornado atribuído a 'total' em main." },
-        { stepId: 8, line: 12, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 8, type: "primitive" }], active: true }], heap: [], explanation: "printf exibe o resultado." }
+        { stepId: 0, line: 8, stack: [], heap: [], explanation: "The entry point in C is the 'main' function." },
+        { stepId: 1, line: 8, stack: [{ id: "main", name: "main()", variables: [], active: true }], heap: [], explanation: "The Stack Frame for main is allocated." },
+        { stepId: 2, line: 9, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Integer 'x' allocated on the stack." },
+        { stepId: 3, line: 10, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Integer 'y' allocated on the stack." },
+        { stepId: 4, line: 11, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false }, { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive", changed: true }, { name: "b", value: 3, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Function 'somar' is called. Arguments passed by copy." },
+        { stepId: 5, line: 4, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false }, { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Local variable 'resultado' allocated in the 'somar' frame." },
+        { stepId: 6, line: 5, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 0, type: "primitive" }], active: false }, { id: "somar", name: "somar(5, 3)", variables: [{ name: "a", value: 5, type: "primitive" }, { name: "b", value: 3, type: "primitive" }, { name: "resultado", value: 8, type: "primitive" }], active: true, isClosing: true }], heap: [], explanation: "Function return." },
+        { stepId: 7, line: 11, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 8, type: "primitive", changed: true }], active: true }], heap: [], explanation: "Returned value assigned to 'total' in main." },
+        { stepId: 8, line: 12, stack: [{ id: "main", name: "main()", variables: [{ name: "x", value: 5, type: "primitive" }, { name: "y", value: 3, type: "primitive" }, { name: "total", value: 8, type: "primitive" }], active: true }], heap: [], explanation: "printf displays the result." }
       ]
     }
   }
@@ -323,9 +323,9 @@ int main() {
 // ==========================================
 const objectLesson: Lesson = {
   id: "objects",
-  title: "Referências e Objetos",
-  description: "Descubra a diferença entre a 'Pilha' (Stack) e o 'Heap' (Memória Livre). Variáveis de objeto apenas APONTAM para o objeto real.",
-  difficulty: "Intermediário",
+  title: "References and Objects",
+  description: "Discover the difference between the 'Stack' and the 'Heap' (Memory). Object variables only POINT to the real object.",
+  difficulty: "Intermediate",
   variants: {
     javascript: {
       code: `function criarUsuario(nome) {
@@ -340,14 +340,14 @@ const u1 = criarUsuario("Ana");
 const u2 = u1;
 u2.admin = true;`,
       steps: [
-        { stepId: 0, line: 1, stack: [], heap: [], explanation: "Início do programa. Objetos vivem na Heap." },
-        { stepId: 1, line: 8, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: true }], heap: [], explanation: "Preparando chamada de criarUsuario." },
-        { stepId: 2, line: 2, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: false }, { id: "criarUsuario", name: "criarUsuario('Ana')", variables: [{ name: "nome", value: "Ana", type: "primitive" }], active: true }], heap: [], explanation: "Entramos na função." },
-        { stepId: 3, line: 5, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: false }, { id: "criarUsuario", name: "criarUsuario('Ana')", variables: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "usuario", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }], highlight: true }], explanation: "Objeto criado na HEAP. Variável na Stack guarda o ENDEREÇO (Referência)." },
-        { stepId: 4, line: 6, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: false }, { id: "criarUsuario", name: "criarUsuario('Ana')", variables: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "usuario", value: "REF:obj1", type: "reference", refId: "obj1" }], active: true, isClosing: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }] }], explanation: "Retorna a REFERÊNCIA." },
-        { stepId: 5, line: 8, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }] }], explanation: "'u1' aponta para o objeto na Heap." },
-        { stepId: 6, line: 9, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }, { name: "u2", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }] }], explanation: "'u2 = u1' copia o endereço. Ambos apontam para o MESMO objeto." },
-        { stepId: 7, line: 10, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }, { name: "u2", value: "REF:obj1", type: "reference", refId: "obj1" }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: true, type: "primitive", changed: true }], highlight: true }], explanation: "Alterar 'u2' afeta o objeto real, então 'u1' também vê a mudança." }
+        { stepId: 0, line: 1, stack: [], heap: [], explanation: "Program starts. Objects live in the Heap." },
+        { stepId: 1, line: 8, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: true }], heap: [], explanation: "Preparing call to createUser." },
+        { stepId: 2, line: 2, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: false }, { id: "criarUsuario", name: "criarUsuario('Ana')", variables: [{ name: "nome", value: "Ana", type: "primitive" }], active: true }], heap: [], explanation: "We enter the function." },
+        { stepId: 3, line: 5, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: false }, { id: "criarUsuario", name: "criarUsuario('Ana')", variables: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "usuario", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }], highlight: true }], explanation: "Object created in HEAP. Variable on Stack stores the ADDRESS (Reference)." },
+        { stepId: 4, line: 6, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: undefined, type: "primitive" }], active: false }, { id: "criarUsuario", name: "criarUsuario('Ana')", variables: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "usuario", value: "REF:obj1", type: "reference", refId: "obj1" }], active: true, isClosing: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }] }], explanation: "Returns the REFERENCE." },
+        { stepId: 5, line: 8, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }] }], explanation: "'u1' points to the object in the Heap." },
+        { stepId: 6, line: 9, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }, { name: "u2", value: "REF:obj1", type: "reference", refId: "obj1", changed: true }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: false, type: "primitive" }] }], explanation: "'u2 = u1' copies the address. Both point to the SAME object." },
+        { stepId: 7, line: 10, stack: [{ id: "global", name: "Global", variables: [{ name: "u1", value: "REF:obj1", type: "reference", refId: "obj1" }, { name: "u2", value: "REF:obj1", type: "reference", refId: "obj1" }], active: true }], heap: [{ id: "obj1", className: "Object", properties: [{ name: "nome", value: "Ana", type: "primitive" }, { name: "admin", value: true, type: "primitive", changed: true }], highlight: true }], explanation: "Modifying 'u2' affects the real object, so 'u1' also sees the change." }
       ]
     },
     csharp: {
@@ -381,9 +381,9 @@ class Program {
 // ==========================================
 const recursionLesson: Lesson = {
     id: "recursion",
-    title: "Recursão (Call Stack)",
-    description: "Visualize como a pilha de chamadas cresce quando uma função chama a si mesma.",
-    difficulty: "Intermediário",
+    title: "Recursion (Call Stack)",
+    description: "Visualize how the call stack grows when a function calls itself.",
+    difficulty: "Intermediate",
     variants: {
         javascript: {
             code: `function fatorial(n) {
@@ -413,9 +413,9 @@ const resultado = fatorial(3);`,
 // ==========================================
 const classLesson: Lesson = {
   id: "classes",
-  title: "Classes e Instâncias",
-  description: "Aprenda como a palavra-chave 'this' funciona e como classes geram objetos.",
-  difficulty: "Avançado",
+  title: "Classes and Instances",
+  description: "Learn how the 'this' keyword works and how classes create objects.",
+  difficulty: "Advanced",
   variants: {
       javascript: {
           code: `class Carro {
@@ -450,8 +450,8 @@ c1.acelerar();`,
 const loopsArraysLesson: Lesson = {
   id: "loops-arrays",
   title: "Loops & Arrays",
-  description: "Entenda como arrays são armazenados e como loops os percorrem índice por índice.",
-  difficulty: "Iniciante",
+  description: "Understand how arrays are stored and how loops traverse them index by index.",
+  difficulty: "Beginner",
   variants: {
     javascript: {
       code: `const numeros = [10, 20, 30];
@@ -489,9 +489,9 @@ for (let i = 0; i < numeros.length; i++) {
 // ==========================================
 const conditionalsLesson: Lesson = {
   id: "conditionals",
-  title: "Condicionais (If/Else)",
-  description: "Veja como o computador toma decisões e escolhe qual caminho seguir no código.",
-  difficulty: "Iniciante",
+  title: "Conditionals (If/Else)",
+  description: "See how the computer makes decisions and chooses which path to follow in the code.",
+  difficulty: "Beginner",
   variants: {
     javascript: {
       code: `function verificarIdade(idade) {
@@ -526,9 +526,9 @@ const resultado = verificarIdade(15);`,
 // ==========================================
 const closuresLesson: Lesson = {
   id: "closures",
-  title: "Closures (Funções e Escopo)",
-  description: "Entenda como funções lembram variáveis do escopo onde foram criadas.",
-  difficulty: "Intermediário",
+  title: "Closures (Functions and Scope)",
+  description: "Understand how functions remember variables from the scope where they were created.",
+  difficulty: "Intermediate",
   variants: {
     javascript: {
       code: `function criarContador() {
@@ -554,9 +554,9 @@ contador();`,
 
 const asyncLesson: Lesson = {
   id: "async-await",
-  title: "Assíncrono: Callbacks, Promises e async/await",
-  description: "Mostra a diferença entre execução síncrona e assíncrona e como o event loop funciona.",
-  difficulty: "Intermediário",
+  title: "Asynchronous: Callbacks, Promises and async/await",
+  description: "Shows the difference between synchronous and asynchronous execution and how the event loop works.",
+  difficulty: "Intermediate",
   variants: {
     javascript: {
       code: `console.log('A');
@@ -576,9 +576,9 @@ console.log('D');`,
 
 const debuggingLesson: Lesson = {
   id: "debugging",
-  title: "Depuração e Console",
-  description: "Como usar logs e breakpoints para entender passo a passo o que acontece no código.",
-  difficulty: "Iniciante",
+  title: "Debugging and Console",
+  description: "How to use logs and breakpoints to understand step by step what happens in the code.",
+  difficulty: "Beginner",
   variants: {
     javascript: {
       code: `function busca(arr, target) {

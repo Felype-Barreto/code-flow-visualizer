@@ -501,7 +501,7 @@ export function ExercisesViewNew() {
           {/* Seletor de Linguagem */}
           <Select value={selectedLanguage} onValueChange={(v) => setSelectedLanguage(v as Language)}>
             <SelectTrigger className="w-[120px] h-8 bg-white/5 border-white/10 text-xs">
-              <SelectValue placeholder="Linguagem" />
+              <SelectValue placeholder="Language" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="javascript">JavaScript</SelectItem>

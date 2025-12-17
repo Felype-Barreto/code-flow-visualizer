@@ -16,8 +16,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import Playground from "@/components/playground";
 import Skeleton from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function LessonPage() {
+  const { t } = useLanguage();
   const [match, params] = useRoute("/lesson/:id");
   const lessonId = params?.id || "functions";
   const lesson = lessons[lessonId];
@@ -118,10 +120,10 @@ export default function LessonPage() {
                 <Button 
                   size="lg" 
                   onClick={() => setIsPlaying(true)}
-                  aria-label="Começar reprodução"
+                  aria-label="Start playback"
                   className="gap-2 text-lg font-bold shadow-xl scale-110 hover:scale-125 transition-transform bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  <Play className="w-6 h-6 fill-current" /> Começar
+                  <Play className="w-6 h-6 fill-current" /> Start
                 </Button>
               </div>
             )}
@@ -130,7 +132,7 @@ export default function LessonPage() {
           <div className="p-2 shrink-0">
              <div className="bg-card/50 border border-white/10 rounded-lg p-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-2">
-                <ChevronRight className="w-3 h-3" /> Explicação
+                <ChevronRight className="w-3 h-3" /> Explanation
               </h3>
               <AnimatePresence mode="wait">
                 <motion.p 
@@ -170,17 +172,17 @@ export default function LessonPage() {
                 <Button 
                   size="lg" 
                   onClick={() => setIsPlaying(true)}
-                  aria-label="Começar reprodução"
+                  aria-label="Start playback"
                   className="gap-2 text-lg font-bold shadow-xl scale-110 hover:scale-125 transition-transform bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  <Play className="w-6 h-6 fill-current" /> Começar
+                  <Play className="w-6 h-6 fill-current" /> Start
                 </Button>
               </div>
             )}
             
             <div className="bg-card/50 border border-white/10 rounded-lg p-4 flex-1 overflow-auto min-h-[100px]">
               <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-2 flex items-center gap-2">
-                <ChevronRight className="w-3 h-3" /> Explicação
+                <ChevronRight className="w-3 h-3" /> Explanation
               </h3>
               <AnimatePresence mode="wait">
                 <motion.div 
@@ -233,7 +235,7 @@ export default function LessonPage() {
              
              <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
                <SelectTrigger className="w-[120px] h-8 bg-white/5 border-white/10 text-xs">
-                 <SelectValue placeholder="Linguagem" />
+                 <SelectValue placeholder="Language" />
                </SelectTrigger>
                <SelectContent>
                  <SelectItem value="javascript">JavaScript</SelectItem>
@@ -244,7 +246,7 @@ export default function LessonPage() {
              </Select>
 
              <span className="text-xs px-2 py-1 bg-white/10 rounded-full text-muted-foreground whitespace-nowrap">
-               Passo {currentStepIndex + 1}/{totalSteps}
+               Step {currentStepIndex + 1}/{totalSteps}
              </span>
 
              <div className="ml-auto md:ml-0">
@@ -254,7 +256,7 @@ export default function LessonPage() {
 
           <div className="flex items-center gap-2 w-full md:w-auto justify-center pb-2 md:pb-0">
             <div className="flex items-center gap-2 mr-2">
-              <button onClick={() => setView('lesson')} className={`px-3 py-1 rounded ${view === 'lesson' ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-muted-foreground'}`}>Lição</button>
+              <button onClick={() => setView('lesson')} className={`px-3 py-1 rounded ${view === 'lesson' ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-muted-foreground'}`}>Lesson</button>
               <button onClick={() => setView('playground')} className={`px-3 py-1 rounded ${view === 'playground' ? 'bg-primary text-primary-foreground' : 'bg-white/5 text-muted-foreground'}`}>Playground</button>
             </div>
             <Button variant="ghost" size="icon" onClick={handleReset} title="Reiniciar" className="h-8 w-8">
