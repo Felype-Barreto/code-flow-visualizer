@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { users, passwordResets } from "../../shared/schema";
-import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
 });
+
+const usersTable = "users";
+const passwordResetsTable = "password_resets";
 
 export default async function (req: any, res: any) {
   res.setHeader("Content-Type", "application/json");
@@ -44,10 +44,12 @@ export default async function (req: any, res: any) {
     const client = postgres(process.env.DATABASE_URL, {
       ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
     });
-    const db = drizzle(client, { schema: { users, passwordResets } });
 
     // Check if user exists
-    const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    const user = await client.query(
+      `SELECT id FROM ${usersTable} WHERE email = $1 LIMIT 1`,
+      [email]
+    );
     
     if (user.length === 0) {
       // Don't reveal if email exists (security)
@@ -63,18 +65,12 @@ export default async function (req: any, res: any) {
     const resetCode = Math.random().toString().slice(2, 8);
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
 
-    await db.insert(passwordResets).values({
-      email,
-      code: resetCode,
-      expiresAt,
-    }).onConflictDoUpdate({
-      target: passwordResets.email,
-      set: {
-        code: resetCode,
-        expiresAt,
-        attempts: 0,
-      }
-    });
+    await client.query(
+      `INSERT INTO ${passwordResetsTable} (email, code, expires_at, attempts) 
+       VALUES ($1, $2, $3, 0)
+       ON CONFLICT (email) DO UPDATE SET code = $2, expires_at = $3, attempts = 0`,
+      [email, resetCode, expiresAt]
+    );
 
     // Send reset email via Resend (fire-and-forget)
     if (process.env.RESEND_API_KEY) {
@@ -98,6 +94,11 @@ export default async function (req: any, res: any) {
   } catch (err: any) {
     console.error("[ERROR] /api/auth/forgot-password exception:", err);
     res.status(500).end(JSON.stringify({
+      ok: false,
+      error: err?.message || String(err)
+    }));
+  }
+}
       ok: false,
       error: err?.message || String(err)
     }));

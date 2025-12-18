@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { users, emailVerifications } from "../../shared/schema";
-import { eq } from "drizzle-orm";
 
 const verifyCodeSchema = z.object({
   email: z.string().email(),
   code: z.string().min(6).max(6),
 });
+
+const usersTable = "users";
+const emailVerificationsTable = "email_verifications";
 
 export default async function (req: any, res: any) {
   res.setHeader("Content-Type", "application/json");
@@ -44,13 +44,12 @@ export default async function (req: any, res: any) {
     const client = postgres(process.env.DATABASE_URL, {
       ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
     });
-    const db = drizzle(client, { schema: { users, emailVerifications } });
 
     // Find verification record
-    const verification = await db.select()
-      .from(emailVerifications)
-      .where(eq(emailVerifications.email, email))
-      .limit(1);
+    const verification = await client.query(
+      `SELECT * FROM ${emailVerificationsTable} WHERE email = $1 LIMIT 1`,
+      [email]
+    );
 
     if (verification.length === 0) {
       res.status(404).end(JSON.stringify({
@@ -64,7 +63,7 @@ export default async function (req: any, res: any) {
     const record = verification[0];
 
     // Check if expired
-    if (new Date() > record.expiresAt) {
+    if (new Date() > new Date(record.expires_at)) {
       res.status(410).end(JSON.stringify({
         ok: false,
         message: "Verification code expired"
@@ -86,9 +85,10 @@ export default async function (req: any, res: any) {
     // Check code
     if (record.code !== code) {
       // Increment attempts
-      await db.update(emailVerifications)
-        .set({ attempts: record.attempts + 1 })
-        .where(eq(emailVerifications.email, email));
+      await client.query(
+        `UPDATE ${emailVerificationsTable} SET attempts = attempts + 1 WHERE email = $1`,
+        [email]
+      );
 
       res.status(400).end(JSON.stringify({
         ok: false,
@@ -99,12 +99,16 @@ export default async function (req: any, res: any) {
     }
 
     // Code is valid! Mark user as verified
-    await db.update(users)
-      .set({ emailVerified: true })
-      .where(eq(users.email, email));
+    await client.query(
+      `UPDATE ${usersTable} SET email_verified = true WHERE email = $1`,
+      [email]
+    );
 
     // Clean up verification record
-    await db.delete(emailVerifications).where(eq(emailVerifications.email, email));
+    await client.query(
+      `DELETE FROM ${emailVerificationsTable} WHERE email = $1`,
+      [email]
+    );
 
     await client.end();
 
@@ -118,6 +122,9 @@ export default async function (req: any, res: any) {
     res.status(500).end(JSON.stringify({
       ok: false,
       error: err?.message || String(err)
+    }));
+  }
+}
     }));
   }
 }

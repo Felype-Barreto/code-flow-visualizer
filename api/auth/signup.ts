@@ -2,7 +2,6 @@ import { z } from "zod";
 import * as bcrypt from "bcryptjs";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { users, emailVerifications } from "../../shared/schema";
 import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 
@@ -21,6 +20,10 @@ const signupSchema = z.object({
   country: z.string().min(1).max(100),
   password: strongPassword,
 });
+
+// Simple inline schema definitions for serverless context
+const usersTable = "users";
+const emailVerificationsTable = "email_verifications";
 
 export default async function (req: any, res: any) {
   res.setHeader("Content-Type", "application/json");
@@ -58,10 +61,12 @@ export default async function (req: any, res: any) {
     const client = postgres(process.env.DATABASE_URL, {
       ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
     });
-    const db = drizzle(client, { schema: { users, emailVerifications } });
 
     // Check if user already exists
-    const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    const existingUser = await client.query(
+      `SELECT id FROM ${usersTable} WHERE email = $1 LIMIT 1`,
+      [email]
+    );
     
     if (existingUser.length > 0) {
       res.status(409).end(JSON.stringify({
@@ -76,32 +81,23 @@ export default async function (req: any, res: any) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const newUser = await db.insert(users).values({
-      email,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      dateOfBirth: new Date(dateOfBirth),
-      country,
-      emailVerified: false,
-    }).returning({ id: users.id, email: users.email });
+    const result = await client.query(
+      `INSERT INTO ${usersTable} (email, password, first_name, last_name, date_of_birth, country, email_verified) 
+       VALUES ($1, $2, $3, $4, $5, $6, false) 
+       RETURNING id, email`,
+      [email, hashedPassword, firstName, lastName, new Date(dateOfBirth), country]
+    );
 
     // Generate verification code
     const verificationCode = Math.random().toString().slice(2, 8);
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    await db.insert(emailVerifications).values({
-      email,
-      code: verificationCode,
-      expiresAt,
-    }).onConflictDoUpdate({
-      target: emailVerifications.email,
-      set: {
-        code: verificationCode,
-        expiresAt,
-        attempts: 0,
-      }
-    });
+    await client.query(
+      `INSERT INTO ${emailVerificationsTable} (email, code, expires_at, attempts) 
+       VALUES ($1, $2, $3, 0)
+       ON CONFLICT (email) DO UPDATE SET code = $2, expires_at = $3, attempts = 0`,
+      [email, verificationCode, expiresAt]
+    );
 
     // Send verification email via Resend (fire-and-forget)
     if (process.env.RESEND_API_KEY) {

@@ -1,15 +1,15 @@
 import { z } from "zod";
 import * as bcrypt from "bcryptjs";
-import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { users, passwordResets } from "../../shared/schema";
-import { eq } from "drizzle-orm";
 
 const resetPasswordSchema = z.object({
   email: z.string().email(),
   code: z.string().min(6).max(6),
   newPassword: z.string().min(8),
 });
+
+const usersTable = "users";
+const passwordResetsTable = "password_resets";
 
 export default async function (req: any, res: any) {
   res.setHeader("Content-Type", "application/json");
@@ -46,13 +46,12 @@ export default async function (req: any, res: any) {
     const client = postgres(process.env.DATABASE_URL, {
       ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
     });
-    const db = drizzle(client, { schema: { users, passwordResets } });
 
     // Find password reset record
-    const reset = await db.select()
-      .from(passwordResets)
-      .where(eq(passwordResets.email, email))
-      .limit(1);
+    const reset = await client.query(
+      `SELECT * FROM ${passwordResetsTable} WHERE email = $1 LIMIT 1`,
+      [email]
+    );
 
     if (reset.length === 0) {
       res.status(404).end(JSON.stringify({
@@ -66,7 +65,7 @@ export default async function (req: any, res: any) {
     const record = reset[0];
 
     // Check if expired
-    if (new Date() > record.expiresAt) {
+    if (new Date() > new Date(record.expires_at)) {
       res.status(410).end(JSON.stringify({
         ok: false,
         message: "Password reset code expired. Request a new one."
@@ -87,9 +86,10 @@ export default async function (req: any, res: any) {
 
     // Check code
     if (record.code !== code) {
-      await db.update(passwordResets)
-        .set({ attempts: record.attempts + 1 })
-        .where(eq(passwordResets.email, email));
+      await client.query(
+        `UPDATE ${passwordResetsTable} SET attempts = attempts + 1 WHERE email = $1`,
+        [email]
+      );
 
       res.status(400).end(JSON.stringify({
         ok: false,
@@ -102,12 +102,16 @@ export default async function (req: any, res: any) {
     // Code is valid! Hash new password and update user
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     
-    await db.update(users)
-      .set({ password: hashedPassword })
-      .where(eq(users.email, email));
+    await client.query(
+      `UPDATE ${usersTable} SET password = $1 WHERE email = $2`,
+      [hashedPassword, email]
+    );
 
     // Clean up reset record
-    await db.delete(passwordResets).where(eq(passwordResets.email, email));
+    await client.query(
+      `DELETE FROM ${passwordResetsTable} WHERE email = $1`,
+      [email]
+    );
 
     await client.end();
 
