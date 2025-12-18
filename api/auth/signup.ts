@@ -133,16 +133,8 @@ export default async function (req: any, res: any) {
       res.statusCode = 200;
       res.end(JSON.stringify({
         ok: true,
-        message: "User created! Verification code sent to your email",
-        email,
-        firstName,
-        country,
-        // DEBUG INFO (remover em produção)
-        debug: {
-          emailSent,
-          emailError,
-          verificationCode // TEMPORÁRIO: mostrar código na resposta
-        }
+        message: "User created! Check your email for the verification code.",
+        email
       }));
     } finally {
       await client.end();

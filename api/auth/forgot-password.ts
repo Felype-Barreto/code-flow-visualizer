@@ -105,13 +105,7 @@ export default async function (req: any, res: any) {
     res.statusCode = 200;
     res.end(JSON.stringify({
       ok: true,
-      message: "If this email is registered, a reset code will be sent",
-      // DEBUG INFO (remover em produção)
-      debug: {
-        emailSent,
-        emailError,
-        resetCode // TEMPORÁRIO: mostrar código na resposta
-      }
+      message: "If this email is registered, a reset code will be sent"
     }));
   } catch (err: any) {
     console.error("[ERROR] /api/auth/forgot-password exception:", err);
