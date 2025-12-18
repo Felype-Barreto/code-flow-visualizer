@@ -11,7 +11,13 @@ if (!dbUrl && process.env.NODE_ENV !== "development") {
 
 const finalUrl = dbUrl || "postgresql://postgres:felype.BARRETO10@localhost:5432/codeflow";
 const useSsl = process.env.PGSSL === "true" || process.env.NODE_ENV === "production";
-const client = postgres(finalUrl, useSsl ? { ssl: { rejectUnauthorized: process.env.PGSSL_REJECT_UNAUTHORIZED !== "false" } } : {});
+const client = postgres(finalUrl, {
+  ...(useSsl ? { ssl: { rejectUnauthorized: process.env.PGSSL_REJECT_UNAUTHORIZED !== "false" } } : {}),
+  connect_timeout: 10,
+  idle_timeout: 30,
+  max_lifetime: 60 * 30,
+  max_pool_size: 20,
+});
 
 // Create drizzle instance
 export const db = drizzle(client, { schema });
