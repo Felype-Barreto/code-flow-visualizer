@@ -1,0 +1,13 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev:env",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "server/index.ts": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}

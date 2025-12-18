@@ -730,5 +730,32 @@ export async function registerRoutes(
     return res.json({ received: true });
   });
 
+  // Debug endpoint to test Resend
+  app.post("/api/debug/test-email", async (req: Request, res: Response) => {
+    if (!resend) {
+      return res.json({ 
+        status: "no-key",
+        message: "Resend API key not configured",
+        apiKey: RESEND_API_KEY ? "configured" : "missing",
+        fromEmail: RESEND_FROM_EMAIL
+      });
+    }
+
+    const { data, error } = await resend.emails.send({
+      from: RESEND_FROM_EMAIL,
+      to: "felypexelepe@hotmail.com",
+      subject: "🧪 Teste Resend - Debug",
+      html: `<h2>Email de teste do Resend</h2><p>Se você recebeu isso, Resend está funcionando!</p>`,
+    });
+
+    return res.json({
+      status: error ? "error" : "success",
+      error: error ? error : null,
+      data: data,
+      apiKeyConfigured: !!RESEND_API_KEY,
+      fromEmail: RESEND_FROM_EMAIL
+    });
+  });
+
   return httpServer;
 }
