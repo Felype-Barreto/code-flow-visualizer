@@ -1,8 +1,5 @@
 import { z } from "zod";
 import * as bcrypt from "bcryptjs";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 
 const emailSchema = z.string().email("Invalid email");
@@ -48,34 +45,16 @@ export default async function (req: any, res: any) {
 
     const { email, firstName, lastName, dateOfBirth, country, password } = parsed.data;
 
-    // Check if DATABASE_URL is set
-    if (!process.env.DATABASE_URL) {
-      res.status(500).end(JSON.stringify({
-        ok: false,
-        error: "DATABASE_URL not configured on this server"
-      }));
-      return;
-    }
-
-    // Initialize database connection
-    const client = postgres(process.env.DATABASE_URL, {
-      ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+    // Just respond without database for now
+    res.status(200).json({
+      ok: true,
+      message: "Signup endpoint is responding",
+      debug: {
+        email,
+        hasDatabase: !!process.env.DATABASE_URL,
+        nodeEnv: process.env.NODE_ENV
+      }
     });
-
-    try {
-      // Just return ok for now, test database connection first
-      res.status(200).end(JSON.stringify({
-        ok: true,
-        message: "Signup endpoint is responding",
-        debug: {
-          email,
-          hasDatabase: !!process.env.DATABASE_URL,
-          nodeEnv: process.env.NODE_ENV
-        }
-      }));
-    } finally {
-      // Don't try to connect to DB yet
-    }
   } catch (err: any) {
     console.error("[ERROR] /api/auth/signup exception:", err);
     res.status(500).end(JSON.stringify({
