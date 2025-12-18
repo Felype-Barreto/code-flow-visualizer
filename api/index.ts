@@ -10,8 +10,7 @@ export default async function (_req: any, res: any) {
         signup: "POST /api/auth/signup",
         verifyCode: "POST /api/auth/verify-code",
         forgotPassword: "POST /api/auth/forgot-password",
-        resetPassword: "POST /api/auth/reset-password",
-        testEmail: "POST /api/debug/test-email"
+        resetPassword: "POST /api/auth/reset-password"
       }
     },
     timestamp: new Date().toISOString()
