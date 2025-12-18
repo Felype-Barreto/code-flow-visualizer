@@ -69,17 +69,35 @@ export default async function (req: any, res: any) {
       ON CONFLICT (email) DO UPDATE SET code = ${resetCode}, expires_at = ${expiresAt}, attempts = 0
     `;
 
-    // Send reset email via Resend (fire-and-forget)
+    // Send reset email via Resend (WAIT for response)
+    let emailSent = false;
+    let emailError = null;
+    
     if (process.env.RESEND_API_KEY) {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@codeflowbr.site";
-      
-      resend.emails.send({
-        from: fromEmail,
-        to: email,
-        subject: "Reset your Code Flow password",
-        html: `<p>Your password reset code is: <strong>${resetCode}</strong></p><p>This code expires in 30 minutes.</p>`,
-      }).catch(err => console.error("[ERROR] Failed to send password reset email:", err));
+      try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@codeflowbr.site";
+        
+        const { data, error } = await resend.emails.send({
+          from: fromEmail,
+          to: email,
+          subject: "Reset your Code Flow password",
+          html: `<p>Your password reset code is: <strong>${resetCode}</strong></p><p>This code expires in 30 minutes.</p>`,
+        });
+        
+        if (error) {
+          console.error("[ERROR] Resend error:", error);
+          emailError = error.message;
+        } else {
+          console.log("[SUCCESS] Password reset email sent:", data);
+          emailSent = true;
+        }
+      } catch (err) {
+        console.error("[ERROR] Failed to send password reset email:", err);
+        emailError = err instanceof Error ? err.message : String(err);
+      }
+    } else {
+      emailError = "RESEND_API_KEY not configured";
     }
 
     await client.end();
@@ -87,7 +105,13 @@ export default async function (req: any, res: any) {
     res.statusCode = 200;
     res.end(JSON.stringify({
       ok: true,
-      message: "If this email is registered, a reset code will be sent"
+      message: "If this email is registered, a reset code will be sent",
+      // DEBUG INFO (remover em produção)
+      debug: {
+        emailSent,
+        emailError,
+        resetCode // TEMPORÁRIO: mostrar código na resposta
+      }
     }));
   } catch (err: any) {
     console.error("[ERROR] /api/auth/forgot-password exception:", err);

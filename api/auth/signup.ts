@@ -99,17 +99,35 @@ export default async function (req: any, res: any) {
         DO UPDATE SET code = ${verificationCode}, expires_at = ${expiresAt}, attempts = 0
       `;
 
-      // Send verification email via Resend (fire-and-forget)
+      // Send verification email via Resend (WAIT for response)
+      let emailSent = false;
+      let emailError = null;
+      
       if (process.env.RESEND_API_KEY) {
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@codeflowbr.site";
-        
-        resend.emails.send({
-          from: fromEmail,
-          to: email,
-          subject: "Verify your Code Flow account",
-          html: `<p>Your verification code is: <strong>${verificationCode}</strong></p><p>This code expires in 15 minutes.</p>`,
-        }).catch(err => console.error("[ERROR] Failed to send verification email:", err));
+        try {
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@codeflowbr.site";
+          
+          const { data, error } = await resend.emails.send({
+            from: fromEmail,
+            to: email,
+            subject: "Verify your Code Flow account",
+            html: `<p>Your verification code is: <strong>${verificationCode}</strong></p><p>This code expires in 15 minutes.</p>`,
+          });
+          
+          if (error) {
+            console.error("[ERROR] Resend error:", error);
+            emailError = error.message;
+          } else {
+            console.log("[SUCCESS] Email sent:", data);
+            emailSent = true;
+          }
+        } catch (err) {
+          console.error("[ERROR] Failed to send verification email:", err);
+          emailError = err instanceof Error ? err.message : String(err);
+        }
+      } else {
+        emailError = "RESEND_API_KEY not configured";
       }
 
       res.statusCode = 200;
@@ -118,7 +136,13 @@ export default async function (req: any, res: any) {
         message: "User created! Verification code sent to your email",
         email,
         firstName,
-        country
+        country,
+        // DEBUG INFO (remover em produção)
+        debug: {
+          emailSent,
+          emailError,
+          verificationCode // TEMPORÁRIO: mostrar código na resposta
+        }
       }));
     } finally {
       await client.end();
