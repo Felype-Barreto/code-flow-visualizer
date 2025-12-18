@@ -1,4 +1,9 @@
 import { z } from "zod";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import { users, passwordResets } from "../../shared/schema";
+import { eq } from "drizzle-orm";
+import { Resend } from "resend";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
@@ -27,13 +32,71 @@ export default async function (req: any, res: any) {
 
     const { email } = parsed.data;
 
-    // TODO: integrate with storage and email service
+    // Check if DATABASE_URL is set
+    if (!process.env.DATABASE_URL) {
+      res.status(500).end(JSON.stringify({
+        ok: false,
+        error: "DATABASE_URL not configured"
+      }));
+      return;
+    }
+
+    const client = postgres(process.env.DATABASE_URL, {
+      ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+    });
+    const db = drizzle(client, { schema: { users, passwordResets } });
+
+    // Check if user exists
+    const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    
+    if (user.length === 0) {
+      // Don't reveal if email exists (security)
+      res.status(200).end(JSON.stringify({
+        ok: true,
+        message: "If this email is registered, a reset code will be sent"
+      }));
+      await client.end();
+      return;
+    }
+
+    // Generate reset code
+    const resetCode = Math.random().toString().slice(2, 8);
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+
+    await db.insert(passwordResets).values({
+      email,
+      code: resetCode,
+      expiresAt,
+    }).onConflictDoUpdate({
+      target: passwordResets.email,
+      set: {
+        code: resetCode,
+        expiresAt,
+        attempts: 0,
+      }
+    });
+
+    // Send reset email via Resend (fire-and-forget)
+    if (process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@codeflowbr.site";
+      
+      resend.emails.send({
+        from: fromEmail,
+        to: email,
+        subject: "Reset your Code Flow password",
+        html: `<p>Your password reset code is: <strong>${resetCode}</strong></p><p>This code expires in 30 minutes.</p>`,
+      }).catch(err => console.error("[ERROR] Failed to send password reset email:", err));
+    }
+
+    await client.end();
+
     res.status(200).end(JSON.stringify({
       ok: true,
-      message: "Password reset code sent to your email (TODO: implement DB + email integration)",
-      email
+      message: "If this email is registered, a reset code will be sent"
     }));
   } catch (err: any) {
+    console.error("[ERROR] /api/auth/forgot-password exception:", err);
     res.status(500).end(JSON.stringify({
       ok: false,
       error: err?.message || String(err)
