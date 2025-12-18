@@ -5,9 +5,8 @@ import { sql } from "drizzle-orm";
 
 const dbUrl = process.env.DATABASE_URL;
 
-if (!dbUrl && process.env.NODE_ENV !== "development") {
-  throw new Error("DATABASE_URL must be set in production");
-}
+// Allow serverless endpoints that don't need DB to function even if DATABASE_URL is missing.
+// Routes that use the DB will fail with connection errors until DATABASE_URL is set.
 
 const finalUrl = dbUrl || "postgresql://postgres:felype.BARRETO10@localhost:5432/codeflow";
 const useSsl = process.env.PGSSL === "true" || process.env.NODE_ENV === "production";
