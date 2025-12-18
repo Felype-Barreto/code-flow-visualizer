@@ -7,7 +7,7 @@ export default async function (_req: any, res: any) {
       health: "/api/health",
       diag: "/api/diag",
       auth: {
-        signup: "POST /api/auth/signup",
+        signup: "POST /api/auth/signup (requires proToken)",
         verifyCode: "POST /api/auth/verify-code",
         forgotPassword: "POST /api/auth/forgot-password",
         resetPassword: "POST /api/auth/reset-password"

@@ -17,6 +17,8 @@ const signupSchema = z.object({
   dateOfBirth: z.string().datetime(),
   country: z.string().min(1).max(100),
   password: strongPassword,
+  // Pro-gating: require a token proving payment or admin invite
+  proToken: z.string().min(6, "Missing pro token").max(200),
 });
 
 // Simple inline schema definitions for serverless context
@@ -46,7 +48,7 @@ export default async function (req: any, res: any) {
       return;
     }
 
-    const { email, firstName, lastName, dateOfBirth, country, password } = parsed.data;
+    const { email, firstName, lastName, dateOfBirth, country, password, proToken } = parsed.data;
 
     // Check if DATABASE_URL is set
     if (!process.env.DATABASE_URL) {
@@ -64,6 +66,41 @@ export default async function (req: any, res: any) {
     });
 
     try {
+      // Pro-only gating: allow only if token is valid
+      let proAllowed = false;
+
+      // 1) Check DB entitlement if table exists
+      try {
+        const entitlements = await client`
+          SELECT id, email, token, status, used_at
+          FROM pro_signup_entitlements
+          WHERE token = ${proToken}
+          LIMIT 1
+        `;
+        if (entitlements.length > 0) {
+          const e = entitlements[0] as any;
+          if ((e.status === 'paid' || e.status === 'granted') && !e.used_at && e.email === email) {
+            proAllowed = true;
+          }
+        }
+      } catch (_) {
+        // Table might not exist yet; fall back to env code check below
+      }
+
+      // 2) Fallback: allow with admin env code
+      if (!proAllowed && process.env.PRO_SIGNUP_CODE && proToken === process.env.PRO_SIGNUP_CODE) {
+        proAllowed = true;
+      }
+
+      if (!proAllowed) {
+        res.statusCode = 402;
+        res.end(JSON.stringify({
+          ok: false,
+          message: "Pro required to create an account. Please purchase a plan.",
+        }));
+        await client.end();
+        return;
+      }
       // Check if user already exists
       const existingUsers = await client`
         SELECT id FROM users WHERE email = ${email} LIMIT 1
@@ -87,6 +124,15 @@ export default async function (req: any, res: any) {
         INSERT INTO users (email, password, first_name, last_name, date_of_birth, country, email_verified) 
         VALUES (${email}, ${hashedPassword}, ${firstName}, ${lastName}, ${new Date(dateOfBirth)}, ${country}, false)
       `;
+
+      // If entitlement exists, mark as used
+      try {
+        await client`
+          UPDATE pro_signup_entitlements
+          SET used_at = NOW()
+          WHERE token = ${proToken} AND email = ${email} AND used_at IS NULL
+        `;
+      } catch (_) {}
 
       // Generate verification code
       const verificationCode = Math.random().toString().slice(2, 8);
