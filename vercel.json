@@ -1,5 +1,11 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
-  "devCommand": "npm run dev:env"
+  "devCommand": "npm run dev:env",
+  "webhook": {
+    "stripe": {
+      "url": "https://codeflowbr.site/api/pro/webhook",
+      "events": ["checkout.session.completed", "customer.subscription.updated", "customer.subscription.deleted", "invoice.payment_failed"]
+    }
+  }
 }
