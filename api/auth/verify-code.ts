@@ -13,7 +13,8 @@ export default async function (req: any, res: any) {
   res.setHeader("Content-Type", "application/json");
 
   if (req.method !== "POST") {
-    res.status(400).end(JSON.stringify({ error: "POST only" }));
+    res.statusCode = 400;
+    res.end(JSON.stringify({ error: "POST only" }));
     return;
   }
 
@@ -22,7 +23,8 @@ export default async function (req: any, res: any) {
     const parsed = verifyCodeSchema.safeParse(body);
 
     if (!parsed.success) {
-      res.status(400).end(JSON.stringify({
+      res.statusCode = 400;
+      res.end(JSON.stringify({
         ok: false,
         message: "invalid verification data",
         errors: parsed.error.errors.map(e => ({ path: e.path.join("."), message: e.message }))
@@ -34,7 +36,8 @@ export default async function (req: any, res: any) {
 
     // Check if DATABASE_URL is set
     if (!process.env.DATABASE_URL) {
-      res.status(500).end(JSON.stringify({
+      res.statusCode = 500;
+      res.end(JSON.stringify({
         ok: false,
         error: "DATABASE_URL not configured"
       }));
@@ -49,7 +52,8 @@ export default async function (req: any, res: any) {
     const verification = await client`SELECT * FROM ${client.unsafe(emailVerificationsTable)} WHERE email = ${email} LIMIT 1`;
 
     if (verification.length === 0) {
-      res.status(404).end(JSON.stringify({
+      res.statusCode = 404;
+      res.end(JSON.stringify({
         ok: false,
         message: "No verification request found for this email"
       }));
@@ -61,7 +65,8 @@ export default async function (req: any, res: any) {
 
     // Check if expired
     if (new Date() > new Date(record.expires_at)) {
-      res.status(410).end(JSON.stringify({
+      res.statusCode = 410;
+      res.end(JSON.stringify({
         ok: false,
         message: "Verification code expired"
       }));
@@ -71,7 +76,8 @@ export default async function (req: any, res: any) {
 
     // Check attempts
     if (record.attempts >= 5) {
-      res.status(429).end(JSON.stringify({
+      res.statusCode = 429;
+      res.end(JSON.stringify({
         ok: false,
         message: "Too many failed attempts. Request a new code."
       }));
@@ -84,7 +90,8 @@ export default async function (req: any, res: any) {
       // Increment attempts
       await client`UPDATE ${client.unsafe(emailVerificationsTable)} SET attempts = attempts + 1 WHERE email = ${email}`;
 
-      res.status(400).end(JSON.stringify({
+      res.statusCode = 400;
+      res.end(JSON.stringify({
         ok: false,
         message: "Invalid verification code"
       }));
@@ -100,14 +107,16 @@ export default async function (req: any, res: any) {
 
     await client.end();
 
-    res.status(200).end(JSON.stringify({
+    res.statusCode = 200;
+    res.end(JSON.stringify({
       ok: true,
       message: "Email verified successfully! You can now log in.",
       email
     }));
   } catch (err: any) {
     console.error("[ERROR] /api/auth/verify-code exception:", err);
-    res.status(500).end(JSON.stringify({
+    res.statusCode = 500;
+    res.end(JSON.stringify({
       ok: false,
       error: err?.message || String(err)
     }));

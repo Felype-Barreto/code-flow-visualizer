@@ -13,7 +13,8 @@ export default async function (req: any, res: any) {
   res.setHeader("Content-Type", "application/json");
 
   if (req.method !== "POST") {
-    res.status(400).end(JSON.stringify({ error: "POST only" }));
+    res.statusCode = 400;
+    res.end(JSON.stringify({ error: "POST only" }));
     return;
   }
 
@@ -22,7 +23,8 @@ export default async function (req: any, res: any) {
     const parsed = forgotPasswordSchema.safeParse(body);
 
     if (!parsed.success) {
-      res.status(400).end(JSON.stringify({
+      res.statusCode = 400;
+      res.end(JSON.stringify({
         ok: false,
         message: "invalid forgot password data",
         errors: parsed.error.errors.map(e => ({ path: e.path.join("."), message: e.message }))
@@ -34,7 +36,8 @@ export default async function (req: any, res: any) {
 
     // Check if DATABASE_URL is set
     if (!process.env.DATABASE_URL) {
-      res.status(500).end(JSON.stringify({
+      res.statusCode = 500;
+      res.end(JSON.stringify({
         ok: false,
         error: "DATABASE_URL not configured"
       }));
@@ -50,7 +53,8 @@ export default async function (req: any, res: any) {
     
     if (user.length === 0) {
       // Don't reveal if email exists (security)
-      res.status(200).end(JSON.stringify({
+      res.statusCode = 200;
+      res.end(JSON.stringify({
         ok: true,
         message: "If this email is registered, a reset code will be sent"
       }));
@@ -83,13 +87,15 @@ export default async function (req: any, res: any) {
 
     await client.end();
 
-    res.status(200).end(JSON.stringify({
+    res.statusCode = 200;
+    res.end(JSON.stringify({
       ok: true,
       message: "If this email is registered, a reset code will be sent"
     }));
   } catch (err: any) {
     console.error("[ERROR] /api/auth/forgot-password exception:", err);
-    res.status(500).end(JSON.stringify({
+    res.statusCode = 500;
+    res.end(JSON.stringify({
       ok: false,
       error: err?.message || String(err)
     }));

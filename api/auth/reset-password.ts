@@ -15,7 +15,8 @@ export default async function (req: any, res: any) {
   res.setHeader("Content-Type", "application/json");
 
   if (req.method !== "POST") {
-    res.status(400).end(JSON.stringify({ error: "POST only" }));
+    res.statusCode = 400;
+    res.end(JSON.stringify({ error: "POST only" }));
     return;
   }
 
@@ -24,7 +25,8 @@ export default async function (req: any, res: any) {
     const parsed = resetPasswordSchema.safeParse(body);
 
     if (!parsed.success) {
-      res.status(400).end(JSON.stringify({
+      res.statusCode = 400;
+      res.end(JSON.stringify({
         ok: false,
         message: "invalid reset password data",
         errors: parsed.error.errors.map(e => ({ path: e.path.join("."), message: e.message }))
@@ -36,7 +38,8 @@ export default async function (req: any, res: any) {
 
     // Check if DATABASE_URL is set
     if (!process.env.DATABASE_URL) {
-      res.status(500).end(JSON.stringify({
+      res.statusCode = 500;
+      res.end(JSON.stringify({
         ok: false,
         error: "DATABASE_URL not configured"
       }));
@@ -51,7 +54,8 @@ export default async function (req: any, res: any) {
     const reset = await client`SELECT * FROM ${client.unsafe(passwordResetsTable)} WHERE email = ${email} LIMIT 1`;
 
     if (reset.length === 0) {
-      res.status(404).end(JSON.stringify({
+      res.statusCode = 404;
+      res.end(JSON.stringify({
         ok: false,
         message: "No password reset request found for this email"
       }));
@@ -63,7 +67,8 @@ export default async function (req: any, res: any) {
 
     // Check if expired
     if (new Date() > new Date(record.expires_at)) {
-      res.status(410).end(JSON.stringify({
+      res.statusCode = 410;
+      res.end(JSON.stringify({
         ok: false,
         message: "Password reset code expired. Request a new one."
       }));
@@ -73,7 +78,8 @@ export default async function (req: any, res: any) {
 
     // Check attempts
     if (record.attempts >= 5) {
-      res.status(429).end(JSON.stringify({
+      res.statusCode = 429;
+      res.end(JSON.stringify({
         ok: false,
         message: "Too many failed attempts. Request a new reset code."
       }));
@@ -85,7 +91,8 @@ export default async function (req: any, res: any) {
     if (record.code !== code) {
       await client`UPDATE ${client.unsafe(passwordResetsTable)} SET attempts = attempts + 1 WHERE email = ${email}`;
 
-      res.status(400).end(JSON.stringify({
+      res.statusCode = 400;
+      res.end(JSON.stringify({
         ok: false,
         message: "Invalid reset code"
       }));
@@ -103,13 +110,15 @@ export default async function (req: any, res: any) {
 
     await client.end();
 
-    res.status(200).end(JSON.stringify({
+    res.statusCode = 200;
+    res.end(JSON.stringify({
       ok: true,
       message: "Password reset successfully! You can now log in with your new password."
     }));
   } catch (err: any) {
     console.error("[ERROR] /api/auth/reset-password exception:", err);
-    res.status(500).end(JSON.stringify({
+    res.statusCode = 500;
+    res.end(JSON.stringify({
       ok: false,
       error: err?.message || String(err)
     }));
