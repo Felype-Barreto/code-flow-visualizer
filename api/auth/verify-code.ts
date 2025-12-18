@@ -46,10 +46,7 @@ export default async function (req: any, res: any) {
     });
 
     // Find verification record
-    const verification = await client.query(
-      `SELECT * FROM ${emailVerificationsTable} WHERE email = $1 LIMIT 1`,
-      [email]
-    );
+    const verification = await client`SELECT * FROM ${client.unsafe(emailVerificationsTable)} WHERE email = ${email} LIMIT 1`;
 
     if (verification.length === 0) {
       res.status(404).end(JSON.stringify({
@@ -85,10 +82,7 @@ export default async function (req: any, res: any) {
     // Check code
     if (record.code !== code) {
       // Increment attempts
-      await client.query(
-        `UPDATE ${emailVerificationsTable} SET attempts = attempts + 1 WHERE email = $1`,
-        [email]
-      );
+      await client`UPDATE ${client.unsafe(emailVerificationsTable)} SET attempts = attempts + 1 WHERE email = ${email}`;
 
       res.status(400).end(JSON.stringify({
         ok: false,
@@ -99,16 +93,10 @@ export default async function (req: any, res: any) {
     }
 
     // Code is valid! Mark user as verified
-    await client.query(
-      `UPDATE ${usersTable} SET email_verified = true WHERE email = $1`,
-      [email]
-    );
+    await client`UPDATE ${client.unsafe(usersTable)} SET email_verified = true WHERE email = ${email}`;
 
     // Clean up verification record
-    await client.query(
-      `DELETE FROM ${emailVerificationsTable} WHERE email = $1`,
-      [email]
-    );
+    await client`DELETE FROM ${client.unsafe(emailVerificationsTable)} WHERE email = ${email}`;
 
     await client.end();
 

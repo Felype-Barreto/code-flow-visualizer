@@ -46,10 +46,7 @@ export default async function (req: any, res: any) {
     });
 
     // Check if user exists
-    const user = await client.query(
-      `SELECT id FROM ${usersTable} WHERE email = $1 LIMIT 1`,
-      [email]
-    );
+    const user = await client`SELECT id FROM ${client.unsafe(usersTable)} WHERE email = ${email} LIMIT 1`;
     
     if (user.length === 0) {
       // Don't reveal if email exists (security)
@@ -65,12 +62,11 @@ export default async function (req: any, res: any) {
     const resetCode = Math.random().toString().slice(2, 8);
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
 
-    await client.query(
-      `INSERT INTO ${passwordResetsTable} (email, code, expires_at, attempts) 
-       VALUES ($1, $2, $3, 0)
-       ON CONFLICT (email) DO UPDATE SET code = $2, expires_at = $3, attempts = 0`,
-      [email, resetCode, expiresAt]
-    );
+    await client`
+      INSERT INTO ${client.unsafe(passwordResetsTable)} (email, code, expires_at, attempts) 
+      VALUES (${email}, ${resetCode}, ${expiresAt}, 0)
+      ON CONFLICT (email) DO UPDATE SET code = ${resetCode}, expires_at = ${expiresAt}, attempts = 0
+    `;
 
     // Send reset email via Resend (fire-and-forget)
     if (process.env.RESEND_API_KEY) {

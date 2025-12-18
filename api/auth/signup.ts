@@ -63,10 +63,7 @@ export default async function (req: any, res: any) {
     });
 
     // Check if user already exists
-    const existingUser = await client.query(
-      `SELECT id FROM ${usersTable} WHERE email = $1 LIMIT 1`,
-      [email]
-    );
+    const existingUser = await client`SELECT id FROM ${client.unsafe(usersTable)} WHERE email = ${email} LIMIT 1`;
     
     if (existingUser.length > 0) {
       res.status(409).end(JSON.stringify({
@@ -81,23 +78,23 @@ export default async function (req: any, res: any) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const result = await client.query(
-      `INSERT INTO ${usersTable} (email, password, first_name, last_name, date_of_birth, country, email_verified) 
-       VALUES ($1, $2, $3, $4, $5, $6, false) 
-       RETURNING id, email`,
-      [email, hashedPassword, firstName, lastName, new Date(dateOfBirth), country]
-    );
+    const result = await client`
+      INSERT INTO ${client.unsafe(usersTable)} 
+      (email, password, first_name, last_name, date_of_birth, country, email_verified) 
+      VALUES 
+      (${email}, ${hashedPassword}, ${firstName}, ${lastName}, ${new Date(dateOfBirth)}, ${country}, false) 
+      RETURNING id, email
+    `;
 
     // Generate verification code
     const verificationCode = Math.random().toString().slice(2, 8);
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
-    await client.query(
-      `INSERT INTO ${emailVerificationsTable} (email, code, expires_at, attempts) 
-       VALUES ($1, $2, $3, 0)
-       ON CONFLICT (email) DO UPDATE SET code = $2, expires_at = $3, attempts = 0`,
-      [email, verificationCode, expiresAt]
-    );
+    await client`
+      INSERT INTO ${client.unsafe(emailVerificationsTable)} (email, code, expires_at, attempts) 
+      VALUES (${email}, ${verificationCode}, ${expiresAt}, 0)
+      ON CONFLICT (email) DO UPDATE SET code = ${verificationCode}, expires_at = ${expiresAt}, attempts = 0
+    `;
 
     // Send verification email via Resend (fire-and-forget)
     if (process.env.RESEND_API_KEY) {

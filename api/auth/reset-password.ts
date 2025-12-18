@@ -48,10 +48,7 @@ export default async function (req: any, res: any) {
     });
 
     // Find password reset record
-    const reset = await client.query(
-      `SELECT * FROM ${passwordResetsTable} WHERE email = $1 LIMIT 1`,
-      [email]
-    );
+    const reset = await client`SELECT * FROM ${client.unsafe(passwordResetsTable)} WHERE email = ${email} LIMIT 1`;
 
     if (reset.length === 0) {
       res.status(404).end(JSON.stringify({
@@ -86,10 +83,7 @@ export default async function (req: any, res: any) {
 
     // Check code
     if (record.code !== code) {
-      await client.query(
-        `UPDATE ${passwordResetsTable} SET attempts = attempts + 1 WHERE email = $1`,
-        [email]
-      );
+      await client`UPDATE ${client.unsafe(passwordResetsTable)} SET attempts = attempts + 1 WHERE email = ${email}`;
 
       res.status(400).end(JSON.stringify({
         ok: false,
@@ -102,16 +96,10 @@ export default async function (req: any, res: any) {
     // Code is valid! Hash new password and update user
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     
-    await client.query(
-      `UPDATE ${usersTable} SET password = $1 WHERE email = $2`,
-      [hashedPassword, email]
-    );
+    await client`UPDATE ${client.unsafe(usersTable)} SET password = ${hashedPassword} WHERE email = ${email}`;
 
     // Clean up reset record
-    await client.query(
-      `DELETE FROM ${passwordResetsTable} WHERE email = $1`,
-      [email]
-    );
+    await client`DELETE FROM ${client.unsafe(passwordResetsTable)} WHERE email = ${email}`;
 
     await client.end();
 
