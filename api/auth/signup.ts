@@ -26,7 +26,8 @@ export default async function (req: any, res: any) {
   res.setHeader("Content-Type", "application/json");
 
   if (req.method !== "POST") {
-    res.status(400).end(JSON.stringify({ error: "POST only" }));
+    res.statusCode = 400;
+    res.end(JSON.stringify({ error: "POST only" }));
     return;
   }
 
@@ -35,7 +36,8 @@ export default async function (req: any, res: any) {
     const parsed = signupSchema.safeParse(body);
 
     if (!parsed.success) {
-      res.status(400).end(JSON.stringify({
+      res.statusCode = 400;
+      res.end(JSON.stringify({
         ok: false,
         message: "invalid signup data",
         errors: parsed.error.errors.map(e => ({ path: e.path.join("."), message: e.message }))
@@ -46,7 +48,8 @@ export default async function (req: any, res: any) {
     const { email, firstName, lastName, dateOfBirth, country, password } = parsed.data;
 
     // Just respond without database for now
-    res.status(200).json({
+    res.statusCode = 200;
+    res.end(JSON.stringify({
       ok: true,
       message: "Signup endpoint is responding",
       debug: {
@@ -54,10 +57,11 @@ export default async function (req: any, res: any) {
         hasDatabase: !!process.env.DATABASE_URL,
         nodeEnv: process.env.NODE_ENV
       }
-    });
+    }));
   } catch (err: any) {
     console.error("[ERROR] /api/auth/signup exception:", err);
-    res.status(500).end(JSON.stringify({
+    res.statusCode = 500;
+    res.end(JSON.stringify({
       ok: false,
       error: err?.message || String(err)
     }));
