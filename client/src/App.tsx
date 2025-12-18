@@ -10,6 +10,7 @@ import LessonPage from "@/pages/lesson";
 import ExercisesPage from "@/pages/exercises";
 import AdminPage from "@/pages/admin";
 import ProPage from "@/pages/pro";
+import PricingPage from "@/pages/pricing";
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/lesson/:id" component={LessonPage} />
       <Route path="/exercises" component={ExercisesPage} />
       <Route path="/pro" component={ProPage} />
+      <Route path="/pricing" component={PricingPage} />
       <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>

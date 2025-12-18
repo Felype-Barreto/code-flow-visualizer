@@ -83,6 +83,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               {t.exercises}
             </NavLink>
 
+            <NavLink href="/pricing" active={location.includes("/pricing")}>
+              <span className="text-sm font-medium">Preços</span>
+            </NavLink>
+
             <NavLink href="/pro" active={location.includes("/pro")}>
               <Crown className="w-4 h-4 text-amber-400" />
               <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">
@@ -140,6 +144,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     )}>
                       <Dumbbell className="w-4 h-4" />
                       {t.exercises}
+                    </span>
+                  </Link>
+
+                  <Link href="/pricing" onClick={() => setIsOpen(false)}>
+                    <span className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors",
+                      location.includes("/pricing") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                    )}>
+                      <span className="text-sm font-medium">Preços</span>
                     </span>
                   </Link>
 
