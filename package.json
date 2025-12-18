@@ -14,7 +14,9 @@
     "db:push": "drizzle-kit push",
     "images:convert": "node script/convert-images.js",
     "stripe:setup": "tsx script/create-stripe-price.ts",
-    "dev:strict": "tsx script/dev-strict.ts"
+    "dev:strict": "tsx script/dev-strict.ts",
+    "db:apply:entitlements": "tsx script/apply-entitlements.ts",
+    "pro:grant": "tsx script/seed-pro-entitlement.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
