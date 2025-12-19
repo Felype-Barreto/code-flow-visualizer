@@ -58,6 +58,8 @@ export default function ProPage() {
   } | null>(null);
   const [timelinePlaying, setTimelinePlaying] = useState(false);
   const [timelineIndex, setTimelineIndex] = useState(0);
+  const [profilerExecutionLine, setProfilerExecutionLine] = useState<number | null>(null);
+  const [profilerShowRealtime, setProfilerShowRealtime] = useState(true);
   const [category, setCategory] = useState<"all" | "algorithms" | "data-structures" | "async" | "performance" | "design-patterns">("all");
   const [sort, setSort] = useState<"relevance" | "difficulty" | "time">("relevance");
   const [difficulty, setDifficulty] = useState<"all" | "beginner" | "intermediate" | "advanced">("all");
@@ -72,15 +74,72 @@ export default function ProPage() {
     '{\n  "user": {"name": "Ana", "level": 7},\n  "array": [1,2,3],\n  "flags": {"pro": true, "beta": false}\n}'
   );
   const inspectorExamples = [
-    { id: "user", label: "Usuario + flags", value: '{\n  "user": {"name": "Ana", "level": 7},\n  "flags": {"pro": true, "beta": false}\n}' },
-    { id: "orders", label: "Pedidos", value: '{"orders":[{"id":1,"total":99.5,"items":["book","pen"]},{"id":2,"total":149,"items":["mouse"]}]}' },
-    { id: "settings", label: "Config", value: '{"settings":{"theme":"dark","langs":["pt","en"]},"featureFlags":{"newUI":true}}' },
-    { id: "graph", label: "Grafo simples", value: '{"graph":{"nodes":["A","B"],"edges":[{"from":"A","to":"B"}]}}' },
+    { 
+      id: "user", 
+      label: "Usuario + flags", 
+      value: '{\n  "user": {"name": "Ana", "level": 7},\n  "flags": {"pro": true, "beta": false}\n}',
+      desc: "Objeto simples com dados de usuário e flags booleanas"
+    },
+    { 
+      id: "nested", 
+      label: "Objetos Aninhados", 
+      value: '{"company":{"name":"TechCorp","address":{"street":"Av. Paulista, 1000","city":"SP","country":"Brasil"},"employees":150,"active":true}}',
+      desc: "Estrutura profunda mostrando como objetos podem conter outros objetos. Útil para APIs complexas."
+    },
+    { 
+      id: "array", 
+      label: "Arrays Complexos", 
+      value: '{"products":[{"id":1,"name":"Laptop","price":2999.99,"tags":["tech","computer"],"stock":5},{"id":2,"name":"Mouse","price":99.90,"tags":["tech","peripheral"],"stock":50}]}',
+      desc: "Array de objetos com propriedades mistas. Comum em catálogos e listas de itens."
+    },
+    { 
+      id: "closure", 
+      label: "Closure/Função", 
+      value: '{"counter":{"value":0,"increment":"function() { this.value++; }","getValue":"function() { return this.value; }"},"type":"closure"}',
+      desc: "Representação de closure com funções e estado privado. Mostra como funções podem ser armazenadas."
+    },
+    { 
+      id: "prototype", 
+      label: "Prototype Chain", 
+      value: '{"person":{"name":"João","__proto__":{"species":"human","breathe":"function(){}","__proto__":{"toString":"function(){}"}}},"info":"cadeia de protótipos"}',
+      desc: "Cadeia de protótipos do JavaScript. Fundamental para herança e polimorfismo."
+    },
+    { 
+      id: "async", 
+      label: "Promises/Async", 
+      value: '{"promise":{"state":"pending","value":null},"async":"async function fetchData() { return await fetch(...); }","status":"mostra estados assíncronos"}',
+      desc: "Estados de Promises (pending, fulfilled, rejected). Essencial para código assíncrono."
+    },
+    { 
+      id: "circular", 
+      label: "Referência Circular", 
+      value: '{"node":{"id":1,"next":"<ref:node>","data":"A"},"warning":"JSON.stringify falha aqui"}',
+      desc: "Estruturas circulares (linked lists, grafos). JSON.stringify() não funciona - precisa de WeakMap."
+    },
+    { 
+      id: "mixed", 
+      label: "Tipos Mistos", 
+      value: '{"data":[42,"texto",true,null,{"nested":true},[1,2,3],undefined],"types":"number,string,boolean,null,object,array,undefined"}',
+      desc: "Todos os tipos JavaScript em um array. Mostra como o tipo pode variar em runtime."
+    },
+    { 
+      id: "symbols", 
+      label: "Symbols & WeakMap", 
+      value: '{"key":"Symbol(id)","weakMap":"WeakMap {{obj1 => 1}}","use":"propriedades privadas e metadados"}',
+      desc: "Symbols criam chaves únicas. WeakMaps permitem metadados sem vazamento de memória."
+    },
+    { 
+      id: "graph", 
+      label: "Estrutura de Grafo", 
+      value: '{"graph":{"nodes":[{"id":"A","label":"Início"},{"id":"B","label":"Meio"},{"id":"C","label":"Fim"}],"edges":[{"from":"A","to":"B","weight":5},{"from":"B","to":"C","weight":3}]}}',
+      desc: "Grafo direcionado com pesos. Usado em algoritmos de caminho mínimo, redes sociais, etc."
+    },
   ];
   const [inspectorParsed, setInspectorParsed] = useState<any>(null);
   const [inspectorError, setInspectorError] = useState<string | null>(null);
   const [inspectorQuery, setInspectorQuery] = useState("");
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
+  const [selectedInspectorExampleId, setSelectedInspectorExampleId] = useState<string | null>(null);
   const [scratchpad, setScratchpad] = useState(
     "// VIP Playground\n// Rascunhe ideias ou pseudo-código rápido aqui.\nfunction snippet() {\n  return ['stack', 'heap', 'tests'];\n}"
   );
@@ -113,9 +172,18 @@ export default function ProPage() {
 
   const runProfiler = () => {
     try {
+      const instrumentSource = (code: string) => {
+        return code
+          .split("\n")
+          .map((line, idx) => `markLine(${idx + 1}); ${line}`)
+          .join("\n");
+      };
+
+      const source = profilerShowRealtime ? instrumentSource(profilerCode) : profilerCode;
       const fn = new Function(
         "performance",
-        `${profilerCode}; return typeof main === 'function' ? main() : undefined;`
+        "markLine",
+        `${source}; return typeof main === 'function' ? main() : undefined;`
       );
 
       // Optional warmup
@@ -144,7 +212,10 @@ export default function ProPage() {
           };
         }
         try {
-          const result = fn(performance);
+          setProfilerExecutionLine(null);
+          const result = fn(performance, (line: number) => {
+            try { setProfilerExecutionLine(line); } catch {}
+          });
           const end = performance.now();
           const ms = Number((end - start).toFixed(3));
           events.push({ run: runIndex, t: ms, type: "result", data: result });
@@ -157,6 +228,7 @@ export default function ProPage() {
           runs.push({ run: runIndex, ms });
           throw err;
         } finally {
+          setProfilerExecutionLine(null);
           console.log = originalLog;
         }
       }
@@ -364,6 +436,7 @@ export default function ProPage() {
     const ex = inspectorExamples.find((e) => e.id === id);
     if (ex) {
       setInspectorInput(ex.value);
+      setSelectedInspectorExampleId(ex.id);
       setSelectedPath(null);
       setInspectorParsed(null);
       setInspectorError(null);
@@ -739,8 +812,8 @@ export default function ProPage() {
                 <h3 className="text-lg font-semibold text-amber-100">{t.codeProfiler}</h3>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-amber-100">
-                <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-400/40">Como usar</span>
-                <span className="text-amber-50/80">1) escolha um exemplo → 2) edite o codigo → 3) rode para ver execucao + timeline</span>
+                <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-400/40">{t.profilerHowToLabel}</span>
+                <span className="text-amber-50/80">{t.profilerHowToText}</span>
               </div>
               <div className="flex flex-wrap gap-2 text-xs">
                 {profilerExamples.map((ex) => (
@@ -749,19 +822,53 @@ export default function ProPage() {
                     onClick={() => applyProfilerExample(ex.id)}
                     className="px-3 py-1 rounded-full border border-amber-300/40 text-amber-100 bg-black/30 hover:bg-amber-500/10"
                   >
-                    {ex.label}
+                    {ex.id === 'fib' ? t.profilerExampleFib : ex.id === 'loop' ? t.profilerExampleLoop : ex.id === 'async' ? t.profilerExampleAsync : t.profilerExampleSort}
                   </button>
                 ))}
               </div>
-              <textarea
-                className="w-full h-32 rounded-lg bg-black/40 border border-slate-700 text-sm text-white p-3 font-mono"
-                value={profilerCode}
-                onChange={(e) => setProfilerCode(e.target.value)}
-              />
+              <div className="relative">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="inline-flex items-center gap-2 text-xs text-amber-200">
+                    <input
+                      type="checkbox"
+                      checked={profilerShowRealtime}
+                      onChange={(e) => setProfilerShowRealtime(e.target.checked)}
+                      className="accent-amber-400"
+                    />
+                    <span className="inline-flex items-center gap-1">
+                      <Activity className="w-3 h-3" />
+                      {t.profilerRealtimeToggle}
+                    </span>
+                  </label>
+                </div>
+                {profilerShowRealtime ? (
+                  <div className="w-full h-32 rounded-lg bg-black/60 border border-amber-400/30 p-3 font-mono text-sm overflow-auto">
+                    {profilerCode.split('\n').map((line, idx) => (
+                      <div
+                        key={idx}
+                        className={`px-2 py-0.5 transition-all duration-200 ${
+                          profilerExecutionLine === idx + 1
+                            ? 'bg-green-500/40 border-l-2 border-green-400 shadow-[0_0_10px_rgba(34,197,94,0.5)]'
+                            : 'hover:bg-slate-700/30'
+                        }`}
+                      >
+                        <span className="inline-block w-8 text-amber-300/50 text-right mr-3 select-none">{idx + 1}</span>
+                        <span className={profilerExecutionLine === idx + 1 ? 'text-green-100 font-semibold' : 'text-slate-200'}>{line || ' '}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <textarea
+                    className="w-full h-32 rounded-lg bg-black/40 border border-slate-700 text-sm text-white p-3 font-mono"
+                    value={profilerCode}
+                    onChange={(e) => setProfilerCode(e.target.value)}
+                  />
+                )}
+              </div>
               <div className="flex flex-col md:flex-row md:items-center gap-2">
                 <div className="flex items-center gap-2 text-xs text-gray-300">
                   <label className="inline-flex items-center gap-1">
-                    <span>Runs</span>
+                    <span>{t.profilerConfigRuns}</span>
                     <select
                       value={profilerConfig.runs}
                       onChange={(e) => setProfilerConfig((c) => ({ ...c, runs: parseInt(e.target.value, 10) }))}
@@ -771,7 +878,7 @@ export default function ProPage() {
                     </select>
                   </label>
                   <label className="inline-flex items-center gap-1">
-                    <span>Warmup</span>
+                    <span>{t.profilerConfigWarmup}</span>
                     <select
                       value={profilerConfig.warmup}
                       onChange={(e) => setProfilerConfig((c) => ({ ...c, warmup: parseInt(e.target.value, 10) }))}
@@ -787,7 +894,7 @@ export default function ProPage() {
                       onChange={(e) => setProfilerConfig((c) => ({ ...c, captureConsole: e.target.checked }))}
                       className="accent-blue-400"
                     />
-                    <span className="inline-flex items-center gap-1"><Activity className="w-3 h-3" /> capture console</span>
+                    <span className="inline-flex items-center gap-1"><Activity className="w-3 h-3" /> {t.profilerConfigCaptureConsole}</span>
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
@@ -809,10 +916,10 @@ export default function ProPage() {
               )}
               {renderTimeline()}
               <div className="bg-slate-800/80 border border-slate-700 rounded-lg p-3 text-xs text-slate-200 space-y-1">
-                <div className="font-semibold text-slate-100">O que observar</div>
-                <div>• Logs aparecem na timeline quando capture console está ligado.</div>
-                <div>• Cada run gera eventos: start → log(s) → result → end.</div>
-                <div>• Use o slider para posicionar no evento e ler dados.</div>
+                <div className="font-semibold text-slate-100">{t.profilerWhatToWatchTitle}</div>
+                <div>{t.profilerWhatToWatch1}</div>
+                <div>{t.profilerWhatToWatch2}</div>
+                <div>{t.profilerWhatToWatch3}</div>
               </div>
             </div>
 
@@ -856,8 +963,8 @@ export default function ProPage() {
               <h3 className="text-lg font-semibold text-amber-100">{t.variableInspector}</h3>
             </div>
             <div className="flex flex-wrap gap-2 text-xs text-amber-50 items-center">
-              <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-600/30 to-amber-700/30 border border-amber-400/50">Guia visual</span>
-              <span className="text-amber-100/80">1) Pick exemplo → 2) Clique em chaves para abrir caminho → 3) Veja como stack referencia o heap</span>
+              <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-600/30 to-amber-700/30 border border-amber-400/50">{t.inspectorGuideLabel}</span>
+              <span className="text-amber-100/80">{t.inspectorGuideText}</span>
             </div>
             <div className="flex flex-wrap gap-2 text-xs">
               {inspectorExamples.map((ex) => (
@@ -870,6 +977,25 @@ export default function ProPage() {
                 </button>
               ))}
             </div>
+            {selectedInspectorExampleId && (
+              <div className="bg-black/30 border border-amber-400/20 rounded p-2 text-xs text-amber-100">
+                {(() => {
+                  switch (selectedInspectorExampleId) {
+                    case 'user': return t.inspectorDescUser;
+                    case 'nested': return t.inspectorDescNested;
+                    case 'array': return t.inspectorDescArray;
+                    case 'closure': return t.inspectorDescClosure;
+                    case 'prototype': return t.inspectorDescPrototype;
+                    case 'async': return t.inspectorDescAsync;
+                    case 'circular': return t.inspectorDescCircular;
+                    case 'mixed': return t.inspectorDescMixed;
+                    case 'symbols': return t.inspectorDescSymbols;
+                    case 'graph': return t.inspectorDescGraph;
+                    default: return '';
+                  }
+                })()}
+              </div>
+            )}
             <div className="flex items-center gap-2 py-1">
               <div className="flex items-center gap-2 flex-1">
                 <Search className="w-4 h-4 text-amber-300" />
@@ -877,7 +1003,7 @@ export default function ProPage() {
                   className="w-full rounded bg-black/40 border border-slate-700 text-sm text-white px-2 py-1"
                   value={inspectorQuery}
                   onChange={(e) => setInspectorQuery(e.target.value)}
-                  placeholder="Search keys/values"
+                  placeholder={t.inspectorSearchPlaceholder}
                 />
               </div>
               {selectedPath && (
@@ -905,8 +1031,8 @@ export default function ProPage() {
               <div className="grid md:grid-cols-2 gap-3">
                 <div className="bg-black/25 border border-slate-700 rounded-lg p-3 space-y-2">
                   <div className="flex items-center justify-between text-xs text-amber-200">
-                    <span>Resultado em foco</span>
-                    <span className="font-mono text-amber-300">{selectedPath || "selecione na arvore"}</span>
+                    <span>{t.inspectorFocusTitle}</span>
+                    <span className="font-mono text-amber-300">{selectedPath || t.inspectorSelectInTree}</span>
                   </div>
                   <div className="flex flex-wrap gap-2 text-[11px] text-amber-50">
                     <span className="px-2 py-1 rounded-full bg-amber-600/25 border border-amber-300/60 shadow-[0_0_0_1px_rgba(251,191,36,0.35)]">{valueKind}</span>
@@ -914,16 +1040,16 @@ export default function ProPage() {
                     {objectKeysCount !== null && (
                       <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">keys: {objectKeysCount}</span>
                     )}
-                    <span className="px-2 py-1 rounded-full bg-emerald-600/25 border border-emerald-300/60 text-emerald-50">stack aponta, heap guarda</span>
+                    <span className="px-2 py-1 rounded-full bg-emerald-600/25 border border-emerald-300/60 text-emerald-50">{t.stackHeapHint}</span>
                   </div>
                   <pre className="bg-slate-950/70 border border-slate-700 rounded text-xs text-slate-200 p-2 max-h-40 overflow-auto">
                     {selectedValuePreview || "Selecione um trecho na arvore para ver o valor renderizado"}
                   </pre>
                   <div className="text-[11px] text-slate-200 space-y-1 bg-slate-800/80 border border-slate-700 rounded p-2">
-                    <div className="font-semibold text-slate-100">Como ler</div>
-                    <div>• Primitivos vivem na stack, objetos/arrays ficam no heap.</div>
-                    <div>• O caminho selecionado navega chaves e indices: stack guarda a referencia, heap guarda o dado.</div>
-                    <div>• Mutar um objeto altera o heap; reatribuir muda a referencia na stack.</div>
+                    <div className="font-semibold text-slate-100">{t.inspectorHowToTitle}</div>
+                    <div>{t.inspectorHowTo1}</div>
+                    <div>{t.inspectorHowTo2}</div>
+                    <div>{t.inspectorHowTo3}</div>
                   </div>
                 </div>
                 {renderCodePreview()}
@@ -931,12 +1057,12 @@ export default function ProPage() {
             )}
             {selectedPath && inspectorParsed && (
               <div className="bg-black/20 border border-slate-700 rounded p-3">
-                <div className="text-xs text-gray-300 mb-2">How the interpreter sees this path:</div>
+                <div className="text-xs text-gray-300 mb-2">{t.inspectorInterpreterTitle}</div>
                 <ul className="text-xs text-gray-200 space-y-1">
-                  <li>• The program resolves the path step-by-step (object keys and array indexes).</li>
-                  <li>• For objects/arrays, the reference lives on the heap; the variable holding it is on the stack.</li>
-                  <li>• Accessing `{selectedPath}` dereferences each segment until the final value.</li>
-                  <li>• Mutations change the referenced structure; primitives create new values.</li>
+                  <li>{t.inspectorInterpreter1}</li>
+                  <li>{t.inspectorInterpreter2}</li>
+                  <li>{t.inspectorInterpreter3.replace('{path}', selectedPath || '')}</li>
+                  <li>{t.inspectorInterpreter4}</li>
                 </ul>
               </div>
             )}

@@ -242,6 +242,7 @@ export interface Translations {
   proTracksSubtitle: string;
   proChallengesBadge: string;
   proChallengesSubtitle: string;
+  profilerRealtimeToggle: string;
   proMiniDemosSubtitle: string;
   proCategoryAll: string;
   proCategoryAlgorithms: string;
@@ -319,9 +320,68 @@ export interface Translations {
   proFeatureDbB2: string;
   proMiniDemosBadge: string;
   proMiniDemosNote: string;
+  profilerRealtimeToggle: string;
+  realtimeVisualizerTitle: string;
+  realtimeVisualizerDesc: string;
+  exampleLabel: string;
+  realtimeExampleFib: string;
+  realtimeExampleFactorial: string;
+  realtimeExampleSum: string;
+  realtimeExampleNested: string;
+  realtimeFibInputLabel: string;
+  proGenerateFrames: string;
+  proFramesScriptDesc: string;
+  perfProfilerTitle: string;
+  perfProfilerDesc: string;
+  codeReviewBotTitle: string;
+  codeReviewBotAnalyze: string;
+  codeReviewBotEmpty: string;
+  debug3dTitle: string;
+  debug3dDesc: string;
+  debug3dPlaceholder: string;
+  templatesMarketplaceTitle: string;
+  templatesUseTemplate: string;
+  profilerHowToLabel: string;
+  profilerHowToText: string;
+  profilerConfigRuns: string;
+  profilerConfigWarmup: string;
+  profilerConfigCaptureConsole: string;
+  profilerExampleFib: string;
+  profilerExampleLoop: string;
+  profilerExampleAsync: string;
+  profilerExampleSort: string;
+  profilerWhatToWatchTitle: string;
+  profilerWhatToWatch1: string;
+  profilerWhatToWatch2: string;
+  profilerWhatToWatch3: string;
   proInspectorAnalyze: string;
   proInspectorPlaceholder: string;
   proInspectorInvalidJson: string;
+  inspectorGuideLabel: string;
+  inspectorGuideText: string;
+  inspectorSearchPlaceholder: string;
+  inspectorFocusTitle: string;
+  inspectorSelectInTree: string;
+  stackHeapHint: string;
+  inspectorHowToTitle: string;
+  inspectorHowTo1: string;
+  inspectorHowTo2: string;
+  inspectorHowTo3: string;
+  inspectorInterpreterTitle: string;
+  inspectorInterpreter1: string;
+  inspectorInterpreter2: string;
+  inspectorInterpreter3: string;
+  inspectorInterpreter4: string;
+  inspectorDescUser: string;
+  inspectorDescNested: string;
+  inspectorDescArray: string;
+  inspectorDescClosure: string;
+  inspectorDescPrototype: string;
+  inspectorDescAsync: string;
+  inspectorDescCircular: string;
+  inspectorDescMixed: string;
+  inspectorDescSymbols: string;
+  inspectorDescGraph: string;
   proDebuggerLoading: string;
   proDebuggerRequiresBadge: string;
   proDebuggerRequiresText: string;
@@ -790,9 +850,68 @@ export const translations: Record<Language, Partial<Translations>> = {
     proFeatureDbB2: 'Optimizations',
     proMiniDemosBadge: 'Mini demos',
     proMiniDemosNote: 'Available in Pro Labs (live demo below).',
+    profilerRealtimeToggle: 'Show real-time execution (green highlight)',
+    realtimeVisualizerTitle: 'Realtime Code Visualizer',
+    realtimeVisualizerDesc: 'See call stack and heap updating in real time during recursion (fibonacci).',
+    exampleLabel: 'Example:',
+    realtimeExampleFib: 'Fibonacci',
+    realtimeExampleFactorial: 'Factorial',
+    realtimeExampleSum: 'Sum Array',
+    realtimeExampleNested: 'Nested Loops',
+    realtimeFibInputLabel: 'Fib input',
+    proGenerateFrames: 'Generate frames',
+    proFramesScriptDesc: 'Script that generates frames (simulated local execution)',
+    perfProfilerTitle: 'Performance Profiler Pro',
+    perfProfilerDesc: 'Simplified flamegraph (mock).',
+    codeReviewBotTitle: 'Code Review Bot',
+    codeReviewBotAnalyze: 'Analyze',
+    codeReviewBotEmpty: 'No findings yet.',
+    debug3dTitle: 'Debug 3D Visualization',
+    debug3dDesc: '3D visualization (mock): trees, graphs, and lists.',
+    debug3dPlaceholder: '3D canvas placeholder',
+    templatesMarketplaceTitle: 'Templates Marketplace',
+    templatesUseTemplate: 'Use Template',
+    profilerHowToLabel: 'How to use',
+    profilerHowToText: '1) pick an example → 2) edit code → 3) run to see execution + timeline',
+    profilerConfigRuns: 'Runs',
+    profilerConfigWarmup: 'Warmup',
+    profilerConfigCaptureConsole: 'capture console',
+    profilerExampleFib: 'Recursion (fib)',
+    profilerExampleLoop: 'Loop + sum',
+    profilerExampleAsync: 'Fast promise',
+    profilerExampleSort: 'Custom sort',
+    profilerWhatToWatchTitle: 'What to watch',
+    profilerWhatToWatch1: '• Logs show up in the timeline when capture console is on.',
+    profilerWhatToWatch2: '• Each run emits events: start → log(s) → result → end.',
+    profilerWhatToWatch3: '• Use the slider to position on events and read data.',
     proInspectorAnalyze: 'Analyze',
     proInspectorPlaceholder: 'Paste JSON and click Analyze.',
     proInspectorInvalidJson: 'Invalid JSON',
+    inspectorGuideLabel: 'Visual guide',
+    inspectorGuideText: '1) Pick example → 2) Click keys to open path → 3) See how stack references the heap',
+    inspectorSearchPlaceholder: 'Search keys/values',
+    inspectorFocusTitle: 'Focused Result',
+    inspectorSelectInTree: 'select in the tree',
+    stackHeapHint: 'stack points, heap stores',
+    inspectorHowToTitle: 'How to read',
+    inspectorHowTo1: '• Primitives live on the stack, objects/arrays sit on the heap.',
+    inspectorHowTo2: '• Selected path navigates keys and indexes: stack holds the reference, heap holds the data.',
+    inspectorHowTo3: '• Mutating an object changes the heap; reassigning changes the stack reference.',
+    inspectorInterpreterTitle: 'How the interpreter sees this path:',
+    inspectorInterpreter1: '• The program resolves the path step-by-step (object keys and array indexes).',
+    inspectorInterpreter2: '• For objects/arrays, the reference lives on the heap; the variable holding it is on the stack.',
+    inspectorInterpreter3: '• Accessing {path} dereferences each segment until the final value.',
+    inspectorInterpreter4: '• Mutations change the referenced structure; primitives create new values.',
+    inspectorDescUser: 'Simple object with user data and boolean flags.',
+    inspectorDescNested: 'Deep structure showing objects within objects. Useful for complex APIs.',
+    inspectorDescArray: 'Array of objects with mixed properties. Common in catalogs and item lists.',
+    inspectorDescClosure: 'Closure representation with functions and private state.',
+    inspectorDescPrototype: 'JavaScript prototype chain. Fundamental for inheritance and polymorphism.',
+    inspectorDescAsync: 'Promise states (pending, fulfilled, rejected). Essential for async code.',
+    inspectorDescCircular: 'Circular structures (linked lists, graphs). JSON.stringify() fails – needs WeakMap.',
+    inspectorDescMixed: 'All JavaScript types in one array. Shows runtime type variation.',
+    inspectorDescSymbols: 'Symbols create unique keys. WeakMaps allow metadata without memory leaks.',
+    inspectorDescGraph: 'Directed graph with weights. Used in shortest path algorithms, social networks, etc.',
     proDebuggerLoading: 'Loading debugger...',
     proDebuggerRequiresBadge: 'Pro plan required',
     proDebuggerRequiresText: 'Subscribe to Pro to access the full real-time debugger.',
@@ -1260,9 +1379,68 @@ export const translations: Record<Language, Partial<Translations>> = {
     proFeatureDbB2: 'Otimizações',
     proMiniDemosBadge: 'Mini demos',
     proMiniDemosNote: 'Disponível no Pro Labs (demo ao vivo abaixo).',
+    profilerRealtimeToggle: 'Mostrar execução em tempo real (destaque verde)',
+    realtimeVisualizerTitle: 'Visualizador de Código em Tempo Real',
+    realtimeVisualizerDesc: 'Veja call stack e heap atualizando em tempo real durante a recursão (fibonacci).',
+    exampleLabel: 'Exemplo:',
+    realtimeExampleFib: 'Fibonacci',
+    realtimeExampleFactorial: 'Fatorial',
+    realtimeExampleSum: 'Somar Array',
+    realtimeExampleNested: 'Loops Aninhados',
+    realtimeFibInputLabel: 'Entrada fib',
+    proGenerateFrames: 'Gerar frames',
+    proFramesScriptDesc: 'Script que gera os frames (execução local simulada)',
+    perfProfilerTitle: 'Performance Profiler Pro',
+    perfProfilerDesc: 'Flamegraph simplificado (mock).',
+    codeReviewBotTitle: 'Code Review Bot',
+    codeReviewBotAnalyze: 'Analisar',
+    codeReviewBotEmpty: 'Nenhum achado ainda.',
+    debug3dTitle: 'Visualização 3D de Debug',
+    debug3dDesc: 'Visualização 3D (mock): árvores, grafos e listas.',
+    debug3dPlaceholder: 'Canvas 3D placeholder',
+    templatesMarketplaceTitle: 'Templates Marketplace',
+    templatesUseTemplate: 'Usar Template',
+    profilerHowToLabel: 'Como usar',
+    profilerHowToText: '1) escolha um exemplo → 2) edite o código → 3) rode para ver execução + timeline',
+    profilerConfigRuns: 'Execuções',
+    profilerConfigWarmup: 'Aquecimento',
+    profilerConfigCaptureConsole: 'capturar console',
+    profilerExampleFib: 'Recursão (fib)',
+    profilerExampleLoop: 'Loop + soma',
+    profilerExampleAsync: 'Promessa rápida',
+    profilerExampleSort: 'Sort customizado',
+    profilerWhatToWatchTitle: 'O que observar',
+    profilerWhatToWatch1: '• Logs aparecem na timeline quando captura de console está ligada.',
+    profilerWhatToWatch2: '• Cada execução gera eventos: início → log(s) → resultado → fim.',
+    profilerWhatToWatch3: '• Use o slider para posicionar no evento e ler dados.',
     proInspectorAnalyze: 'Analisar',
     proInspectorPlaceholder: 'Cole JSON e clique em Analisar.',
     proInspectorInvalidJson: 'JSON inválido',
+    inspectorGuideLabel: 'Guia visual',
+    inspectorGuideText: '1) Escolha exemplo → 2) Clique em chaves para abrir caminho → 3) Veja como stack referencia o heap',
+    inspectorSearchPlaceholder: 'Buscar chaves/valores',
+    inspectorFocusTitle: 'Resultado em foco',
+    inspectorSelectInTree: 'selecione na árvore',
+    stackHeapHint: 'stack aponta, heap guarda',
+    inspectorHowToTitle: 'Como ler',
+    inspectorHowTo1: '• Primitivos vivem na stack, objetos/arrays ficam no heap.',
+    inspectorHowTo2: '• O caminho selecionado navega chaves e índices: stack guarda a referência, heap guarda o dado.',
+    inspectorHowTo3: '• Mutar um objeto altera o heap; reatribuir muda a referência na stack.',
+    inspectorInterpreterTitle: 'Como o interpretador vê este caminho:',
+    inspectorInterpreter1: '• O programa resolve o caminho passo a passo (chaves de objeto e índices de array).',
+    inspectorInterpreter2: '• Para objetos/arrays, a referência vive no heap; a variável que a segura está na stack.',
+    inspectorInterpreter3: '• Acessar {path} desreferencia cada segmento até o valor final.',
+    inspectorInterpreter4: '• Mutações alteram a estrutura referenciada; primitivos criam novos valores.',
+    inspectorDescUser: 'Objeto simples com dados de usuário e flags booleanas.',
+    inspectorDescNested: 'Estrutura profunda mostrando objetos dentro de objetos. Útil para APIs complexas.',
+    inspectorDescArray: 'Array de objetos com propriedades mistas. Comum em catálogos e listas.',
+    inspectorDescClosure: 'Representação de closure com funções e estado privado.',
+    inspectorDescPrototype: 'Cadeia de protótipos do JavaScript. Fundamental para herança e polimorfismo.',
+    inspectorDescAsync: 'Estados de Promise (pending, fulfilled, rejected). Essencial para código assíncrono.',
+    inspectorDescCircular: 'Estruturas circulares (listas ligadas, grafos). JSON.stringify() falha — precisa de WeakMap.',
+    inspectorDescMixed: 'Todos os tipos JavaScript em um array. Mostra variação de tipo em runtime.',
+    inspectorDescSymbols: 'Symbols criam chaves únicas. WeakMaps permitem metadados sem vazamento de memória.',
+    inspectorDescGraph: 'Grafo direcionado com pesos. Usado em caminho mínimo, redes sociais, etc.',
     proDebuggerLoading: 'Carregando debugger...',
     proDebuggerRequiresBadge: 'Exige plano Pro',
     proDebuggerRequiresText: 'Assine o Pro para acessar o debugger completo em tempo real.',
@@ -1730,9 +1908,68 @@ export const translations: Record<Language, Partial<Translations>> = {
     proFeatureDbB2: 'Optimizaciones',
     proMiniDemosBadge: 'Mini demos',
     proMiniDemosNote: 'Disponible en Pro Labs (demo en vivo abajo).',
+    realtimeVisualizerTitle: 'Visualizador de Código en Tiempo Real',
+    realtimeVisualizerDesc: 'Mira la pila y el heap actualizarse en tiempo real durante la recursión (fibonacci).',
+    exampleLabel: 'Ejemplo:',
+    realtimeExampleFib: 'Fibonacci',
+    realtimeExampleFactorial: 'Factorial',
+    realtimeExampleSum: 'Suma Array',
+    realtimeExampleNested: 'Bucles Anidados',
+    realtimeFibInputLabel: 'Entrada fib',
+    proGenerateFrames: 'Generar frames',
+    proFramesScriptDesc: 'Script que genera los frames (ejecución local simulada)',
+    perfProfilerTitle: 'Performance Profiler Pro',
+    perfProfilerDesc: 'Flamegraph simplificado (mock).',
+    codeReviewBotTitle: 'Code Review Bot',
+    codeReviewBotAnalyze: 'Analizar',
+    codeReviewBotEmpty: 'Sin hallazgos todavía.',
+    debug3dTitle: 'Visualización 3D de Debug',
+    debug3dDesc: 'Visualización 3D (mock): árboles, grafos y listas.',
+    debug3dPlaceholder: 'Placeholder de canvas 3D',
+    templatesMarketplaceTitle: 'Marketplace de Templates',
+    templatesUseTemplate: 'Usar Template',
+    profilerRealtimeToggle: 'Mostrar ejecución en tiempo real (resaltado verde)',
+    profilerHowToLabel: 'Cómo usar',
+    profilerHowToText: '1) elige un ejemplo → 2) edita el código → 3) ejecuta para ver ejecución + línea de tiempo',
+    profilerConfigRuns: 'Ejecuciones',
+    profilerConfigWarmup: 'Calentamiento',
+    profilerConfigCaptureConsole: 'capturar consola',
+    profilerExampleFib: 'Recursión (fib)',
+    profilerExampleLoop: 'Bucle + suma',
+    profilerExampleAsync: 'Promesa rápida',
+    profilerExampleSort: 'Orden personalizado',
+    profilerWhatToWatchTitle: 'Qué observar',
+    profilerWhatToWatch1: '• Los logs aparecen en la línea de tiempo cuando la captura de consola está activada.',
+    profilerWhatToWatch2: '• Cada ejecución emite eventos: inicio → log(s) → resultado → fin.',
+    profilerWhatToWatch3: '• Usa el control deslizante para posicionarte en eventos y leer datos.',
     proInspectorAnalyze: 'Analizar',
     proInspectorPlaceholder: 'Pega JSON y haz clic en Analizar.',
     proInspectorInvalidJson: 'JSON inválido',
+    inspectorGuideLabel: 'Guía visual',
+    inspectorGuideText: '1) Elige ejemplo → 2) Haz clic en claves para abrir ruta → 3) Observa cómo la pila referencia al heap',
+    inspectorSearchPlaceholder: 'Buscar claves/valores',
+    inspectorFocusTitle: 'Resultado enfocado',
+    inspectorSelectInTree: 'selecciona en el árbol',
+    stackHeapHint: 'la pila apunta, el heap almacena',
+    inspectorHowToTitle: 'Cómo leer',
+    inspectorHowTo1: '• Los primitivos viven en la pila, los objetos/arrays en el heap.',
+    inspectorHowTo2: '• La ruta seleccionada navega claves e índices: la pila guarda la referencia, el heap guarda el dato.',
+    inspectorHowTo3: '• Mutar un objeto cambia el heap; reasignar cambia la referencia en la pila.',
+    inspectorInterpreterTitle: 'Cómo ve el intérprete esta ruta:',
+    inspectorInterpreter1: '• El programa resuelve la ruta paso a paso (claves de objeto e índices de array).',
+    inspectorInterpreter2: '• Para objetos/arrays, la referencia vive en el heap; la variable que la sostiene está en la pila.',
+    inspectorInterpreter3: '• Acceder a {path} desreferencia cada segmento hasta el valor final.',
+    inspectorInterpreter4: '• Las mutaciones cambian la estructura referenciada; los primitivos crean nuevos valores.',
+    inspectorDescUser: 'Objeto simple con datos de usuario y flags booleanas.',
+    inspectorDescNested: 'Estructura profunda mostrando objetos dentro de objetos. Útil para APIs complejas.',
+    inspectorDescArray: 'Array de objetos con propiedades mixtas. Común en catálogos y listas.',
+    inspectorDescClosure: 'Representación de closure con funciones y estado privado.',
+    inspectorDescPrototype: 'Cadena de prototipos de JavaScript. Fundamental para herencia y polimorfismo.',
+    inspectorDescAsync: 'Estados de Promise (pending, fulfilled, rejected). Esencial para código asincrónico.',
+    inspectorDescCircular: 'Estructuras circulares (listas enlazadas, grafos). JSON.stringify() falla — necesita WeakMap.',
+    inspectorDescMixed: 'Todos los tipos de JavaScript en un array. Muestra variación de tipo en runtime.',
+    inspectorDescSymbols: 'Los Symbols crean claves únicas. Los WeakMaps permiten metadatos sin fugas de memoria.',
+    inspectorDescGraph: 'Grafo dirigido con pesos. Usado en caminos mínimos, redes sociales, etc.',
     proDebuggerLoading: 'Cargando debugger...',
     proDebuggerRequiresBadge: 'Requiere plan Pro',
     proDebuggerRequiresText: 'Suscríbete a Pro para acceder al debugger en tiempo real.',

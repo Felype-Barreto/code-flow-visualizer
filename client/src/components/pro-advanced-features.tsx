@@ -22,6 +22,7 @@ import { AlgorithmsRoadmap, FrontendRoadmap, PerformanceRoadmap, DataStructuresR
 import CallStack from "@/components/visualizer/call-stack";
 import HeapMemory from "@/components/visualizer/heap-memory";
 import { StackFrame, HeapObject } from "@/lib/types";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface LearningPath {
   id: string;
@@ -139,12 +140,119 @@ const createFibFrames = (n: number) => {
   return frames;
 };
 
-export function ProAdvancedFeatures() {
-  const [mentorInput, setMentorInput] = useState("Explain why my loop is slow");
-  const [mentorTips, setMentorTips] = useState<string[]>([]);
+const createFactorialFrames = (n: number) => {
+  const frames: { stack: StackFrame[]; heap: HeapObject[] }[] = [];
+  const callStack: StackFrame[] = [];
+  const heap: HeapObject[] = [];
+  const pushState = () => {
+    frames.push({ stack: cloneStack(callStack), heap: cloneHeap(heap) });
+  };
 
-  const [builderTemplate, setBuilderTemplate] = useState<string>(templateList[0]);
-  const [builderStep, setBuilderStep] = useState<number>(0);
+  const factorial = (value: number, depth: number): number => {
+    const frame: StackFrame = {
+      id: `${depth}-factorial-${value}`,
+      name: `factorial(${value})`,
+      active: true,
+      variables: [{ name: "n", value, type: "primitive" }],
+    };
+    callStack.push(frame);
+    pushState();
+
+    if (value <= 1) {
+      frame.variables.push({ name: "result", value: 1, type: "primitive", changed: true });
+      pushState();
+      callStack.pop();
+      pushState();
+      return 1;
+    }
+
+    const result = value * factorial(value - 1, depth + 1);
+    frame.variables.push({ name: "result", value: result, type: "primitive", changed: true });
+    pushState();
+    callStack.pop();
+    pushState();
+    return result;
+  };
+
+  const clamped = Math.min(Math.max(1, n), 7);
+  factorial(clamped, 0);
+  return frames;
+};
+
+const createSumArrayFrames = (n: number) => {
+  const frames: { stack: StackFrame[]; heap: HeapObject[] }[] = [];
+  const callStack: StackFrame[] = [];
+  const arr = Array.from({ length: n }, (_, i) => i + 1);
+  const heap: HeapObject[] = [{ id: "arr", className: "Array", properties: arr.map((v, i) => ({ name: String(i), value: v, type: "primitive" })) }];
+  const pushState = () => {
+    frames.push({ stack: cloneStack(callStack), heap: cloneHeap(heap) });
+  };
+
+  const frame: StackFrame = {
+    id: "sumArray",
+    name: "sumArray(arr)",
+    active: true,
+    variables: [
+      { name: "arr", value: "arr@heap", type: "reference" },
+      { name: "sum", value: 0, type: "primitive" },
+    ],
+  };
+  callStack.push(frame);
+  pushState();
+
+  let sum = 0;
+  for (let i = 0; i < arr.length; i++) {
+    frame.variables.push({ name: "i", value: i, type: "primitive", changed: true });
+    pushState();
+    sum += arr[i];
+    frame.variables = frame.variables.filter(v => v.name !== "sum");
+    frame.variables.push({ name: "sum", value: sum, type: "primitive", changed: true });
+    pushState();
+  }
+
+  frame.variables.push({ name: "result", value: sum, type: "primitive", changed: true });
+  pushState();
+  callStack.pop();
+  pushState();
+  return frames;
+};
+
+const createNestedLoopsFrames = (n: number) => {
+  const frames: { stack: StackFrame[]; heap: HeapObject[] }[] = [];
+  const callStack: StackFrame[] = [];
+  const heap: HeapObject[] = [];
+  const pushState = () => {
+    frames.push({ stack: cloneStack(callStack), heap: cloneHeap(heap) });
+  };
+
+  const frame: StackFrame = {
+    id: "nestedLoops",
+    name: `nestedLoops(${n})`,
+    active: true,
+    variables: [{ name: "n", value: n, type: "primitive" }],
+  };
+  callStack.push(frame);
+  pushState();
+
+  for (let i = 0; i < n; i++) {
+    frame.variables = frame.variables.filter(v => !v.name.startsWith("i") && !v.name.startsWith("j"));
+    frame.variables.push({ name: "i", value: i, type: "primitive", changed: true });
+    pushState();
+    for (let j = 0; j < n; j++) {
+      frame.variables = frame.variables.filter(v => v.name !== "j");
+      frame.variables.push({ name: "j", value: j, type: "primitive", changed: true });
+      pushState();
+    }
+  }
+
+  callStack.pop();
+  pushState();
+  return frames;
+};
+
+export function ProAdvancedFeatures() {
+  const { t } = useLanguage();
+  // Removido: AI Code Mentor e Project Builder (conforme solicitado)
 
   const [challengeAccepted, setChallengeAccepted] = useState(false);
 
@@ -153,6 +261,15 @@ export function ProAdvancedFeatures() {
   const [genPrompt, setGenPrompt] = useState("Create a debounce function in JavaScript");
   const [genLanguage, setGenLanguage] = useState("JavaScript");
   const [genResult, setGenResult] = useState<string>("");
+  const [genLoading, setGenLoading] = useState(false);
+  const [genError, setGenError] = useState<string | null>(null);
+  
+  const genExamples = [
+    { label: "Debounce", prompt: "Create a debounce function in JavaScript", lang: "JavaScript" },
+    { label: "Deep Clone", prompt: "Create a function to deep clone an object", lang: "JavaScript" },
+    { label: "Binary Search", prompt: "Implement binary search algorithm", lang: "Python" },
+    { label: "Throttle", prompt: "Create a throttle function with leading/trailing options", lang: "JavaScript" },
+  ];
 
   const [reviewInput, setReviewInput] = useState("function add(a,b){return a+b}");
   const [reviewFindings, setReviewFindings] = useState<string[]>([]);
@@ -162,7 +279,16 @@ export function ProAdvancedFeatures() {
   const [liveIntervalMs, setLiveIntervalMs] = useState(1100);
   const [liveInputN, setLiveInputN] = useState(5);
   const [liveFrames, setLiveFrames] = useState<Array<{ stack: StackFrame[]; heap: HeapObject[] }>>(() => createFibFrames(5));
-  const liveSampleScript = [
+  const [selectedExample, setSelectedExample] = useState<string>("fib");
+  
+  const realtimeExamples = [
+    { id: "fib", label: "Fibonacci", desc: "Recursão clássica que mostra múltiplas chamadas empilhadas", n: 5 },
+    { id: "factorial", label: "Fatorial", desc: "Recursão simples com uma chamada por vez", n: 5 },
+    { id: "sum", label: "Soma Array", desc: "Loop que percorre elementos somando valores", n: 4 },
+    { id: "nested", label: "Loops Aninhados", desc: "Veja como loops se comportam quando um está dentro do outro", n: 3 },
+  ];
+  
+  const liveSampleScript = selectedExample === "fib" ? [
     "function fib(n){",
     "  if(n <= 1) return 1;",
     "  const a = fib(n-1);",
@@ -170,6 +296,30 @@ export function ProAdvancedFeatures() {
     "  return a + b;",
     "}",
     "fib(5);",
+  ].join("\n") : selectedExample === "factorial" ? [
+    "function factorial(n){",
+    "  if(n <= 1) return 1;",
+    "  return n * factorial(n-1);",
+    "}",
+    "factorial(5);",
+  ].join("\n") : selectedExample === "sum" ? [
+    "function sumArray(arr){",
+    "  let sum = 0;",
+    "  for(let i=0; i<arr.length; i++){",
+    "    sum += arr[i];",
+    "  }",
+    "  return sum;",
+    "}",
+    "sumArray([1,2,3,4]);",
+  ].join("\n") : [
+    "function nestedLoops(n){",
+    "  for(let i=0; i<n; i++){",
+    "    for(let j=0; j<n; j++){",
+    "      console.log(i,j);",
+    "    }",
+    "  }",
+    "}",
+    "nestedLoops(3);",
   ].join("\n");
 
   useEffect(() => {
@@ -190,25 +340,29 @@ export function ProAdvancedFeatures() {
   }, [livePlaying, liveFrames.length, liveIntervalMs]);
 
   const regenerateFrames = () => {
-    const frames = createFibFrames(liveInputN);
+    let frames;
+    switch (selectedExample) {
+      case "fib":
+        frames = createFibFrames(liveInputN);
+        break;
+      case "factorial":
+        frames = createFactorialFrames(liveInputN);
+        break;
+      case "sum":
+        frames = createSumArrayFrames(liveInputN);
+        break;
+      case "nested":
+        frames = createNestedLoopsFrames(liveInputN);
+        break;
+      default:
+        frames = createFibFrames(liveInputN);
+    }
     setLiveFrames(frames);
     setLiveFrameIdx(0);
     setLivePlaying(true);
   };
 
-  const mentorAnalyze = () => {
-    const tips: string[] = [];
-    if (/loop|for|while/i.test(mentorInput)) tips.push("Use break ou early-return para sair cedo");
-    if (/async|await|promise/i.test(mentorInput)) tips.push("Otimize concorrencia com Promise.all e limites de paralelismo");
-    if (/db|query|sql/i.test(mentorInput)) tips.push("Adicione indices e use EXPLAIN para medir consultas");
-    if (tips.length === 0) tips.push("Divida o problema em partes menores e meça cada etapa");
-    setMentorTips(tips);
-  };
-
-  const buildNextStep = () => {
-    const steps = templateSteps[builderTemplate] || [];
-    if (builderStep < steps.length - 1) setBuilderStep((s) => s + 1);
-  };
+  // Mentor & Builder removidos
 
   const incrementPath = (id: string) => {
     setPaths((prev) =>
@@ -216,15 +370,33 @@ export function ProAdvancedFeatures() {
     );
   };
 
-  const generateCode = () => {
-    const lang = genLanguage;
-    const base = genPrompt.toLowerCase();
-    if (base.includes("debounce")) {
-      setGenResult(`// ${lang} debounce\nfunction debounce(fn, wait){\n  let t;\n  return (...args)=>{\n    clearTimeout(t);\n    t=setTimeout(()=>fn(...args), wait);\n  };\n}`);
-    } else if (base.includes("api")) {
-      setGenResult(`// ${lang} simple fetch\nasync function getData(url){\n  const res = await fetch(url);\n  if(!res.ok) throw new Error('fail');\n  return res.json();\n}`);
-    } else {
-      setGenResult(`// ${lang} stub\nfunction solution(){\n  // TODO: implement\n}`);
+  const generateCode = async () => {
+    setGenLoading(true);
+    setGenError(null);
+    try {
+      // Simulação de API (em produção, fazer chamada real para AI)
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const lang = genLanguage;
+      const base = genPrompt.toLowerCase();
+      
+      if (base.includes("debounce")) {
+        setGenResult(`// ${lang} debounce implementation\nfunction debounce(fn, wait) {\n  let timeout;\n  return function executedFunction(...args) {\n    const later = () => {\n      clearTimeout(timeout);\n      fn(...args);\n    };\n    clearTimeout(timeout);\n    timeout = setTimeout(later, wait);\n  };\n}\n\n// Example usage:\nconst debouncedSearch = debounce((query) => {\n  console.log('Searching for:', query);\n}, 300);`);
+      } else if (base.includes("throttle")) {
+        setGenResult(`// ${lang} throttle implementation\nfunction throttle(fn, wait, options = {}) {\n  let timeout;\n  let previous = 0;\n  const { leading = true, trailing = true } = options;\n  \n  return function(...args) {\n    const now = Date.now();\n    if (!previous && !leading) previous = now;\n    const remaining = wait - (now - previous);\n    \n    if (remaining <= 0 || remaining > wait) {\n      if (timeout) {\n        clearTimeout(timeout);\n        timeout = null;\n      }\n      previous = now;\n      fn(...args);\n    } else if (!timeout && trailing) {\n      timeout = setTimeout(() => {\n        previous = leading ? Date.now() : 0;\n        timeout = null;\n        fn(...args);\n      }, remaining);\n    }\n  };\n}`);
+      } else if (base.includes("clone") || base.includes("deep")) {
+        setGenResult(`// ${lang} deep clone implementation\nfunction deepClone(obj, hash = new WeakMap()) {\n  if (obj === null || typeof obj !== 'object') return obj;\n  if (obj instanceof Date) return new Date(obj);\n  if (obj instanceof RegExp) return new RegExp(obj);\n  if (hash.has(obj)) return hash.get(obj);\n  \n  const clone = Array.isArray(obj) ? [] : {};\n  hash.set(obj, clone);\n  \n  for (const key in obj) {\n    if (obj.hasOwnProperty(key)) {\n      clone[key] = deepClone(obj[key], hash);\n    }\n  }\n  \n  return clone;\n}\n\n// Example:\nconst original = { a: 1, b: { c: 2 }, d: [3, 4] };\nconst cloned = deepClone(original);`);
+      } else if (base.includes("binary") && base.includes("search")) {
+        setGenResult(`# ${lang} binary search\ndef binary_search(arr, target):\n    left, right = 0, len(arr) - 1\n    \n    while left <= right:\n        mid = (left + right) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    \n    return -1\n\n# Example:\narray = [1, 3, 5, 7, 9, 11, 13]\nresult = binary_search(array, 7)\nprint(f"Index: {result}")  # Output: 3`);
+      } else if (base.includes("api") || base.includes("fetch")) {
+        setGenResult(`// ${lang} robust fetch with error handling\nasync function fetchData(url, options = {}) {\n  try {\n    const response = await fetch(url, {\n      headers: {\n        'Content-Type': 'application/json',\n        ...options.headers,\n      },\n      ...options,\n    });\n    \n    if (!response.ok) {\n      throw new Error(\`HTTP error! status: \${response.status}\`);\n    }\n    \n    return await response.json();\n  } catch (error) {\n    console.error('Fetch error:', error);\n    throw error;\n  }\n}\n\n// Usage:\nfetchData('/api/users')\n  .then(data => console.log(data))\n  .catch(err => console.error(err));`);
+      } else {
+        setGenResult(`// ${lang} implementation\n// TODO: Specify your requirements more clearly\n// Examples:\n// - "Create a debounce function"\n// - "Implement binary search"\n// - "Deep clone object"\n\nfunction solution() {\n  // Your implementation here\n}`);
+      }
+    } catch (error) {
+      setGenError("Erro ao gerar código. Tente novamente.");
+    } finally {
+      setGenLoading(false);
     }
   };
 
@@ -280,71 +452,7 @@ export function ProAdvancedFeatures() {
 
   return (
     <div className="space-y-8">
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* AI Code Mentor */}
-        <Card className="p-4 bg-slate-900/60 border border-slate-700 rounded-xl shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-4 h-4 text-indigo-300" />
-            <h3 className="text-lg font-semibold text-white">AI Code Mentor</h3>
-          </div>
-          <textarea
-            value={mentorInput}
-            onChange={(e) => setMentorInput(e.target.value)}
-            className="w-full h-28 bg-black/50 border border-indigo-400/20 rounded p-3 text-sm text-white"
-            placeholder="Pergunte algo sobre seu codigo..."
-          />
-          <div className="mt-3 flex gap-2">
-            <Button size="sm" onClick={mentorAnalyze}>
-              Gerar dicas
-            </Button>
-          </div>
-          <ul className="mt-3 text-sm text-indigo-100 space-y-2">
-            {mentorTips.map((tip, idx) => (
-              <li key={idx} className="flex items-center gap-2">
-                <Brain className="w-4 h-4 text-indigo-300" />
-                {tip}
-              </li>
-            ))}
-            {mentorTips.length === 0 && <li className="text-gray-400 text-sm">Nenhuma dica gerada ainda.</li>}
-          </ul>
-        </Card>
-
-        {/* Project Builder */}
-        <Card className="p-4 bg-slate-900/60 border border-slate-700 rounded-xl shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <Hammer className="w-4 h-4 text-emerald-300" />
-            <h3 className="text-lg font-semibold text-white">Project Builder</h3>
-          </div>
-          <div className="flex gap-2 flex-wrap mb-3">
-            {templateList.map((tpl) => (
-              <Button
-                key={tpl}
-                size="sm"
-                variant={tpl === builderTemplate ? "default" : "outline"}
-                className={tpl === builderTemplate ? "bg-emerald-500 text-black" : "border-emerald-300/40 text-emerald-100"}
-                onClick={() => {
-                  setBuilderTemplate(tpl);
-                  setBuilderStep(0);
-                }}
-              >
-                {tpl}
-              </Button>
-            ))}
-          </div>
-          <div className="text-sm text-emerald-50 mb-2">Passo {builderStep + 1} de {(templateSteps[builderTemplate] || []).length}</div>
-          <Card className="p-3 bg-black/40 border border-emerald-400/20 text-sm text-emerald-50">
-            {(templateSteps[builderTemplate] || [])[builderStep] || "Selecione um template"}
-          </Card>
-          <div className="mt-3 flex gap-2">
-            <Button size="sm" onClick={buildNextStep} disabled={(templateSteps[builderTemplate] || []).length === 0}>
-              Proximo passo
-            </Button>
-            <Button size="sm" variant="outline" className="border-emerald-300/40 text-emerald-100">
-              Gerar estrutura
-            </Button>
-          </div>
-        </Card>
-      </div>
+      {/* Mentor & Builder removidos */}
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Challenges Arena */}
@@ -404,9 +512,9 @@ export function ProAdvancedFeatures() {
         <Card className="p-4 bg-slate-900/70 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
             <Flame className="w-4 h-4 text-amber-300" />
-            <h3 className="text-lg font-semibold text-white">Performance Profiler Pro</h3>
+            <h3 className="text-lg font-semibold text-white">{t.perfProfilerTitle}</h3>
           </div>
-          <p className="text-sm text-gray-200">Flamegraph simplificado (mock).</p>
+          <p className="text-sm text-gray-200">{t.perfProfilerDesc}</p>
           <div className="space-y-2 mt-3">
             {flameData.map((f) => (
               <div key={f.name} className="text-xs text-gray-200">
@@ -423,18 +531,35 @@ export function ProAdvancedFeatures() {
         <Card className="p-4 bg-slate-900/70 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
             <Code2 className="w-4 h-4 text-cyan-300" />
-            <h3 className="text-lg font-semibold text-white">Realtime Code Visualizer</h3>
+            <h3 className="text-lg font-semibold text-white">{t.realtimeVisualizerTitle || "Realtime Code Visualizer"}</h3>
           </div>
-          <p className="text-sm text-gray-200 mb-3">Veja call stack e heap se atualizando em tempo real durante a recursao (fibonacci).</p>
+          <p className="text-sm text-gray-200 mb-3">{t.realtimeVisualizerDesc || "See call stack and heap updating in real time during recursion (fibonacci)."}</p>
           <div className="flex flex-wrap items-center gap-2 mb-3 text-xs text-cyan-50">
             <span className={`px-2 py-1 rounded-full border shadow-[0_0_0_1px_rgba(34,211,238,0.25)] ${livePlaying ? "border-emerald-300/60 bg-emerald-700/40 text-emerald-50" : "border-cyan-300/60 bg-cyan-800/40 text-cyan-50"}`}>
-              {livePlaying ? "reproduzindo" : "pausado"}
+              {livePlaying ? (t.realTimeExecution || t.play || "playing") : (t.pause || "paused")}
             </span>
+            <div className="inline-flex items-center gap-2">
+              <span className="text-cyan-100/80">{t.exampleLabel || "Example:"}</span>
+              <select
+                className="px-2 py-1 rounded border border-cyan-400/40 bg-slate-950/70 text-cyan-50"
+                value={selectedExample}
+                onChange={(e) => setSelectedExample(e.target.value)}
+              >
+                {realtimeExamples.map((ex) => (
+                  <option key={ex.id} value={ex.id}>
+                    {ex.id === "fib" ? (t.realtimeExampleFib || ex.label) :
+                     ex.id === "factorial" ? (t.realtimeExampleFactorial || ex.label) :
+                     ex.id === "sum" ? (t.realtimeExampleSum || ex.label) :
+                     ex.id === "nested" ? (t.realtimeExampleNested || ex.label) : ex.label}
+                  </option>
+                ))}
+              </select>
+            </div>
             <Button size="sm" variant="outline" className="border-cyan-300/70 text-cyan-50 hover:bg-cyan-500/15" onClick={() => setLivePlaying((p) => !p)}>
-              {livePlaying ? <><Pause className="w-3 h-3 mr-1" /> Pausar</> : <><Play className="w-3 h-3 mr-1" /> Retomar</>}
+              {livePlaying ? <><Pause className="w-3 h-3 mr-1" /> {t.pause}</> : <><Play className="w-3 h-3 mr-1" /> {t.play}</>}
             </Button>
             <Button size="sm" variant="ghost" className="text-cyan-100 hover:bg-cyan-500/10" onClick={() => { setLiveFrameIdx(0); setLivePlaying(true); }}>
-              Reiniciar
+              {t.restart}
             </Button>
             <div className="flex items-center gap-1 ml-auto">
               {[800, 1100, 1500].map((ms) => (
@@ -455,10 +580,10 @@ export function ProAdvancedFeatures() {
                 value={liveInputN}
                 onChange={(e) => setLiveInputN(Math.min(7, Math.max(1, Number(e.target.value) || 1)))}
                 className="w-16 rounded border border-cyan-400/40 bg-slate-950/70 text-cyan-50 text-xs px-2 py-1"
-                aria-label="Entrada fib"
+                aria-label={t.realtimeFibInputLabel || "Fib input"}
               />
               <Button size="sm" variant="outline" className="border-emerald-300/60 text-emerald-50 hover:bg-emerald-500/15" onClick={regenerateFrames}>
-                Gerar frames
+                {t.proGenerateFrames || "Generate frames"}
               </Button>
             </div>
           </div>
@@ -471,7 +596,7 @@ export function ProAdvancedFeatures() {
             </div>
           </div>
           <div className="mt-3 bg-slate-950/70 border border-cyan-400/25 rounded-lg p-3">
-            <div className="text-xs text-cyan-100 mb-2">Script que gera os frames (execucao local simulada)</div>
+            <div className="text-xs text-cyan-100 mb-2">{t.proFramesScriptDesc || "Script that generates frames (simulated local execution)"}</div>
             <pre className="text-[11px] leading-relaxed text-cyan-50 font-mono overflow-auto bg-black/40 border border-cyan-400/20 rounded p-3 max-h-40">
 {liveSampleScript}
             </pre>
@@ -482,7 +607,7 @@ export function ProAdvancedFeatures() {
         <Card className="p-4 bg-slate-900/70 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
             <ClipboardCheck className="w-4 h-4 text-green-300" />
-            <h3 className="text-lg font-semibold text-white">Code Review Bot</h3>
+            <h3 className="text-lg font-semibold text-white">{t.codeReviewBotTitle}</h3>
           </div>
           <textarea
             value={reviewInput}
@@ -490,7 +615,7 @@ export function ProAdvancedFeatures() {
             className="w-full h-24 bg-black/50 border border-green-400/30 rounded p-2 text-sm text-white"
           />
           <div className="flex gap-2 mt-2">
-            <Button size="sm" onClick={reviewCode}>Analisar</Button>
+            <Button size="sm" onClick={reviewCode}>{t.codeReviewBotAnalyze}</Button>
           </div>
           <ul className="mt-3 text-sm text-green-100 space-y-1">
             {reviewFindings.map((f, idx) => (
@@ -499,7 +624,7 @@ export function ProAdvancedFeatures() {
                 {f}
               </li>
             ))}
-            {reviewFindings.length === 0 && <li className="text-gray-400 text-sm">Nenhum achado ainda.</li>}
+            {reviewFindings.length === 0 && <li className="text-gray-400 text-sm">{t.codeReviewBotEmpty}</li>}
           </ul>
         </Card>
       </div>
@@ -509,11 +634,11 @@ export function ProAdvancedFeatures() {
         <Card className="p-4 bg-slate-900/70 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
             <Target className="w-4 h-4 text-purple-300" />
-            <h3 className="text-lg font-semibold text-white">Debug 3D Visualization</h3>
+            <h3 className="text-lg font-semibold text-white">{t.debug3dTitle}</h3>
           </div>
-          <p className="text-sm text-gray-200">Visualizacao 3D (mock): arvores, grafos e listas.</p>
+          <p className="text-sm text-gray-200">{t.debug3dDesc}</p>
           <div className="mt-3 h-32 bg-black/40 rounded flex items-center justify-center text-xs text-gray-400">
-            Canvas 3D placeholder
+            {t.debug3dPlaceholder}
           </div>
         </Card>
 
@@ -521,7 +646,7 @@ export function ProAdvancedFeatures() {
         <Card className="p-4 bg-slate-900/70 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
             <Box className="w-4 h-4 text-blue-300" />
-            <h3 className="text-lg font-semibold text-white">Templates Marketplace</h3>
+            <h3 className="text-lg font-semibold text-white">{t.templatesMarketplaceTitle}</h3>
           </div>
           <div className="space-y-2">
             {marketplaceTemplates.map((tpl) => (
@@ -534,7 +659,7 @@ export function ProAdvancedFeatures() {
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-blue-200">{tpl.price}</span>
                     <Button size="sm" variant="outline" className="border-blue-300/40 text-blue-100">
-                      <Terminal className="w-3 h-3 mr-1" /> Usar Template
+                      <Terminal className="w-3 h-3 mr-1" /> {t.templatesUseTemplate}
                     </Button>
                   </div>
                 </div>
