@@ -348,7 +348,7 @@
 - Profiler básico (5 runs)
 - AI Inspector (1 análise grátis)
 
-**Pro ($9.99/mês):**
+**Pro ($2/mês):**
 - Tudo do Free
 - VIP Playground unlimited
 - AI Code Mentor (100 perguntas/mês)
@@ -356,7 +356,7 @@
 - Learning Paths
 - No ads
 
-**Pro+ ($19.99/mês):**
+**Pro+ ($6/mês):**
 - Tudo do Pro
 - AI Code Mentor unlimited
 - Code Collaboration (salas privadas)
@@ -364,7 +364,7 @@
 - Priority support
 - Early access a features novas
 
-**Team ($49/mês para 5 users):**
+**Team ($15/mês para 5 users):**
 - Tudo do Pro+
 - Admin dashboard
 - Team progress tracking
