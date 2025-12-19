@@ -31,53 +31,10 @@ interface LearningPath {
   steps: string[];
 }
 
-const samplePaths: LearningPath[] = [
-  {
-    id: "frontend",
-    title: "Frontend Track",
-    progress: 35,
-    steps: ["JS Essentials", "React Basics", "State & Hooks", "Routing", "Testing"],
-  },
-  {
-    id: "backend",
-    title: "Backend Track",
-    progress: 20,
-    steps: ["Node APIs", "Auth & JWT", "Databases", "Caching", "Observability"],
-  },
-  {
-    id: "algorithms",
-    title: "Algorithms Track",
-    progress: 50,
-    steps: ["Complexity", "Arrays", "Trees/Graphs", "DP", "System Design"],
-  },
-];
-
-const dailyChallenge = {
-  title: "Daily Challenge: Two Sum Variations",
-  desc: "Resolva em O(n) com hash map e depois tente uma versao com dois ponteiros.",
-  difficulty: "Intermediate",
-  reward: "+25 XP",
-};
-
-const templateSteps: Record<string, string[]> = {
-  "Todo App": ["Criar estrutura", "Configurar auth", "Persistir tarefas", "Deploy"],
-  "E-commerce": ["Catálogo", "Carrinho", "Checkout", "Pagamentos"],
-  "Blog": ["CMS", "SEO", "Comentários", "Deploy"],
-};
-
-const templateList = ["Todo App", "E-commerce", "Blog"];
-
 const marketplaceTemplates = [
   { name: "Auth Starter", tag: "Next.js", price: "$0" },
   { name: "Stripe SaaS", tag: "Node", price: "$5" },
   { name: "Landing Pro", tag: "React", price: "$2" },
-];
-
-const reviewRules = [
-  "Verifique nome de variaveis descritivas",
-  "Evite efeitos colaterais invisiveis",
-  "Garanta tratamento de erros",
-  "Cubra caminhos criticos com testes",
 ];
 
 const cloneStack = (stack: StackFrame[]) => stack.map((f, idx) => ({
@@ -254,9 +211,79 @@ export function ProAdvancedFeatures() {
   const { t } = useLanguage();
   // Removido: AI Code Mentor e Project Builder (conforme solicitado)
 
-  const [challengeAccepted, setChallengeAccepted] = useState(false);
+  const basePaths = useMemo<LearningPath[]>(
+    () => [
+      {
+        id: "frontend",
+        title: t.proPathFrontendTitle,
+        progress: 35,
+        steps: [
+          t.proPathFrontendStep1,
+          t.proPathFrontendStep2,
+          t.proPathFrontendStep3,
+          t.proPathFrontendStep4,
+          t.proPathFrontendStep5,
+        ],
+      },
+      {
+        id: "backend",
+        title: t.proPathBackendTitle,
+        progress: 20,
+        steps: [
+          t.proPathBackendStep1,
+          t.proPathBackendStep2,
+          t.proPathBackendStep3,
+          t.proPathBackendStep4,
+          t.proPathBackendStep5,
+        ],
+      },
+      {
+        id: "algorithms",
+        title: t.proPathAlgorithmsTitle,
+        progress: 50,
+        steps: [
+          t.proPathAlgorithmsStep1,
+          t.proPathAlgorithmsStep2,
+          t.proPathAlgorithmsStep3,
+          t.proPathAlgorithmsStep4,
+          t.proPathAlgorithmsStep5,
+        ],
+      },
+    ],
+    [t]
+  );
 
-  const [paths, setPaths] = useState<LearningPath[]>(samplePaths);
+  const dailyChallenge = useMemo(
+    () => ({
+      title: t.proChallengeDailyTitle,
+      desc: t.proChallengeDailyDesc,
+      difficulty: t.intermediate,
+      reward: t.proChallengeDailyReward,
+    }),
+    [t]
+  );
+
+  const reviewMessages = useMemo(
+    () => ({
+      addTests: t.proReviewAddTests,
+      preferLetConst: t.proReviewPreferLetConst,
+      removeLogs: t.proReviewRemoveLogs,
+      noIssues: t.proReviewNoIssues,
+    }),
+    [t]
+  );
+
+  const [challengeAccepted, setChallengeAccepted] = useState(false);
+  const [paths, setPaths] = useState<LearningPath[]>(basePaths);
+
+  useEffect(() => {
+    setPaths((prev) =>
+      basePaths.map((p) => {
+        const existing = prev.find((item) => item.id === p.id);
+        return { ...p, progress: existing?.progress ?? p.progress };
+      })
+    );
+  }, [basePaths]);
 
   const [genPrompt, setGenPrompt] = useState("Create a debounce function in JavaScript");
   const [genLanguage, setGenLanguage] = useState("JavaScript");
@@ -394,7 +421,7 @@ export function ProAdvancedFeatures() {
         setGenResult(`// ${lang} implementation\n// TODO: Specify your requirements more clearly\n// Examples:\n// - "Create a debounce function"\n// - "Implement binary search"\n// - "Deep clone object"\n\nfunction solution() {\n  // Your implementation here\n}`);
       }
     } catch (error) {
-      setGenError("Erro ao gerar código. Tente novamente.");
+      setGenError(t.proGenerateError);
     } finally {
       setGenLoading(false);
     }
@@ -402,10 +429,10 @@ export function ProAdvancedFeatures() {
 
   const reviewCode = () => {
     const findings: string[] = [];
-    if (!/test|assert/i.test(reviewInput)) findings.push("Adicione testes para cobrir casos base e bordas");
-    if (/var\s+/.test(reviewInput)) findings.push("Prefira const/let no lugar de var");
-    if (/console\.log/.test(reviewInput)) findings.push("Remova logs em producao");
-    if (findings.length === 0) findings.push("Nenhum problema critico encontrado");
+    if (!/test|assert/i.test(reviewInput)) findings.push(reviewMessages.addTests);
+    if (/var\s+/.test(reviewInput)) findings.push(reviewMessages.preferLetConst);
+    if (/console\.log/.test(reviewInput)) findings.push(reviewMessages.removeLogs);
+    if (findings.length === 0) findings.push(reviewMessages.noIssues);
     setReviewFindings(findings);
   };
 
@@ -434,7 +461,7 @@ export function ProAdvancedFeatures() {
       </ul>
       <div className="mt-3 flex justify-end">
         <Button size="sm" variant="outline" className="border-amber-300/40" onClick={() => incrementPath(p.id)}>
-          Marcar progresso +10%
+          {t.proPathMarkProgress}
         </Button>
       </div>
     </Card>
@@ -459,13 +486,13 @@ export function ProAdvancedFeatures() {
         <Card className="p-4 bg-slate-900/70 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
             <Trophy className="w-4 h-4 text-amber-300" />
-            <h3 className="text-lg font-semibold text-white">Challenges Arena</h3>
+            <h3 className="text-lg font-semibold text-white">{t.challengesArenaTitle}</h3>
           </div>
           <p className="text-sm text-gray-200">{dailyChallenge.title}</p>
           <p className="text-xs text-gray-400 mt-1">{dailyChallenge.desc}</p>
           <div className="text-xs text-gray-300 mt-2">{dailyChallenge.difficulty} • {dailyChallenge.reward}</div>
           <Button className="mt-3" size="sm" onClick={() => setChallengeAccepted(true)}>
-            {challengeAccepted ? "Em andamento" : "Aceitar desafio"}
+            {challengeAccepted ? t.proChallengeInProgress : t.proChallengeAccept}
           </Button>
         </Card>
 
@@ -473,7 +500,7 @@ export function ProAdvancedFeatures() {
         <Card className="p-4 bg-slate-900/70 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
             <BookOpen className="w-4 h-4 text-amber-300" />
-            <h3 className="text-lg font-semibold text-white">Learning Paths</h3>
+            <h3 className="text-lg font-semibold text-white">{t.learningPathsTitle}</h3>
           </div>
           <div className="space-y-3">
             {paths.map((p) => renderPath(p))}
@@ -484,7 +511,7 @@ export function ProAdvancedFeatures() {
         <Card className="p-4 bg-slate-900/70 border border-white/10">
           <div className="flex items-center gap-2 mb-2">
             <Code2 className="w-4 h-4 text-cyan-300" />
-            <h3 className="text-lg font-semibold text-white">AI Code Generator</h3>
+            <h3 className="text-lg font-semibold text-white">{t.aiCodeGeneratorTitle}</h3>
           </div>
           <input
             className="w-full text-sm bg-black/50 border border-cyan-400/30 rounded px-3 py-2 text-white"
@@ -501,7 +528,7 @@ export function ProAdvancedFeatures() {
               <option>TypeScript</option>
               <option>Python</option>
             </select>
-            <Button size="sm" onClick={generateCode}>Gerar</Button>
+            <Button size="sm" onClick={generateCode}>{t.generate}</Button>
           </div>
           <pre className="mt-3 bg-black/60 text-xs text-cyan-100 rounded p-3 h-32 overflow-auto">{genResult}</pre>
         </Card>

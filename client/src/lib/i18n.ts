@@ -57,6 +57,8 @@ export interface Translations {
   controlsDesc: string;
   explanation: string;
   start: string;
+  loading: string;
+  loading: 'Cargando...',
   
   // Exercise selection
   exercises: string;
@@ -244,6 +246,9 @@ export interface Translations {
   proChallengesSubtitle: string;
   profilerRealtimeToggle: string;
   proMiniDemosSubtitle: string;
+  proSortRecommended: string;
+  proSortDifficulty: string;
+  proSortTime: string;
   proCategoryAll: string;
   proCategoryAlgorithms: string;
   proCategoryDataStructures: string;
@@ -372,6 +377,17 @@ export interface Translations {
   inspectorInterpreter2: string;
   inspectorInterpreter3: string;
   inspectorInterpreter4: string;
+  inspectorCodeMapTitle: string;
+  inspectorCurrentPathLabel: string;
+  inspectorPathLabel: string;
+  inspectorLenLabel: string;
+  inspectorKeysLabel: string;
+  inspectorSelectPathPrompt: string;
+  inspectorCurrentPathLabel: string;
+  inspectorPathLabel: string;
+  inspectorLenLabel: string;
+  inspectorKeysLabel: string;
+  inspectorSelectPathPrompt: string;
   inspectorDescUser: string;
   inspectorDescNested: string;
   inspectorDescArray: string;
@@ -395,6 +411,15 @@ export interface Translations {
   proPlaygroundCopyFailed: string;
   proPlaygroundClear: string;
   proPlaygroundPlaceholder: string;
+  proVipPaymentNotConfirmed: string;
+  proVipCreateFailed: string;
+  proVipCreatedTitle: string;
+  proVipCreatedLogin: string;
+  proVipCreatedCheckEmail: string;
+  proVipCreateFailed: string;
+  proVipCreatedTitle: string;
+  proVipCreatedLogin: string;
+  proVipCreatedCheckEmail: string;
   vipSignupTitle: string;
   vipSignupDesc: string;
   firstName: string;
@@ -474,6 +499,42 @@ export interface Translations {
   addBreakpoint: string;
   condition: string;
   run: string;
+  profilerCurrentEventTitle: string;
+  profilerCurrentEventData: string;
+  learningPathsTitle: string;
+  challengesArenaTitle: string;
+  proChallengeAccept: string;
+  proChallengeInProgress: string;
+  proChallengeDailyTitle: string;
+  proChallengeDailyDesc: string;
+  proChallengeDailyReward: string;
+  proPathMarkProgress: string;
+  aiCodeGeneratorTitle: string;
+  generate: string;
+  proGenerateError: string;
+  proPathFrontendTitle: string;
+  proPathFrontendStep1: string;
+  proPathFrontendStep2: string;
+  proPathFrontendStep3: string;
+  proPathFrontendStep4: string;
+  proPathFrontendStep5: string;
+  proPathBackendTitle: string;
+  proPathBackendStep1: string;
+  proPathBackendStep2: string;
+  proPathBackendStep3: string;
+  proPathBackendStep4: string;
+  proPathBackendStep5: string;
+  proPathAlgorithmsTitle: string;
+  proPathAlgorithmsStep1: string;
+  proPathAlgorithmsStep2: string;
+  proPathAlgorithmsStep3: string;
+  proPathAlgorithmsStep4: string;
+  proPathAlgorithmsStep5: string;
+  proReviewAddTests: string;
+  proReviewPreferLetConst: string;
+  proReviewRemoveLogs: string;
+  proReviewNoIssues: string;
+  profilerCurrentEventData: string;
   
   // Auth additional
   verifyEmail: string;
@@ -528,6 +589,40 @@ export interface Translations {
   typeYourSolution: string;
   correct: string;
   tryAgain: string;
+
+  // Pro advanced features (Learning paths & challenges)
+  learningPathsTitle: string;
+  challengesArenaTitle: string;
+  proChallengeAccept: string;
+  proChallengeInProgress: string;
+  proChallengeDailyTitle: string;
+  proChallengeDailyDesc: string;
+  proChallengeDailyReward: string;
+  proPathMarkProgress: string;
+  aiCodeGeneratorTitle: string;
+  generate: string;
+  proPathFrontendTitle: string;
+  proPathFrontendStep1: string;
+  proPathFrontendStep2: string;
+  proPathFrontendStep3: string;
+  proPathFrontendStep4: string;
+  proPathFrontendStep5: string;
+  proPathBackendTitle: string;
+  proPathBackendStep1: string;
+  proPathBackendStep2: string;
+  proPathBackendStep3: string;
+  proPathBackendStep4: string;
+  proPathBackendStep5: string;
+  proPathAlgorithmsTitle: string;
+  proPathAlgorithmsStep1: string;
+  proPathAlgorithmsStep2: string;
+  proPathAlgorithmsStep3: string;
+  proPathAlgorithmsStep4: string;
+  proPathAlgorithmsStep5: string;
+  proReviewAddTests: string;
+  proReviewPreferLetConst: string;
+  proReviewRemoveLogs: string;
+  proReviewNoIssues: string;
 }
 
 export const translations: Record<Language, Partial<Translations>> = {
@@ -588,6 +683,7 @@ export const translations: Record<Language, Partial<Translations>> = {
     controlsDesc: 'Use the buttons at the top to Pause, Skip or change the Speed of the animation.',
     explanation: 'Explanation',
     start: 'Start',
+    loading: 'Loading...',
     
     // Exercise selection
     exercises: 'Exercises',
@@ -774,6 +870,9 @@ export const translations: Record<Language, Partial<Translations>> = {
     proChallengesBadge: 'Pro Challenges - Advanced Algorithms',
     proChallengesSubtitle: 'Exercises with full solutions and an integrated debugger',
     proMiniDemosSubtitle: 'Quick preview of Pro labs.',
+    proSortRecommended: 'Sort: Recommended',
+    proSortDifficulty: 'Sort: Difficulty',
+    proSortTime: 'Sort: Time',
     proCategoryAll: 'All',
     proCategoryAlgorithms: 'Algorithms',
     proCategoryDataStructures: 'Data Structures',
@@ -902,6 +1001,12 @@ export const translations: Record<Language, Partial<Translations>> = {
     inspectorInterpreter2: '• For objects/arrays, the reference lives on the heap; the variable holding it is on the stack.',
     inspectorInterpreter3: '• Accessing {path} dereferences each segment until the final value.',
     inspectorInterpreter4: '• Mutations change the referenced structure; primitives create new values.',
+    inspectorCodeMapTitle: 'Code map preview',
+    inspectorCurrentPathLabel: 'Current path',
+    inspectorPathLabel: 'Path',
+    inspectorLenLabel: 'len',
+    inspectorKeysLabel: 'keys',
+    inspectorSelectPathPrompt: 'Select a path in the tree to preview value...',
     inspectorDescUser: 'Simple object with user data and boolean flags.',
     inspectorDescNested: 'Deep structure showing objects within objects. Useful for complex APIs.',
     inspectorDescArray: 'Array of objects with mixed properties. Common in catalogs and item lists.',
@@ -925,6 +1030,11 @@ export const translations: Record<Language, Partial<Translations>> = {
     proPlaygroundCopyFailed: 'Could not copy scratchpad',
     proPlaygroundClear: 'Clear scratchpad',
     proPlaygroundPlaceholder: 'Quick notes, pseudo-code, checklists, or test snippets go here...',
+    proVipPaymentNotConfirmed: 'Payment not confirmed',
+    proVipCreateFailed: 'Failed to create VIP account',
+    proVipCreatedTitle: 'VIP account created',
+    proVipCreatedLogin: 'Login successful.',
+    proVipCreatedCheckEmail: 'Check your email to activate your account.',
     vipSignupTitle: 'Create VIP Account (Pro)',
     vipSignupDesc: 'First verify your email. Then you will complete payment with Stripe.',
     firstName: 'First name',
@@ -1004,6 +1114,41 @@ export const translations: Record<Language, Partial<Translations>> = {
     addBreakpoint: '+ Add breakpoint',
     condition: 'condition',
     run: 'Run',
+    profilerCurrentEventTitle: 'Current event',
+    profilerCurrentEventData: 'Event data',
+    learningPathsTitle: 'Learning Paths',
+    challengesArenaTitle: 'Challenges Arena',
+    proChallengeAccept: 'Accept challenge',
+    proChallengeInProgress: 'In progress',
+    proChallengeDailyTitle: 'Daily Challenge: Two Sum Variations',
+    proChallengeDailyDesc: 'Solve in O(n) with a hash map, then try a two-pointer variant.',
+    proChallengeDailyReward: '+25 XP',
+    proPathMarkProgress: 'Mark progress +10%',
+    aiCodeGeneratorTitle: 'AI Code Generator',
+    generate: 'Generate',
+    proPathFrontendTitle: 'Frontend Track',
+    proPathFrontendStep1: 'JS Essentials',
+    proPathFrontendStep2: 'React Basics',
+    proPathFrontendStep3: 'State & Hooks',
+    proPathFrontendStep4: 'Routing',
+    proPathFrontendStep5: 'Testing',
+    proPathBackendTitle: 'Backend Track',
+    proPathBackendStep1: 'Node APIs',
+    proPathBackendStep2: 'Auth & JWT',
+    proPathBackendStep3: 'Databases',
+    proPathBackendStep4: 'Caching',
+    proPathBackendStep5: 'Observability',
+    proPathAlgorithmsTitle: 'Algorithms Track',
+    proPathAlgorithmsStep1: 'Complexity',
+    proPathAlgorithmsStep2: 'Arrays',
+    proPathAlgorithmsStep3: 'Trees/Graphs',
+    proPathAlgorithmsStep4: 'DP',
+    proPathAlgorithmsStep5: 'System Design',
+    proReviewAddTests: 'Add tests to cover base and edge cases',
+    proReviewPreferLetConst: 'Prefer const/let over var',
+    proReviewRemoveLogs: 'Remove logs in production',
+    proReviewNoIssues: 'No critical issues found',
+    proGenerateError: 'Failed to generate code. Please try again.',
     
     // Auth additional
     verifyEmail: 'Verify Email',
@@ -1117,6 +1262,7 @@ export const translations: Record<Language, Partial<Translations>> = {
     controlsDesc: 'Use os botões no topo para Pausar, Avançar ou mudar a Velocidade da animação.',
     explanation: 'Explicação',
     start: 'Iniciar',
+    loading: 'Carregando...',
     
     // Exercise selection
     exercises: 'Exercícios',
@@ -1303,6 +1449,9 @@ export const translations: Record<Language, Partial<Translations>> = {
     proChallengesBadge: 'Desafios Pro - Algoritmos Avançados',
     proChallengesSubtitle: 'Exercícios com soluções completas e debugger integrado',
     proMiniDemosSubtitle: 'Visão rápida dos laboratórios Pro.',
+    proSortRecommended: 'Ordenar: Recomendado',
+    proSortDifficulty: 'Ordenar: Dificuldade',
+    proSortTime: 'Ordenar: Tempo',
     proCategoryAll: 'Todos',
     proCategoryAlgorithms: 'Algoritmos',
     proCategoryDataStructures: 'Estruturas de Dados',
@@ -1431,6 +1580,12 @@ export const translations: Record<Language, Partial<Translations>> = {
     inspectorInterpreter2: '• Para objetos/arrays, a referência vive no heap; a variável que a segura está na stack.',
     inspectorInterpreter3: '• Acessar {path} desreferencia cada segmento até o valor final.',
     inspectorInterpreter4: '• Mutações alteram a estrutura referenciada; primitivos criam novos valores.',
+    inspectorCodeMapTitle: 'Prévia do mapa de código',
+    inspectorCurrentPathLabel: 'Caminho atual',
+    inspectorPathLabel: 'Caminho',
+    inspectorLenLabel: 'len',
+    inspectorKeysLabel: 'chaves',
+    inspectorSelectPathPrompt: 'Selecione um caminho na árvore para visualizar o valor...',
     inspectorDescUser: 'Objeto simples com dados de usuário e flags booleanas.',
     inspectorDescNested: 'Estrutura profunda mostrando objetos dentro de objetos. Útil para APIs complexas.',
     inspectorDescArray: 'Array de objetos com propriedades mistas. Comum em catálogos e listas.',
@@ -1454,6 +1609,11 @@ export const translations: Record<Language, Partial<Translations>> = {
     proPlaygroundCopyFailed: 'Não foi possível copiar o rascunho',
     proPlaygroundClear: 'Limpar rascunho',
     proPlaygroundPlaceholder: 'Notas rápidas, pseudo-código, checklists ou snippets de teste ficam aqui...',
+    proVipPaymentNotConfirmed: 'Pagamento não confirmado',
+    proVipCreateFailed: 'Falha ao criar conta VIP',
+    proVipCreatedTitle: 'Conta VIP criada',
+    proVipCreatedLogin: 'Login realizado com sucesso.',
+    proVipCreatedCheckEmail: 'Verifique seu email para ativar a conta.',
     vipSignupTitle: 'Criar conta VIP (Pro)',
     vipSignupDesc: 'Primeiro verificamos seu email. Depois você conclui o pagamento com Stripe.',
     firstName: 'Nome',
@@ -1533,6 +1693,41 @@ export const translations: Record<Language, Partial<Translations>> = {
     addBreakpoint: '+ Adicionar breakpoint',
     condition: 'condição',
     run: 'Executar',
+    profilerCurrentEventTitle: 'Evento atual',
+    profilerCurrentEventData: 'Dados do evento',
+    learningPathsTitle: 'Trilhas de Aprendizado',
+    challengesArenaTitle: 'Arena de Desafios',
+    proChallengeAccept: 'Aceitar desafio',
+    proChallengeInProgress: 'Em andamento',
+    proChallengeDailyTitle: 'Desafio diário: Variações de Two Sum',
+    proChallengeDailyDesc: 'Resolva em O(n) com hash map e tente depois uma versão com dois ponteiros.',
+    proChallengeDailyReward: '+25 XP',
+    proPathMarkProgress: 'Marcar progresso +10%',
+    aiCodeGeneratorTitle: 'Gerador de Código com IA',
+    generate: 'Gerar',
+    proPathFrontendTitle: 'Trilha Frontend',
+    proPathFrontendStep1: 'Fundamentos de JS',
+    proPathFrontendStep2: 'React Básico',
+    proPathFrontendStep3: 'Estado & Hooks',
+    proPathFrontendStep4: 'Rotas',
+    proPathFrontendStep5: 'Testes',
+    proPathBackendTitle: 'Trilha Backend',
+    proPathBackendStep1: 'APIs com Node',
+    proPathBackendStep2: 'Auth & JWT',
+    proPathBackendStep3: 'Bancos de dados',
+    proPathBackendStep4: 'Cache',
+    proPathBackendStep5: 'Observabilidade',
+    proPathAlgorithmsTitle: 'Trilha Algoritmos',
+    proPathAlgorithmsStep1: 'Complexidade',
+    proPathAlgorithmsStep2: 'Arrays',
+    proPathAlgorithmsStep3: 'Árvores/Grafos',
+    proPathAlgorithmsStep4: 'DP',
+    proPathAlgorithmsStep5: 'System Design',
+    proReviewAddTests: 'Adicione testes para cobrir casos base e bordas',
+    proReviewPreferLetConst: 'Prefira const/let no lugar de var',
+    proReviewRemoveLogs: 'Remova logs em produção',
+    proReviewNoIssues: 'Nenhum problema crítico encontrado',
+    proGenerateError: 'Falha ao gerar código. Tente novamente.',
     
     // Auth additional
     verifyEmail: 'Verificar E-mail',
@@ -2062,6 +2257,41 @@ export const translations: Record<Language, Partial<Translations>> = {
     addBreakpoint: '+ Agregar breakpoint',
     condition: 'condición',
     run: 'Ejecutar',
+    profilerCurrentEventTitle: 'Evento actual',
+    profilerCurrentEventData: 'Datos del evento',
+    learningPathsTitle: 'Rutas de Aprendizaje',
+    challengesArenaTitle: 'Arena de Desafíos',
+    proChallengeAccept: 'Aceptar desafío',
+    proChallengeInProgress: 'En progreso',
+    proChallengeDailyTitle: 'Desafío Diario: Variaciones de Two Sum',
+    proChallengeDailyDesc: 'Resuelve en O(n) con un hash map, luego intenta una variante de dos punteros.',
+    proChallengeDailyReward: '+25 XP',
+    proPathMarkProgress: 'Marcar progreso +10%',
+    aiCodeGeneratorTitle: 'Generador de Código con IA',
+    generate: 'Generar',
+    proPathFrontendTitle: 'Ruta Frontend',
+    proPathFrontendStep1: 'Esenciales JS',
+    proPathFrontendStep2: 'Conceptos Básicos React',
+    proPathFrontendStep3: 'Estado & Hooks',
+    proPathFrontendStep4: 'Enrutamiento',
+    proPathFrontendStep5: 'Pruebas',
+    proPathBackendTitle: 'Ruta Backend',
+    proPathBackendStep1: 'APIs Node',
+    proPathBackendStep2: 'Auth & JWT',
+    proPathBackendStep3: 'Bases de Datos',
+    proPathBackendStep4: 'Caché',
+    proPathBackendStep5: 'Observabilidad',
+    proPathAlgorithmsTitle: 'Ruta Algoritmos',
+    proPathAlgorithmsStep1: 'Complejidad',
+    proPathAlgorithmsStep2: 'Arrays',
+    proPathAlgorithmsStep3: 'Árboles/Grafos',
+    proPathAlgorithmsStep4: 'DP',
+    proPathAlgorithmsStep5: 'Diseño de Sistemas',
+    proReviewAddTests: 'Agrega pruebas para cubrir casos base y extremos',
+    proReviewPreferLetConst: 'Prefiere const/let sobre var',
+    proReviewRemoveLogs: 'Elimina logs en producción',
+    proReviewNoIssues: 'Sin problemas críticos encontrados',
+    proGenerateError: 'Error al generar código. Intenta de nuevo.',
     
     // Auth additional
     verifyEmail: 'Verificar Email',
