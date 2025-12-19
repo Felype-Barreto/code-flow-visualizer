@@ -396,7 +396,7 @@ export default function ProPage() {
             <div className="rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 p-4 space-y-3">
               <div className="flex items-center gap-2 text-white">
                 <BarChart3 className="w-5 h-5 text-amber-400" />
-                <h3 className="text-lg font-semibold">Code Profiler</h3>
+                <h3 className="text-lg font-semibold">{t.codeProfiler}</h3>
               </div>
               <textarea
                 className="w-full h-32 rounded-lg bg-black/40 border border-amber-400/20 text-sm text-white p-3 font-mono"
@@ -405,7 +405,7 @@ export default function ProPage() {
               />
               <div className="flex items-center gap-2">
                 <Button onClick={runProfiler} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
-                  {`${t.runProfiler} x5`}
+                  {`${t.run} ${t.profiler} x5`}
                 </Button>
                 {profilerError && <span className="text-sm text-red-300">{profilerError}</span>}
               </div>
@@ -413,7 +413,7 @@ export default function ProPage() {
                 <div className="bg-black/30 border border-amber-400/10 rounded-lg p-3 text-sm text-gray-200 space-y-1">
                   {profilerRuns.map((r) => (
                     <div key={r.run} className="flex items-center justify-between">
-                      <span className="text-gray-400">Run {r.run}</span>
+                      <span className="text-gray-400">{t.run} {r.run}</span>
                       <span className="font-semibold text-amber-300">{r.ms} ms</span>
                     </div>
                   ))}
@@ -424,7 +424,7 @@ export default function ProPage() {
             <div className="rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 p-4 space-y-3">
               <div className="flex items-center gap-2 text-white">
                 <PauseCircle className="w-5 h-5 text-amber-400" />
-                <h3 className="text-lg font-semibold">Breakpoint Manager</h3>
+                <h3 className="text-lg font-semibold">{t.breakpointManager}</h3>
               </div>
               <div className="space-y-2">
                 {breakpoints.map((bp) => (
@@ -444,13 +444,13 @@ export default function ProPage() {
                       onChange={(e) =>
                         setBreakpoints((prev) => prev.map((b) => (b.id === bp.id ? { ...b, condition: e.target.value } : b)))
                       }
-                      placeholder="condition"
+                      placeholder={t.condition}
                     />
                   </div>
                 ))}
               </div>
               <Button onClick={addBreakpoint} variant="outline" className="border-amber-400/40 text-amber-200">
-                + Add breakpoint
+                {t.addBreakpoint}
               </Button>
             </div>
           </div>
@@ -458,7 +458,7 @@ export default function ProPage() {
           <div className="rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 p-4 space-y-3">
             <div className="flex items-center gap-2 text-white">
               <Database className="w-5 h-5 text-amber-400" />
-              <h3 className="text-lg font-semibold">Variable Inspector</h3>
+              <h3 className="text-lg font-semibold">{t.variableInspector}</h3>
             </div>
             <textarea
               className="w-full h-32 rounded-lg bg-black/40 border border-amber-400/20 text-sm text-white p-3 font-mono"

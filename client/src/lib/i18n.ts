@@ -317,6 +317,71 @@ export interface Translations {
   codeSentTo: string;
   back: string;
   vipProceedToPayment: string;
+  
+  // Pricing page specific
+  planFree: string;
+  planPro: string;
+  planFreePrice: string;
+  planProPrice: string;
+  planFreePeriod: string;
+  planProPeriod: string;
+  planFreeDescription: string;
+  planProDescription: string;
+  planProBadge: string;
+  planFeature1: string;
+  planFeature2: string;
+  planFeature3: string;
+  planFeature4: string;
+  planFeature5: string;
+  planFeature6: string;
+  planFeature7: string;
+  planFeature8: string;
+  planFeature9: string;
+  planFeature10: string;
+  planFeature11: string;
+  planNotIncluded1: string;
+  planNotIncluded2: string;
+  planNotIncluded3: string;
+  planNotIncluded4: string;
+  currentPlan: string;
+  activatePro: string;
+  billingCurrency: string;
+  flashOffer: string;
+  flashOfferText: string;
+  timeRemaining: string;
+  monthlyBenefitsTitle: string;
+  benefit1: string;
+  benefit2: string;
+  benefit3: string;
+  benefit4: string;
+  proRoadmapTitle: string;
+  faqTitle: string;
+  faq1Question: string;
+  faq1Answer: string;
+  faq2Question: string;
+  faq2Answer: string;
+  faq3Question: string;
+  faq3Answer: string;
+  faq4Question: string;
+  faq4Answer: string;
+  ctaTitle: string;
+  ctaSubtitle: string;
+  activateProNow: string;
+  youArePro: string;
+  youAreProDesc: string;
+  sendingCode: string;
+  continueToEmailConfirm: string;
+  verifying: string;
+  continueToPayment: string;
+  
+  // Pro page specific
+  vipBadge: string;
+  codeProfiler: string;
+  breakpointManager: string;
+  variableInspector: string;
+  addBreakpoint: string;
+  condition: string;
+  run: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -637,6 +702,71 @@ export const translations: Record<Language, Translations> = {
     codeSentTo: 'Code sent to',
     back: 'Back',
     vipProceedToPayment: 'Proceed to payment',
+    
+    // Pricing page specific
+    planFree: 'Free',
+    planPro: 'Pro',
+    planFreePrice: '$0',
+    planProPrice: '$2',
+    planFreePeriod: 'forever',
+    planProPeriod: '/month (USD)',
+    planFreeDescription: 'Perfect to get started',
+    planProDescription: 'Billed in USD; your bank converts to BRL/other currencies',
+    planProBadge: 'Popular',
+    planFeature1: '✓ Access to basic lessons',
+    planFeature2: '✓ Code editor',
+    planFeature3: '✓ Limited exercises (5 per day)',
+    planFeature4: '✓ 5 programming languages',
+    planFeature5: '✓ Community',
+    planFeature6: '✓ Everything in Free plan',
+    planFeature7: '✓ Advanced Python debugger',
+    planFeature8: '✓ Unlimited exercises',
+    planFeature9: '✓ Exclusive lessons',
+    planFeature10: '✓ Completion certificates',
+    planFeature11: '✓ Complete history',
+    planNotIncluded1: '✗ Advanced debugger (Pro)',
+    planNotIncluded2: '✗ Certificates',
+    planNotIncluded3: '✗ Exclusive lessons',
+    planNotIncluded4: '✗ Priority support',
+    currentPlan: 'Current',
+    activatePro: 'Activate Pro',
+    billingCurrency: 'Billed in USD ($2/month). Your bank converts to BRL/other currencies.',
+    flashOffer: 'Flash offer',
+    flashOfferText: 'Activate Pro now for $2/month and lock in the price.',
+    timeRemaining: 'Time remaining',
+    monthlyBenefitsTitle: 'Pro monthly benefits',
+    benefit1: 'Unlimited debugger executions',
+    benefit2: 'Hints and solutions unlocked in exercises',
+    benefit3: 'Priority support and voteable roadmap',
+    benefit4: 'Pro updates delivered continuously',
+    proRoadmapTitle: 'Pro Roadmap',
+    faqTitle: 'Frequently Asked Questions',
+    faq1Question: 'Can I cancel anytime?',
+    faq1Answer: 'Yes! You can cancel your Pro subscription anytime and will have access until the end of the paid period.',
+    faq2Question: 'What are "Unlimited exercises"?',
+    faq2Answer: 'Free users can only do 5 exercises per day. Pro users can do as many as they want, whenever they want.',
+    faq3Question: 'Do I need a credit card to start?',
+    faq3Answer: "No! The Free plan is 100% free with no credit card required. You only need to add payment details when you want to upgrade to Pro.",
+    faq4Question: 'Is there an annual discount?',
+    faq4Answer: 'No. We keep pricing simple: $2/month in USD, and your bank does the conversion to BRL or other currencies.',
+    ctaTitle: 'Start learning today!',
+    ctaSubtitle: 'Unlock new exercises, advanced tools, and certificates with the Pro plan.',
+    activateProNow: 'Activate Pro Now',
+    youArePro: "You're Pro 🎉",
+    youAreProDesc: 'Manage your subscription, payment method, and invoices in the portal.',
+    sendingCode: 'Sending code...',
+    continueToEmailConfirm: 'Continue to email confirmation',
+    verifying: 'Verifying...',
+    continueToPayment: 'Continue to payment',
+    
+    // Pro page specific
+    vipBadge: 'VIP',
+    codeProfiler: 'Code Profiler',
+    breakpointManager: 'Breakpoint Manager',
+    variableInspector: 'Variable Inspector',
+    addBreakpoint: '+ Add breakpoint',
+    condition: 'condition',
+    run: 'Run',
   },
   
   'pt-BR': {
@@ -956,6 +1086,71 @@ export const translations: Record<Language, Translations> = {
     codeSentTo: 'Código enviado para',
     back: 'Voltar',
     vipProceedToPayment: 'Seguir para pagamento',
+    
+    // Pricing page specific
+    planFree: 'Free',
+    planPro: 'Pro',
+    planFreePrice: 'R$ 0',
+    planProPrice: '$2',
+    planFreePeriod: 'para sempre',
+    planProPeriod: '/mês (USD)',
+    planFreeDescription: 'Perfeito para começar',
+    planProDescription: 'Cobra em USD; seu banco converte para BRL ou outras moedas',
+    planProBadge: 'Popular',
+    planFeature1: '✓ Acesso a lições básicas',
+    planFeature2: '✓ Editor de código',
+    planFeature3: '✓ Exercícios limitados (5 por dia)',
+    planFeature4: '✓ 5 linguagens de programação',
+    planFeature5: '✓ Comunidade',
+    planFeature6: '✓ Tudo do plano Free',
+    planFeature7: '✓ Debugger Python avançado',
+    planFeature8: '✓ Exercícios ilimitados',
+    planFeature9: '✓ Lições exclusivas',
+    planFeature10: '✓ Certificados de conclusão',
+    planFeature11: '✓ Histórico completo',
+    planNotIncluded1: '✗ Debugger avançado (Pro)',
+    planNotIncluded2: '✗ Certificados',
+    planNotIncluded3: '✗ Lições exclusivas',
+    planNotIncluded4: '✗ Suporte prioritário',
+    currentPlan: 'Atual',
+    activatePro: 'Ativar Pro',
+    billingCurrency: 'Cobrança em USD ($2/mês). Seu banco converte para BRL/outras moedas.',
+    flashOffer: 'Oferta relâmpago',
+    flashOfferText: 'Ative o Pro agora por $2/mês e fixe o preço.',
+    timeRemaining: 'Tempo restante',
+    monthlyBenefitsTitle: 'Benefícios mensais do Pro',
+    benefit1: 'Execuções ilimitadas no debugger',
+    benefit2: 'Dicas e soluções desbloqueadas nos exercícios',
+    benefit3: 'Suporte prioritário e roadmap votável',
+    benefit4: 'Atualizações Pro entregues continuamente',
+    proRoadmapTitle: 'Roadmap Pro',
+    faqTitle: 'Perguntas Frequentes',
+    faq1Question: 'Posso cancelar a qualquer momento?',
+    faq1Answer: 'Sim! Você pode cancelar sua assinatura Pro a qualquer momento e terá acesso até o final do período pago.',
+    faq2Question: 'O que são "Exercícios ilimitados"?',
+    faq2Answer: 'Usuários Free podem fazer apenas 5 exercícios por dia. Usuários Pro podem fazer quantos quiserem, quando quiserem.',
+    faq3Question: 'Preciso de cartão de crédito para começar?',
+    faq3Answer: 'Não! O plano Free é 100% gratuito e sem cartão de crédito. Você só precisa adicionar dados de pagamento quando quiser fazer upgrade para Pro.',
+    faq4Question: 'Existe desconto anual?',
+    faq4Answer: 'Não. Mantemos o preço simples: $2/mês em USD, e seu banco faz a conversão para BRL ou outras moedas.',
+    ctaTitle: 'Comece a aprender hoje!',
+    ctaSubtitle: 'Desbloqueia novos exercícios, ferramentas avançadas e certificados com o plano Pro.',
+    activateProNow: 'Ativar Pro Agora',
+    youArePro: 'Você é Pro 🎉',
+    youAreProDesc: 'Gerencie sua assinatura, forma de pagamento e faturas no portal.',
+    sendingCode: 'Enviando código...',
+    continueToEmailConfirm: 'Seguir para confirmação de e-mail',
+    verifying: 'Verificando...',
+    continueToPayment: 'Seguir para pagamento',
+    
+    // Pro page specific
+    vipBadge: 'VIP',
+    codeProfiler: 'Code Profiler',
+    breakpointManager: 'Breakpoint Manager',
+    variableInspector: 'Variable Inspector',
+    addBreakpoint: '+ Adicionar breakpoint',
+    condition: 'condição',
+    run: 'Executar',
   },
   
   'es': {
@@ -1275,6 +1470,71 @@ export const translations: Record<Language, Translations> = {
     codeSentTo: 'Código enviado a',
     back: 'Atrás',
     vipProceedToPayment: 'Continuar al pago',
+    
+    // Pricing page specific
+    planFree: 'Gratis',
+    planPro: 'Pro',
+    planFreePrice: '$0',
+    planProPrice: '$2',
+    planFreePeriod: 'para siempre',
+    planProPeriod: '/mes (USD)',
+    planFreeDescription: 'Perfecto para empezar',
+    planProDescription: 'Facturado en USD; tu banco convierte a BRL/otras monedas',
+    planProBadge: 'Popular',
+    planFeature1: '✓ Acceso a lecciones básicas',
+    planFeature2: '✓ Editor de código',
+    planFeature3: '✓ Ejercicios limitados (5 por día)',
+    planFeature4: '✓ 5 lenguajes de programación',
+    planFeature5: '✓ Comunidad',
+    planFeature6: '✓ Todo del plan Gratis',
+    planFeature7: '✓ Depurador Python avanzado',
+    planFeature8: '✓ Ejercicios ilimitados',
+    planFeature9: '✓ Lecciones exclusivas',
+    planFeature10: '✓ Certificados de finalización',
+    planFeature11: '✓ Historial completo',
+    planNotIncluded1: '✗ Depurador avanzado (Pro)',
+    planNotIncluded2: '✗ Certificados',
+    planNotIncluded3: '✗ Lecciones exclusivas',
+    planNotIncluded4: '✗ Soporte prioritario',
+    currentPlan: 'Actual',
+    activatePro: 'Activar Pro',
+    billingCurrency: 'Facturado en USD ($2/mes). Tu banco convierte a BRL/otras monedas.',
+    flashOffer: 'Oferta relámpago',
+    flashOfferText: 'Activa Pro ahora por $2/mes y fija el precio.',
+    timeRemaining: 'Tiempo restante',
+    monthlyBenefitsTitle: 'Beneficios mensuales Pro',
+    benefit1: 'Ejecuciones ilimitadas del depurador',
+    benefit2: 'Pistas y soluciones desbloqueadas en ejercicios',
+    benefit3: 'Soporte prioritario y roadmap votable',
+    benefit4: 'Actualizaciones Pro entregadas continuamente',
+    proRoadmapTitle: 'Roadmap Pro',
+    faqTitle: 'Preguntas Frecuentes',
+    faq1Question: '¿Puedo cancelar en cualquier momento?',
+    faq1Answer: '¡Sí! Puedes cancelar tu suscripción Pro en cualquier momento y tendrás acceso hasta el final del período pagado.',
+    faq2Question: '¿Qué son "Ejercicios ilimitados"?',
+    faq2Answer: 'Los usuarios gratuitos solo pueden hacer 5 ejercicios por día. Los usuarios Pro pueden hacer tantos como quieran, cuando quieran.',
+    faq3Question: '¿Necesito tarjeta de crédito para empezar?',
+    faq3Answer: '¡No! El plan Gratis es 100% gratuito y sin tarjeta de crédito. Solo necesitas agregar datos de pago cuando quieras actualizar a Pro.',
+    faq4Question: '¿Existe descuento anual?',
+    faq4Answer: 'No. Mantenemos el precio simple: $2/mes en USD, y tu banco hace la conversión a BRL u otras monedas.',
+    ctaTitle: '¡Empieza a aprender hoy!',
+    ctaSubtitle: 'Desbloquea nuevos ejercicios, herramientas avanzadas y certificados con el plan Pro.',
+    activateProNow: 'Activar Pro Ahora',
+    youArePro: '¡Eres Pro 🎉!',
+    youAreProDesc: 'Gestiona tu suscripción, método de pago y facturas en el portal.',
+    sendingCode: 'Enviando código...',
+    continueToEmailConfirm: 'Continuar a confirmación de email',
+    verifying: 'Verificando...',
+    continueToPayment: 'Continuar al pago',
+    
+    // Pro page specific
+    vipBadge: 'VIP',
+    codeProfiler: 'Perfilador de Código',
+    breakpointManager: 'Gestor de Breakpoints',
+    variableInspector: 'Inspector de Variables',
+    addBreakpoint: '+ Agregar breakpoint',
+    condition: 'condición',
+    run: 'Ejecutar',
   },
   
   'zh': {

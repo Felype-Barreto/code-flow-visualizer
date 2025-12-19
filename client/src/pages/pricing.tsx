@@ -18,56 +18,56 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const plans = [
-  {
-    name: "Free",
-    price: "R$ 0",
-    period: "para sempre",
-    description: "Perfeito para começar",
-    features: [
-      "✓ Acesso a lições básicas",
-      "✓ Editor de código",
-      "✓ Exercícios limitados (5 por dia)",
-      "✓ 5 linguagens de programação",
-      "✓ Comunidade",
-    ],
-    notIncluded: [
-      "✗ Debugger avançado (Pro)",
-      "✗ Certificados",
-      "✗ Lições exclusivas",
-      "✗ Suporte prioritário",
-    ],
-    cta: "Atual",
-    ctaVariant: "secondary" as const,
-    isFree: true,
-  },
-  {
-    name: "Pro",
-    price: "$2",
-    period: "/mês (USD)",
-    description: "Cobra em USD; seu banco converte para BRL ou outras moedas",
-    badge: "Popular",
-    features: [
-      "✓ Tudo do plano Free",
-      "✓ Debugger Python avançado",
-      "✓ Exercícios ilimitados",
-      "✓ Lições exclusivas",
-      "✓ Certificados de conclusão",
-      "✓ Histórico completo",
-      "✓ Suporte prioritário",
-      "✓ Comunidade VIP",
-    ],
-    notIncluded: [],
-    cta: "Ativar Pro",
-    ctaVariant: "default" as const,
-    isPro: true,
-  },
-];
-
 export default function PricingPage() {
   const { user, token } = useUser();
   const { t } = useLanguage();
   const [, setLocation] = useLocation();
+  
+  const plans = [
+    {
+      name: t.planFree,
+      price: t.planFreePrice,
+      period: t.planFreePeriod,
+      description: t.planFreeDescription,
+      features: [
+        t.planFeature1,
+        t.planFeature2,
+        t.planFeature3,
+        t.planFeature4,
+        t.planFeature5,
+      ],
+      notIncluded: [
+        t.planNotIncluded1,
+        t.planNotIncluded2,
+        t.planNotIncluded3,
+        t.planNotIncluded4,
+      ],
+      cta: t.currentPlan,
+      ctaVariant: "secondary" as const,
+      isFree: true,
+    },
+    {
+      name: t.planPro,
+      price: t.planProPrice,
+      period: t.planProPeriod,
+      description: t.planProDescription,
+      badge: t.planProBadge,
+      features: [
+        t.planFeature6,
+        t.planFeature7,
+        t.planFeature8,
+        t.planFeature9,
+        t.planFeature10,
+        t.planFeature11,
+        t.planFeature4,
+        t.planFeature5,
+      ],
+      notIncluded: [],
+      cta: t.activatePro,
+      ctaVariant: "default" as const,
+      isPro: true,
+    },
+  ];
   const [billingPlan] = useState<"monthly">("monthly");
   const [secondsLeft, setSecondsLeft] = useState(3600); // 1h urgency banner
   const [vipOpen, setVipOpen] = useState(false);
@@ -83,21 +83,21 @@ export default function PricingPage() {
 
   const monthlyBenefits = useMemo(
     () => [
-      "Execuções ilimitadas no debugger",
-      "Dicas e soluções desbloqueadas nos exercícios",
-      "Suporte prioritário e roadmap votável",
-      "Atualizações Pro entregues continuamente",
+      t.benefit1,
+      t.benefit2,
+      t.benefit3,
+      t.benefit4,
     ],
-    []
+    [t]
   );
 
   const roadmapItems = useMemo(
     () => [
-      { title: "Profiler com timeline e flamegraph", eta: "Jan/2026", status: "Em construção" },
-      { title: "Breakpoints condicionais com watch de variáveis", eta: "Jan/2026", status: "Em construção" },
-      { title: "Inspector para objetos grandes + export JSON", eta: "Fev/2026", status: "Planejado" },
+      { title: t.proRoadmap1Title, eta: t.proRoadmap1Eta, status: t.proRoadmap1Status },
+      { title: t.proRoadmap2Title, eta: t.proRoadmap2Eta, status: t.proRoadmap2Status },
+      { title: t.proRoadmap3Title, eta: t.proRoadmap3Eta, status: t.proRoadmap3Status },
     ],
-    []
+    [t]
   );
 
   const proFeatureCards = useMemo(
@@ -218,7 +218,7 @@ export default function PricingPage() {
   const submitCollect = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!email) {
-      toast({ title: "Email necessário", description: "Informe um email válido." });
+      toast({ title: t.emailRequired, description: t.emailRequired });
       return;
     }
     try {
@@ -232,14 +232,14 @@ export default function PricingPage() {
         body: JSON.stringify({ email, firstName, lastName, dateOfBirth: dobIso, country, password }),
       });
       const data = await res.json();
-      if (!res.ok || !data?.ok) throw new Error(data?.error || "Falha ao enviar código");
+      if (!res.ok || !data?.ok) throw new Error(data?.error || t.error);
       // Persist pending signup so we can complete after payment
       const pending = { firstName, lastName, country, dateOfBirth, email, password };
       sessionStorage.setItem("pendingSignup", JSON.stringify(pending));
       setVipStep("verify");
       toast({ title: t.vipCodeSent, description: t.vipCheckEmail });
     } catch (err: any) {
-      toast({ title: "Erro", description: err?.message || String(err) });
+      toast({ title: t.error, description: err?.message || String(err) });
     } finally {
       setLoading(false);
     }
@@ -248,7 +248,7 @@ export default function PricingPage() {
   const submitVerifyThenCheckout = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!email || !code) {
-      toast({ title: "Código necessário", description: "Digite o código recebido por email." });
+      toast({ title: t.error, description: t.error });
       return;
     }
     try {
@@ -259,7 +259,7 @@ export default function PricingPage() {
         body: JSON.stringify({ email, code }),
       });
       const vdata = await vres.json();
-      if (!vres.ok || !vdata?.ok) throw new Error(vdata?.error || "Código inválido");
+      if (!vres.ok || !vdata?.ok) throw new Error(vdata?.error || t.error);
 
       const cres = await fetch("/api/pro/create-checkout", {
         method: "POST",
@@ -271,10 +271,10 @@ export default function PricingPage() {
         window.location.href = cdata.url;
         return;
       }
-      toast({ title: "Não redirecionou", description: "Abrindo área Pro para continuar." });
+      toast({ title: t.error, description: t.error });
       setLocation("/pro");
     } catch (err: any) {
-      toast({ title: "Erro", description: err?.message || String(err) });
+      toast({ title: t.error, description: err?.message || String(err) });
     } finally {
       setLoading(false);
     }
@@ -299,9 +299,9 @@ export default function PricingPage() {
           return;
         }
       }
-      alert("Não foi possível abrir o portal de cobrança");
+      alert(t.error);
     } catch (err) {
-      alert("Erro ao abrir o portal");
+      alert(t.error);
     }
   };
 
@@ -315,13 +315,13 @@ export default function PricingPage() {
             {t.pricingPlansSubtitle}
           </p>
           <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-200">
-            <span className="font-semibold text-white">Pro: $2/mês</span>
-            <span className="text-gray-300">Cobrança em USD; seu banco converte para BRL/outras moedas.</span>
+            <span className="font-semibold text-white">{t.planPro}: {t.planProPrice}{t.planProPeriod}</span>
+            <span className="text-gray-300">{t.billingCurrency}</span>
           </div>
 
           <div className="mt-4 inline-flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-red-600/80 to-orange-500/80 border border-red-500/50 text-sm text-white shadow-lg shadow-red-500/30">
-            <span className="font-bold text-base">Oferta relâmpago</span>
-            <span className="text-white/90">Ative o Pro agora por $2/mês e fixe o preço.</span>
+            <span className="font-bold text-base">{t.flashOffer}</span>
+            <span className="text-white/90">{t.flashOfferText}</span>
             <span className="px-2 py-1 rounded bg-black/40 font-mono text-sm tracking-wide">{minutes}:{seconds}</span>
           </div>
         </div>
@@ -593,34 +593,34 @@ export default function PricingPage() {
 
         {/* FAQ */}
         <div className="max-w-4xl mx-auto mt-16">
-          <h2 className="text-3xl font-bold text-white text-center mb-8">Perguntas Frequentes</h2>
+          <h2 className="text-3xl font-bold text-white text-center mb-8">{t.faqTitle}</h2>
 
           <div className="space-y-6">
             <div className="bg-slate-800/40 border border-gray-700 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-white mb-2">Posso cancelar a qualquer momento?</h3>
+              <h3 className="text-lg font-bold text-white mb-2">{t.faq1Question}</h3>
               <p className="text-gray-400">
-                Sim! Você pode cancelar sua assinatura Pro a qualquer momento e terá acesso até o final do período pago.
+                {t.faq1Answer}
               </p>
             </div>
 
             <div className="bg-slate-800/40 border border-gray-700 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-white mb-2">O que são "Exercícios ilimitados"?</h3>
+              <h3 className="text-lg font-bold text-white mb-2">{t.faq2Question}</h3>
               <p className="text-gray-400">
-                Usuários Free podem fazer apenas 5 exercícios por dia. Usuários Pro podem fazer quantos quiserem, quando quiserem.
+                {t.faq2Answer}
               </p>
             </div>
 
             <div className="bg-slate-800/40 border border-gray-700 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-white mb-2">Preciso de cartão de crédito para começar?</h3>
+              <h3 className="text-lg font-bold text-white mb-2">{t.faq3Question}</h3>
               <p className="text-gray-400">
-                Não! O plano Free é 100% gratuito e sem cartão de crédito. Você só precisa adicionar dados de pagamento quando quiser fazer upgrade para Pro.
+                {t.faq3Answer}
               </p>
             </div>
 
             <div className="bg-slate-800/40 border border-gray-700 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-white mb-2">Existe desconto anual?</h3>
+              <h3 className="text-lg font-bold text-white mb-2">{t.faq4Question}</h3>
               <p className="text-gray-400">
-                Não. Mantemos o preço simples: $2/mês em USD, e seu banco faz a conversão para BRL ou outras moedas.
+                {t.faq4Answer}
               </p>
             </div>
           </div>
@@ -630,9 +630,9 @@ export default function PricingPage() {
         {!user?.isPro ? (
           <div className="max-w-4xl mx-auto mt-16 text-center">
             <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-8">
-              <h2 className="text-3xl font-bold text-white mb-4">Comece a aprender hoje!</h2>
+              <h2 className="text-3xl font-bold text-white mb-4">{t.ctaTitle}</h2>
               <p className="text-purple-100 mb-6 text-lg">
-                Desbloqueia novos exercícios, ferramentas avançadas e certificados com o plano Pro.
+                {t.ctaSubtitle}
               </p>
               <Button
                 size="lg"
@@ -640,19 +640,19 @@ export default function PricingPage() {
                 className="font-bold text-lg px-8 py-6"
                 onClick={handleUpgrade}
               >
-                Ativar Pro Agora
+                {t.activateProNow}
               </Button>
             </div>
           </div>
         ) : (
           <div className="max-w-4xl mx-auto mt-16 text-center">
             <div className="bg-slate-900/60 border border-gray-700 rounded-lg p-8">
-              <h2 className="text-3xl font-bold text-white mb-4">Você é Pro 🎉</h2>
+              <h2 className="text-3xl font-bold text-white mb-4">{t.youArePro}</h2>
               <p className="text-gray-300 mb-6 text-lg">
-                Gerencie sua assinatura, forma de pagamento e faturas no portal.
+                {t.youAreProDesc}
               </p>
               <Button size="lg" className="font-bold text-lg px-8 py-6" onClick={handlePortal}>
-                Gerenciar assinatura
+                {t.manageSubscription}
               </Button>
             </div>
           </div>
@@ -703,7 +703,7 @@ export default function PricingPage() {
                 </div>
               </div>
               <Button type="submit" className="w-full bg-amber-500 text-black font-semibold" disabled={loading}>
-                {loading ? "Enviando código..." : "Seguir para confirmação de e-mail"}
+                {loading ? t.sendingCode : t.continueToEmailConfirm}
               </Button>
             </form>
           ) : (
@@ -728,7 +728,7 @@ export default function PricingPage() {
                   {t.back}
                 </Button>
                 <Button type="submit" className="flex-1 bg-amber-500 text-black font-semibold" disabled={loading}>
-                  {loading ? "Verificando..." : "Seguir para pagamento"}
+                  {loading ? t.verifying : t.continueToPayment}
                 </Button>
               </div>
             </form>
