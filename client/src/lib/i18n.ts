@@ -349,6 +349,8 @@ export interface Translations {
   flashOffer: string;
   flashOfferText: string;
   timeRemaining: string;
+  flashOfferLimited: string;
+  timeRemainingLabel: string;
   monthlyBenefitsTitle: string;
   benefit1: string;
   benefit2: string;
@@ -382,6 +384,50 @@ export interface Translations {
   addBreakpoint: string;
   condition: string;
   run: string;
+  
+  // Auth additional
+  verifyEmail: string;
+  resetPassword: string;
+  verifyCode: string;
+  newPassword: string;
+  enterCodeSentToEmail: string;
+  enterEmailForReset: string;
+  enterCodeFromEmail: string;
+  enterNewPassword: string;
+  selectYourCountry: string;
+  proCodeLabel: string;
+  proCodePlaceholder: string;
+  proCodeNote: string;
+  passwordRequirements: string;
+  sendVerificationCode: string;
+  alreadyHaveAccount: string;
+  verifyAndCreateAccount: string;
+  backToForm: string;
+  weSentCodeTo: string;
+  sendResetCode: string;
+  backToLogin: string;
+  verifyCodeButton: string;
+  newPasswordLabel: string;
+  confirmNewPassword: string;
+  resetPasswordButton: string;
+  firstNameRequired: string;
+  lastNameRequired: string;
+  dateOfBirthRequired: string;
+  countryRequired: string;
+  proCodeRequired: string;
+  codeVerificationRequired: string;
+  invalidCode: string;
+  loginFailed: string;
+  signupFailed: string;
+  forgotPasswordFailed: string;
+  
+  // Exercise additional
+  nextChallenge: string;
+  previousStep: string;
+  nextStep: string;
+  backToStart: string;
+  noFunctionFoundError: string;
+  executionLimitReached: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -734,6 +780,8 @@ export const translations: Record<Language, Translations> = {
     flashOffer: 'Flash offer',
     flashOfferText: 'Activate Pro now for $2/month and lock in the price.',
     timeRemaining: 'Time remaining',
+    flashOfferLimited: 'Flash offer: fixed price for a limited time.',
+    timeRemainingLabel: 'Time remaining',
     monthlyBenefitsTitle: 'Pro monthly benefits',
     benefit1: 'Unlimited debugger executions',
     benefit2: 'Hints and solutions unlocked in exercises',
@@ -767,6 +815,50 @@ export const translations: Record<Language, Translations> = {
     addBreakpoint: '+ Add breakpoint',
     condition: 'condition',
     run: 'Run',
+    
+    // Auth additional
+    verifyEmail: 'Verify Email',
+    resetPassword: 'Reset Password',
+    verifyCode: 'Verify Code',
+    newPassword: 'New Password',
+    enterCodeSentToEmail: 'Enter the 6-digit code sent to your email',
+    enterEmailForReset: 'Enter your email to receive a reset code',
+    enterCodeFromEmail: 'Enter the code sent to your email',
+    enterNewPassword: 'Enter your new password',
+    selectYourCountry: 'Select your country',
+    proCodeLabel: 'Pro Code (obtained after payment)',
+    proCodePlaceholder: 'Paste your Pro code here',
+    proCodeNote: 'We only create accounts with a valid Pro code.',
+    passwordRequirements: '🔒 10+ chars, mix letters & numbers',
+    sendVerificationCode: 'Send Verification Code',
+    alreadyHaveAccount: 'Already have an account?',
+    verifyAndCreateAccount: 'Verify & Create Account',
+    backToForm: 'Back to form',
+    weSentCodeTo: 'We sent a 6-digit code to',
+    sendResetCode: 'Send Reset Code',
+    backToLogin: 'Back to login',
+    verifyCodeButton: 'Verify Code',
+    newPasswordLabel: 'New Password',
+    confirmNewPassword: 'Confirm new password',
+    resetPasswordButton: 'Reset Password',
+    firstNameRequired: 'First name is required',
+    lastNameRequired: 'Last name is required',
+    dateOfBirthRequired: 'Date of birth is required',
+    countryRequired: 'Country is required',
+    proCodeRequired: 'Pro code is required. Signup only available for Pro customers.',
+    codeVerificationRequired: 'Please enter the 6-digit verification code',
+    invalidCode: 'Invalid or expired code',
+    loginFailed: 'Login failed',
+    signupFailed: 'Signup failed',
+    forgotPasswordFailed: 'Failed to send reset code',
+    
+    // Exercise additional
+    nextChallenge: 'Next Challenge →',
+    previousStep: 'Previous step',
+    nextStep: 'Next step',
+    backToStart: 'Back to start',
+    noFunctionFoundError: 'No function found',
+    executionLimitReached: 'Execution limit reached for Free plan. Upgrade to Pro for unlimited.',
   },
   
   'pt-BR': {
@@ -1118,6 +1210,8 @@ export const translations: Record<Language, Translations> = {
     flashOffer: 'Oferta relâmpago',
     flashOfferText: 'Ative o Pro agora por $2/mês e fixe o preço.',
     timeRemaining: 'Tempo restante',
+    flashOfferLimited: 'Oferta relâmpago: preço fixo por tempo limitado.',
+    timeRemainingLabel: 'Tempo restante',
     monthlyBenefitsTitle: 'Benefícios mensais do Pro',
     benefit1: 'Execuções ilimitadas no debugger',
     benefit2: 'Dicas e soluções desbloqueadas nos exercícios',
@@ -1151,6 +1245,50 @@ export const translations: Record<Language, Translations> = {
     addBreakpoint: '+ Adicionar breakpoint',
     condition: 'condição',
     run: 'Executar',
+    
+    // Auth additional
+    verifyEmail: 'Verificar E-mail',
+    resetPassword: 'Redefinir Senha',
+    verifyCode: 'Verificar Código',
+    newPassword: 'Nova Senha',
+    enterCodeSentToEmail: 'Digite o código de 6 dígitos enviado para seu e-mail',
+    enterEmailForReset: 'Digite seu e-mail para receber um código de redefinição',
+    enterCodeFromEmail: 'Digite o código enviado para seu e-mail',
+    enterNewPassword: 'Digite sua nova senha',
+    selectYourCountry: 'Selecione seu país',
+    proCodeLabel: 'Código Pro (obtido após o pagamento)',
+    proCodePlaceholder: 'Cole aqui o código Pro',
+    proCodeNote: 'Só criamos contas com um código Pro válido.',
+    passwordRequirements: '🔒 10+ caracteres, letras e números',
+    sendVerificationCode: 'Enviar Código de Verificação',
+    alreadyHaveAccount: 'Já tem uma conta?',
+    verifyAndCreateAccount: 'Verificar e Criar Conta',
+    backToForm: 'Voltar ao formulário',
+    weSentCodeTo: 'Enviamos um código de 6 dígitos para',
+    sendResetCode: 'Enviar Código de Redefinição',
+    backToLogin: 'Voltar ao login',
+    verifyCodeButton: 'Verificar Código',
+    newPasswordLabel: 'Nova Senha',
+    confirmNewPassword: 'Confirmar nova senha',
+    resetPasswordButton: 'Redefinir Senha',
+    firstNameRequired: 'Nome é obrigatório',
+    lastNameRequired: 'Sobrenome é obrigatório',
+    dateOfBirthRequired: 'Data de nascimento é obrigatória',
+    countryRequired: 'País é obrigatório',
+    proCodeRequired: 'Cadastro disponível só para clientes Pro. Gere o pagamento e insira o código Pro.',
+    codeVerificationRequired: 'Por favor, digite o código de verificação de 6 dígitos',
+    invalidCode: 'Código inválido ou expirado',
+    loginFailed: 'Falha no login',
+    signupFailed: 'Falha no cadastro',
+    forgotPasswordFailed: 'Falha ao enviar código de redefinição',
+    
+    // Exercise additional
+    nextChallenge: 'Próximo desafio →',
+    previousStep: 'Passo anterior',
+    nextStep: 'Próximo passo',
+    backToStart: 'Voltar ao início',
+    noFunctionFoundError: 'Nenhuma função encontrada',
+    executionLimitReached: 'Limite de execuções atingido no plano Free. Faça upgrade para Pro.',
   },
   
   'es': {
@@ -1502,6 +1640,8 @@ export const translations: Record<Language, Translations> = {
     flashOffer: 'Oferta relámpago',
     flashOfferText: 'Activa Pro ahora por $2/mes y fija el precio.',
     timeRemaining: 'Tiempo restante',
+    flashOfferLimited: 'Oferta relámpago: precio fijo por tiempo limitado.',
+    timeRemainingLabel: 'Tiempo restante',
     monthlyBenefitsTitle: 'Beneficios mensuales Pro',
     benefit1: 'Ejecuciones ilimitadas del depurador',
     benefit2: 'Pistas y soluciones desbloqueadas en ejercicios',
@@ -1535,6 +1675,50 @@ export const translations: Record<Language, Translations> = {
     addBreakpoint: '+ Agregar breakpoint',
     condition: 'condición',
     run: 'Ejecutar',
+    
+    // Auth additional
+    verifyEmail: 'Verificar Email',
+    resetPassword: 'Restablecer Contraseña',
+    verifyCode: 'Verificar Código',
+    newPassword: 'Nueva Contraseña',
+    enterCodeSentToEmail: 'Ingresa el código de 6 dígitos enviado a tu email',
+    enterEmailForReset: 'Ingresa tu email para recibir un código de restablecimiento',
+    enterCodeFromEmail: 'Ingresa el código enviado a tu email',
+    enterNewPassword: 'Ingresa tu nueva contraseña',
+    selectYourCountry: 'Selecciona tu país',
+    proCodeLabel: 'Código Pro (obtenido después del pago)',
+    proCodePlaceholder: 'Pega tu código Pro aquí',
+    proCodeNote: 'Solo creamos cuentas con un código Pro válido.',
+    passwordRequirements: '🔒 10+ caracteres, mezcla letras y números',
+    sendVerificationCode: 'Enviar Código de Verificación',
+    alreadyHaveAccount: '¿Ya tienes una cuenta?',
+    verifyAndCreateAccount: 'Verificar y Crear Cuenta',
+    backToForm: 'Volver al formulario',
+    weSentCodeTo: 'Enviamos un código de 6 dígitos a',
+    sendResetCode: 'Enviar Código de Restablecimiento',
+    backToLogin: 'Volver al inicio de sesión',
+    verifyCodeButton: 'Verificar Código',
+    newPasswordLabel: 'Nueva Contraseña',
+    confirmNewPassword: 'Confirmar nueva contraseña',
+    resetPasswordButton: 'Restablecer Contraseña',
+    firstNameRequired: 'El nombre es requerido',
+    lastNameRequired: 'El apellido es requerido',
+    dateOfBirthRequired: 'La fecha de nacimiento es requerida',
+    countryRequired: 'El país es requerido',
+    proCodeRequired: 'Registro disponible solo para clientes Pro. Genera el pago e inserta el código Pro.',
+    codeVerificationRequired: 'Por favor, ingresa el código de verificación de 6 dígitos',
+    invalidCode: 'Código inválido o expirado',
+    loginFailed: 'Fallo en el inicio de sesión',
+    signupFailed: 'Fallo en el registro',
+    forgotPasswordFailed: 'Fallo al enviar código de restablecimiento',
+    
+    // Exercise additional
+    nextChallenge: 'Siguiente Desafío →',
+    previousStep: 'Paso anterior',
+    nextStep: 'Siguiente paso',
+    backToStart: 'Volver al inicio',
+    noFunctionFoundError: 'No se encontró función',
+    executionLimitReached: 'Límite de ejecuciones alcanzado en el plan Free. Actualiza a Pro.',
   },
   
   'zh': {

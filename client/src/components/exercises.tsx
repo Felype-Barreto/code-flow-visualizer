@@ -12,6 +12,7 @@ import { getPyodideInstance } from "@/lib/pyodide";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@/hooks/use-user";
 import { checkAndConsumeExecution } from "@/lib/execution-limit";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ExerciseProgressState {
   [exerciseId: string]: {
@@ -38,6 +39,7 @@ interface ExecutionState {
 
 export function ExercisesView() {
   const { user } = useUser();
+  const { t } = useLanguage();
   const [selectedExercise, setSelectedExercise] = useState<Exercise>(exercises[0]);
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");
   const [code, setCode] = useState<string>("");
@@ -567,12 +569,12 @@ export function ExercisesView() {
                   <div className="flex items-center gap-2 mt-4 p-2 bg-slate-700 rounded justify-center">
                     <Button variant="ghost" size="icon" onClick={() => {
                       setExecutionState((prev) => ({ ...prev, currentLineIndex: 0, errorLineIndex: null, errorMessage: null }));
-                    }} aria-label="Voltar ao início">
+                    }} aria-label={t.backToStart}>
                       <SkipBack className="w-4 h-4" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => {
                       setExecutionState((prev) => ({ ...prev, currentLineIndex: Math.max(0, prev.currentLineIndex - 1), errorLineIndex: null, errorMessage: null }));
-                    }} aria-label="Passo anterior">
+                    }} aria-label={t.previousStep}>
                       <SkipBack className="w-4 h-4" />
                     </Button>
                     <Button size="icon" onClick={() => {
@@ -582,7 +584,7 @@ export function ExercisesView() {
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => {
                       setExecutionState((prev) => ({ ...prev, currentLineIndex: Math.min(prev.lines.length, prev.currentLineIndex + 1), errorLineIndex: null, errorMessage: null }));
-                    }} aria-label="Próximo passo">
+                    }} aria-label={t.nextStep}>
                       <SkipForward className="w-4 h-4" />
                     </Button>
                     <div className="flex items-center ml-4">
@@ -848,7 +850,7 @@ export function ExercisesView() {
                           <CheckCircle2 className="w-8 h-8 text-blue-400" />
                           <div>
                             <p className="font-bold text-blue-300 text-lg">🎉 Parabéns!</p>
-                            <p className="text-sm text-blue-200">Próximo desafio →</p>
+                            <p className="text-sm text-blue-200">{t.nextChallenge}</p>
                           </div>
                         </div>
                       </Card>

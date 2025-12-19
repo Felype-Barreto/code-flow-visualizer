@@ -502,9 +502,9 @@ export default function PricingPage() {
                 )}
                 {plan.isPro && !user?.isPro && (
                   <div className="text-xs text-center space-y-1 text-gray-300">
-                    <p>Cobrança em USD ($2/mês). Seu banco converte para BRL/outras moedas.</p>
-                    <p className="text-red-300 font-semibold">Oferta relâmpago: preço fixo por tempo limitado.</p>
-                    <p className="text-amber-200">Tempo restante: {minutes}:{seconds}</p>
+                    <p>{t.billingCurrency}</p>
+                    <p className="text-red-300 font-semibold">{t.flashOfferLimited}</p>
+                    <p className="text-amber-200">{t.timeRemainingLabel}: {minutes}:{seconds}</p>
                   </div>
                 )}
               </div>
@@ -517,7 +517,7 @@ export default function PricingPage() {
           <div className="lg:col-span-2 rounded-2xl border border-amber-400/25 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 p-6 space-y-4">
             <div className="flex items-center gap-2 text-amber-200 font-semibold text-sm">
               <span className="w-4 h-4">✨</span>
-              Benefícios mensais do Pro
+              {t.monthlyBenefitsTitle}
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
               {monthlyBenefits.map((b) => (
@@ -532,7 +532,7 @@ export default function PricingPage() {
           <div className="rounded-2xl border border-amber-400/25 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-6 space-y-3">
             <div className="flex items-center gap-2 text-amber-200 font-semibold text-sm">
               <span className="w-4 h-4">👑</span>
-              Roadmap Pro
+              {t.proRoadmapTitle}
             </div>
             <div className="space-y-3 text-sm text-gray-200">
               {roadmapItems.map((item) => (

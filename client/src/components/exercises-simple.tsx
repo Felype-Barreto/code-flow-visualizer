@@ -1055,26 +1055,22 @@ export function ExercisesView() {
                   </Button>
                   <Button
                     onClick={() => setShowHint(!showHint)}
-                    disabled={!currentVariant?.hint || !user?.isPro}
+                    disabled={!currentVariant?.hint}
                     variant="outline"
                     className="border-slate-600 text-slate-200 hover:bg-slate-700"
                   >
                     <Lightbulb className="w-4 h-4 mr-2" />
-                    Dica (Pro)
+                    Dica
                   </Button>
                   <Button
                     onClick={() => setShowSolution(!showSolution)}
-                    disabled={!currentVariant?.solution || !user?.isPro}
                     variant="outline"
                     className="border-slate-600 text-slate-200 hover:bg-slate-700"
                   >
                     <Eye className="w-4 h-4 mr-2" />
-                    Solução (Pro)
+                    Ver
                   </Button>
                 </div>
-                {!user?.isPro && (
-                  <p className="text-xs text-amber-200 mt-2">Exclusivo Pro: faça upgrade para desbloquear dicas e soluções completas.</p>
-                )}
 
                 {showEnableExecutionConfirm && (
                   <Card className="p-3 bg-slate-800 border-l-4 border-slate-600 mt-4">
@@ -1103,14 +1099,14 @@ export function ExercisesView() {
                   </Card>
                 )}
 
-                {showHint && currentVariant?.hint && user?.isPro && (
+                {showHint && currentVariant?.hint && (
                   <Card className="p-4 bg-yellow-500/10 border-l-4 border-yellow-500">
                     <p className="text-sm font-semibold text-yellow-300 mb-1">💡 Dica</p>
                     <p className="text-sm text-yellow-200">{currentVariant.hint}</p>
                   </Card>
                 )}
 
-                {showSolution && currentVariant && user?.isPro && (
+                {showSolution && currentVariant && (
                   <Card className="p-4 bg-green-500/10 border-l-4 border-green-500">
                     <p className="text-sm font-semibold text-green-300 mb-3">✓ Solução</p>
                     <pre className="bg-slate-900 p-4 rounded text-xs overflow-x-auto border border-slate-700">
@@ -1168,7 +1164,7 @@ export function ExercisesView() {
                           <CheckCircle2 className="w-8 h-8 text-blue-400" />
                           <div>
                             <p className="font-bold text-blue-300 text-lg">🎉 Parabéns!</p>
-                            <p className="text-sm text-blue-200">Próximo desafio →</p>
+                            <p className="text-sm text-blue-200">{t.nextChallenge}</p>
                           </div>
                         </div>
                       </Card>

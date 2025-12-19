@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Playground({ variant }: { variant: any }) {
+  const { t } = useLanguage();
   const steps = variant?.steps || [];
   const [index, setIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -84,7 +86,7 @@ export default function Playground({ variant }: { variant: any }) {
         <Button variant="ghost" size="icon" onClick={() => { setIndex(0); setIsPlaying(false); }} aria-label="Ir para início">
           <SkipBack className="w-4 h-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => setIndex((i) => Math.max(0, i - 1))} aria-label="Passo anterior">
+        <Button variant="ghost" size="icon" onClick={() => setIndex((i) => Math.max(0, i - 1))} aria-label={t.previousStep}>
           <SkipBack className="w-4 h-4" />
         </Button>
 
@@ -92,7 +94,7 @@ export default function Playground({ variant }: { variant: any }) {
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </Button>
 
-        <Button variant="ghost" size="icon" onClick={() => setIndex((i) => Math.min(steps.length - 1, i + 1))} aria-label="Próximo passo">
+        <Button variant="ghost" size="icon" onClick={() => setIndex((i) => Math.min(steps.length - 1, i + 1))} aria-label={t.nextStep}>
           <SkipForward className="w-4 h-4" />
         </Button>
 
