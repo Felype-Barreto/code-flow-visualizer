@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Code2, Lightbulb, AlertTriangle, Zap, Lock, Crown } from "lucide-react";
+import { Sparkles, Code2, Lightbulb, AlertTriangle, Zap, Lock, Crown, ArrowRight, GitBranch } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -11,6 +11,14 @@ interface CodeInsight {
   type: "suggestion" | "warning" | "optimization" | "explanation";
   message: string;
   line?: number;
+}
+
+interface FlowNode {
+  id: string;
+  type: "start" | "function" | "if" | "loop" | "return" | "call" | "end";
+  label: string;
+  line?: number;
+  children: string[];
 }
 
 export function AICodeInspector() {
@@ -37,6 +45,7 @@ print(factorial(5))`);
 
   const [insights, setInsights] = useState<CodeInsight[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
+  const [flowGraph, setFlowGraph] = useState<FlowNode[]>([]);
 
   const analyzeCode = () => {
     if (!isPro && usageCount >= 1) {
@@ -94,6 +103,42 @@ print(factorial(5))`);
         });
       }
 
+      // Build control flow graph
+      const flowNodes: FlowNode[] = [];
+      const lines = code.split('\n');
+      let nodeId = 0;
+      
+      flowNodes.push({ id: `node-${nodeId++}`, type: "start", label: "Start", children: [] });
+      
+      lines.forEach((line, idx) => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('def ')) {
+          const match = trimmed.match(/def\s+(\w+)/);
+          if (match) {
+            flowNodes.push({ id: `node-${nodeId++}`, type: "function", label: `function ${match[1]}()`, line: idx + 1, children: [] });
+          }
+        } else if (trimmed.startsWith('if ')) {
+          flowNodes.push({ id: `node-${nodeId++}`, type: "if", label: trimmed.slice(0, 30) + '...', line: idx + 1, children: [] });
+        } else if (trimmed.startsWith('for ') || trimmed.startsWith('while ')) {
+          flowNodes.push({ id: `node-${nodeId++}`, type: "loop", label: trimmed.slice(0, 30) + '...', line: idx + 1, children: [] });
+        } else if (trimmed.startsWith('return ')) {
+          flowNodes.push({ id: `node-${nodeId++}`, type: "return", label: trimmed.slice(0, 30) + '...', line: idx + 1, children: [] });
+        } else if (trimmed.includes('(') && !trimmed.startsWith('#')) {
+          const match = trimmed.match(/(\w+)\s*\(/);
+          if (match) {
+            flowNodes.push({ id: `node-${nodeId++}`, type: "call", label: `${match[1]}()`, line: idx + 1, children: [] });
+          }
+        }
+      });
+      
+      flowNodes.push({ id: `node-${nodeId++}`, type: "end", label: "End", children: [] });
+      
+      // Connect nodes sequentially
+      for (let i = 0; i < flowNodes.length - 1; i++) {
+        flowNodes[i].children.push(flowNodes[i + 1].id);
+      }
+      
+      setFlowGraph(flowNodes);
       setInsights(newInsights);
       setAnalyzing(false);
 
@@ -280,6 +325,71 @@ print(factorial(5))`);
                 {insights.filter((i) => i.type === "explanation").length}
               </div>
               <div className="text-xs text-purple-200/80">Explicações</div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Control Flow Graph */}
+      {flowGraph.length > 0 && (
+        <Card className="p-6 bg-gradient-to-br from-purple-950/40 via-slate-900 to-purple-900/30 border border-purple-400/30">
+          <div className="flex items-center gap-2 mb-4">
+            <GitBranch className="w-5 h-5 text-purple-400" />
+            <h2 className="text-lg font-semibold text-white">Fluxo de Controle</h2>
+            <span className="text-xs text-purple-200/70 ml-auto">Como o computador interpreta este código</span>
+          </div>
+          
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {flowGraph.map((node, idx) => (
+              <div key={node.id} className="flex items-center gap-3">
+                {/* Node Box */}
+                <div
+                  className={`px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all hover:scale-105 ${
+                    node.type === "start"
+                      ? "bg-emerald-500/20 border-emerald-400/60 text-emerald-200"
+                      : node.type === "function"
+                      ? "bg-blue-500/20 border-blue-400/60 text-blue-200"
+                      : node.type === "if"
+                      ? "bg-amber-500/20 border-amber-400/60 text-amber-200"
+                      : node.type === "loop"
+                      ? "bg-purple-500/20 border-purple-400/60 text-purple-200"
+                      : node.type === "return"
+                      ? "bg-pink-500/20 border-pink-400/60 text-pink-200"
+                      : node.type === "call"
+                      ? "bg-cyan-500/20 border-cyan-400/60 text-cyan-200"
+                      : "bg-red-500/20 border-red-400/60 text-red-200"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {node.type === "if" && <GitBranch className="w-3 h-3" />}
+                    <span>{node.label}</span>
+                  </div>
+                  {node.line && (
+                    <div className="text-xs opacity-70 mt-0.5">linha {node.line}</div>
+                  )}
+                </div>
+
+                {/* Arrow */}
+                {idx < flowGraph.length - 1 && (
+                  <ArrowRight className="w-5 h-5 text-purple-300" />
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 p-3 bg-black/20 border border-purple-400/20 rounded text-xs text-purple-100 space-y-1">
+            <div className="font-semibold mb-2">🧠 Como funciona:</div>
+            <ul className="space-y-1 text-purple-200/80">
+              <li>• <span className="text-emerald-300">Start</span>: Programa inicia aqui</li>
+              <li>• <span className="text-blue-300">Function</span>: Define um bloco de código reutilizável</li>
+              <li>• <span className="text-amber-300">If</span>: Decisão condicional (true/false)</li>
+              <li>• <span className="text-purple-300">Loop</span>: Repetição (for/while)</li>
+              <li>• <span className="text-cyan-300">Call</span>: Chama função externa ou método</li>
+              <li>• <span className="text-pink-300">Return</span>: Retorna valor e sai da função</li>
+              <li>• <span className="text-red-300">End</span>: Execução termina</li>
+            </ul>
+            <div className="mt-2 pt-2 border-t border-purple-400/20 text-purple-200">
+              O interpretador segue este fluxo de cima para baixo, executando cada instrução sequencialmente e pulando/repetindo conforme condições e loops.
             </div>
           </div>
         </Card>

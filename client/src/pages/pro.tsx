@@ -11,6 +11,9 @@ import {
   PauseCircle,
   Code2,
   Sparkles,
+  Search,
+  ArrowRight,
+  Activity,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ProExercisesGrid } from "@/components/pro-exercises-grid";
@@ -34,6 +37,11 @@ export default function ProPage() {
   );
   const [profilerRuns, setProfilerRuns] = useState<Array<{ run: number; ms: number; result?: any }>>([]);
   const [profilerError, setProfilerError] = useState<string | null>(null);
+  const [profilerConfig, setProfilerConfig] = useState<{ runs: number; warmup: number; captureConsole: boolean }>({ runs: 5, warmup: 1, captureConsole: true });
+  const [profilerTimeline, setProfilerTimeline] = useState<{
+    runs: Array<{ run: number; ms: number; result?: any }>;
+    events: Array<{ run: number; t: number; type: "log" | "start" | "end" | "result" | "error"; data?: any }>;
+  } | null>(null);
   const [category, setCategory] = useState<"all" | "algorithms" | "data-structures" | "async" | "performance" | "design-patterns">("all");
   const [sort, setSort] = useState<"relevance" | "difficulty" | "time">("relevance");
   const [difficulty, setDifficulty] = useState<"all" | "beginner" | "intermediate" | "advanced">("all");
@@ -49,6 +57,8 @@ export default function ProPage() {
   );
   const [inspectorParsed, setInspectorParsed] = useState<any>(null);
   const [inspectorError, setInspectorError] = useState<string | null>(null);
+  const [inspectorQuery, setInspectorQuery] = useState("");
+  const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [scratchpad, setScratchpad] = useState(
     "// VIP Playground\n// Rascunhe ideias ou pseudo-código rápido aqui.\nfunction snippet() {\n  return ['stack', 'heap', 'tests'];\n}"
   );
@@ -85,18 +95,56 @@ export default function ProPage() {
         "performance",
         `${profilerCode}; return typeof main === 'function' ? main() : undefined;`
       );
+
+      // Optional warmup
+      for (let w = 0; w < Math.max(0, profilerConfig.warmup); w++) {
+        try {
+          fn(performance);
+        } catch {
+          // ignore warmup errors
+        }
+      }
+
       const runs: Array<{ run: number; ms: number; result?: any }> = [];
-      for (let i = 0; i < 5; i++) {
+      const events: Array<{ run: number; t: number; type: "log" | "start" | "end" | "result" | "error"; data?: any }> = [];
+      const originalLog = console.log;
+
+      for (let i = 0; i < Math.max(1, profilerConfig.runs); i++) {
+        const runIndex = i + 1;
         const start = performance.now();
-        const result = fn(performance);
-        const end = performance.now();
-        runs.push({ run: i + 1, ms: Number((end - start).toFixed(3)), result });
+        events.push({ run: runIndex, t: 0, type: "start" });
+        if (profilerConfig.captureConsole) {
+          console.log = (...args: any[]) => {
+            const now = performance.now();
+            events.push({ run: runIndex, t: Number((now - start).toFixed(3)), type: "log", data: args });
+            // mirror to console
+            try { originalLog.apply(console, args); } catch {}
+          };
+        }
+        try {
+          const result = fn(performance);
+          const end = performance.now();
+          const ms = Number((end - start).toFixed(3));
+          events.push({ run: runIndex, t: ms, type: "result", data: result });
+          events.push({ run: runIndex, t: ms, type: "end" });
+          runs.push({ run: runIndex, ms, result });
+        } catch (err: any) {
+          const end = performance.now();
+          const ms = Number((end - start).toFixed(3));
+          events.push({ run: runIndex, t: ms, type: "error", data: err?.message || String(err) });
+          runs.push({ run: runIndex, ms });
+          throw err;
+        } finally {
+          console.log = originalLog;
+        }
       }
       setProfilerRuns(runs);
+      setProfilerTimeline({ runs, events });
       setProfilerError(null);
     } catch (e: any) {
       setProfilerError(e?.message || t.profilerError);
       setProfilerRuns([]);
+      setProfilerTimeline(null);
     }
   };
 
@@ -120,7 +168,7 @@ export default function ProPage() {
     }
   };
 
-  const renderObject = (value: any, depth = 0) => {
+  const renderObject = (value: any, depth = 0, path: string[] = []) => {
     if (value === null) return <span className="text-amber-300">null</span>;
     if (typeof value === "boolean") return <span className="text-amber-300">{String(value)}</span>;
     if (typeof value === "number") return <span className="text-amber-300">{value}</span>;
@@ -128,26 +176,79 @@ export default function ProPage() {
     if (Array.isArray(value)) {
       return (
         <div className="pl-4 space-y-1">
-          {value.map((v, idx) => (
-            <div key={`${depth}-arr-${idx}`} className="text-gray-200 text-sm">
-              <span className="text-gray-400">[{idx}]</span> {renderObject(v, depth + 1)}
-            </div>
-          ))}
+          {value.map((v, idx) => {
+            const childPath = [...path, `[${idx}]`];
+            const match = inspectorQuery && (String(idx).includes(inspectorQuery) || JSON.stringify(v).includes(inspectorQuery));
+            return (
+              <div
+                key={`${depth}-arr-${idx}`}
+                className={`text-gray-200 text-sm relative pl-2 ${match ? "bg-amber-500/10" : ""}`}
+                onClick={() => setSelectedPath(childPath.join("."))}
+              >
+                <span className="text-gray-400">[{idx}]</span> {renderObject(v, depth + 1, childPath)}
+              </div>
+            );
+          })}
         </div>
       );
     }
     if (typeof value === "object") {
       return (
         <div className="pl-4 space-y-1">
-          {Object.entries(value).map(([k, v]) => (
-            <div key={`${depth}-${k}`} className="text-gray-200 text-sm">
-              <span className="text-amber-300">{k}</span>: {renderObject(v, depth + 1)}
-            </div>
-          ))}
+          {Object.entries(value).map(([k, v]) => {
+            const childPath = [...path, k];
+            const match = inspectorQuery && (k.includes(inspectorQuery) || JSON.stringify(v).includes(inspectorQuery));
+            return (
+              <div
+                key={`${depth}-${k}`}
+                className={`text-gray-200 text-sm relative pl-2 ${match ? "bg-emerald-500/10" : ""}`}
+                onClick={() => setSelectedPath(childPath.join("."))}
+              >
+                <span className="inline-flex items-center gap-1">
+                  <ArrowRight className="w-3 h-3 text-amber-300" />
+                  <span className="text-amber-300">{k}</span>
+                </span>
+                : {renderObject(v, depth + 1, childPath)}
+              </div>
+            );
+          })}
         </div>
       );
     }
     return <span className="text-gray-300">{String(value)}</span>;
+  };
+
+  const renderTimeline = () => {
+    if (!profilerTimeline) return null;
+    const maxMs = Math.max(...profilerTimeline.runs.map((r) => r.ms), 1);
+    return (
+      <div className="mt-3 space-y-2">
+        <div className="text-xs text-gray-300">{t.proFeatureAnalyzerB1 || "Execution timeline"}</div>
+        <div className="space-y-2">
+          {profilerTimeline.runs.map((r) => (
+            <div key={`run-${r.run}`} className="flex items-center gap-3">
+              <span className="text-xs text-gray-400">Run {r.run}</span>
+              <div className="flex-1 h-3 bg-black/30 rounded">
+                <div
+                  className="h-3 bg-amber-500 rounded"
+                  style={{ width: `${Math.min(100, (r.ms / maxMs) * 100)}%` }}
+                  title={`${r.ms}ms`}
+                />
+              </div>
+              <span className="text-xs text-amber-300 font-mono">{r.ms} ms</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 bg-black/20 border border-amber-400/20 rounded p-2 max-h-40 overflow-y-auto">
+          {profilerTimeline.events.map((e, idx) => (
+            <div key={`evt-${idx}`} className="text-xs text-gray-200">
+              <span className="text-gray-400">[{e.t}ms]</span> <span className="text-amber-300">Run {e.run}</span> → {e.type}
+              {e.data !== undefined && <span className="text-gray-300">: {typeof e.data === "string" ? e.data : JSON.stringify(e.data)}</span>}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   // Finalize VIP signup after returning from Stripe Checkout
@@ -478,11 +579,44 @@ export default function ProPage() {
                 value={profilerCode}
                 onChange={(e) => setProfilerCode(e.target.value)}
               />
-              <div className="flex items-center gap-2">
-                <Button onClick={runProfiler} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
-                  {`${t.run} ${t.profiler} x5`}
-                </Button>
-                {profilerError && <span className="text-sm text-red-300">{profilerError}</span>}
+              <div className="flex flex-col md:flex-row md:items-center gap-2">
+                <div className="flex items-center gap-2 text-xs text-gray-300">
+                  <label className="inline-flex items-center gap-1">
+                    <span>Runs</span>
+                    <select
+                      value={profilerConfig.runs}
+                      onChange={(e) => setProfilerConfig((c) => ({ ...c, runs: parseInt(e.target.value, 10) }))}
+                      className="px-2 py-1 rounded bg-black/40 border border-amber-400/20"
+                    >
+                      {[3,5,10,20].map((n) => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </label>
+                  <label className="inline-flex items-center gap-1">
+                    <span>Warmup</span>
+                    <select
+                      value={profilerConfig.warmup}
+                      onChange={(e) => setProfilerConfig((c) => ({ ...c, warmup: parseInt(e.target.value, 10) }))}
+                      className="px-2 py-1 rounded bg-black/40 border border-amber-400/20"
+                    >
+                      {[0,1,2,5].map((n) => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </label>
+                  <label className="inline-flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      checked={profilerConfig.captureConsole}
+                      onChange={(e) => setProfilerConfig((c) => ({ ...c, captureConsole: e.target.checked }))}
+                      className="accent-amber-400"
+                    />
+                    <span className="inline-flex items-center gap-1"><Activity className="w-3 h-3" /> capture console</span>
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button onClick={runProfiler} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">
+                    {`${t.run} ${t.profiler} x${profilerConfig.runs}`}
+                  </Button>
+                  {profilerError && <span className="text-sm text-red-300">{profilerError}</span>}
+                </div>
               </div>
               {profilerRuns.length > 0 && (
                 <div className="bg-black/30 border border-amber-400/10 rounded-lg p-3 text-sm text-gray-200 space-y-1">
@@ -494,6 +628,7 @@ export default function ProPage() {
                   ))}
                 </div>
               )}
+              {renderTimeline()}
             </div>
 
             <div className="rounded-2xl border border-amber-400/20 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 p-4 space-y-3">
@@ -535,6 +670,22 @@ export default function ProPage() {
               <Database className="w-5 h-5 text-amber-400" />
               <h3 className="text-lg font-semibold">{t.variableInspector}</h3>
             </div>
+            <div className="flex items-center gap-2 py-1">
+              <div className="flex items-center gap-2 flex-1">
+                <Search className="w-4 h-4 text-amber-300" />
+                <input
+                  className="w-full rounded bg-black/40 border border-amber-400/20 text-sm text-white px-2 py-1"
+                  value={inspectorQuery}
+                  onChange={(e) => setInspectorQuery(e.target.value)}
+                  placeholder="Search keys/values"
+                />
+              </div>
+              {selectedPath && (
+                <div className="text-xs text-amber-200 inline-flex items-center gap-1">
+                  <ArrowRight className="w-3 h-3" /> path: <span className="font-mono">{selectedPath}</span>
+                </div>
+              )}
+            </div>
             <textarea
               className="w-full h-32 rounded-lg bg-black/40 border border-amber-400/20 text-sm text-white p-3 font-mono"
               value={inspectorInput}
@@ -548,8 +699,19 @@ export default function ProPage() {
               {inspectorError && <span className="text-sm text-red-300">{inspectorError}</span>}
             </div>
             <div className="bg-black/30 border border-amber-400/10 rounded-lg p-3 min-h-[120px] text-sm text-gray-200">
-              {inspectorParsed ? renderObject(inspectorParsed) : <span className="text-gray-500">{t.proInspectorPlaceholder}</span>}
+              {inspectorParsed ? renderObject(inspectorParsed, 0, []) : <span className="text-gray-500">{t.proInspectorPlaceholder}</span>}
             </div>
+            {selectedPath && inspectorParsed && (
+              <div className="bg-black/20 border border-amber-400/20 rounded p-3">
+                <div className="text-xs text-gray-300 mb-2">How the interpreter sees this path:</div>
+                <ul className="text-xs text-gray-200 space-y-1">
+                  <li>• The program resolves the path step-by-step (object keys and array indexes).</li>
+                  <li>• For objects/arrays, the reference lives on the heap; the variable holding it is on the stack.</li>
+                  <li>• Accessing `{selectedPath}` dereferences each segment until the final value.</li>
+                  <li>• Mutations change the referenced structure; primitives create new values.</li>
+                </ul>
+              </div>
+            )}
           </div>
         </div>
 
