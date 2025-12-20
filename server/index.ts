@@ -64,8 +64,8 @@ app.use((req, res, next) => {
 
 app.use(compression({ threshold: 1024 }));
 
-// Stripe webhook requires raw body, so install a raw parser for that route only
-const stripeWebhookPath = "/api/webhooks/stripe";
+// Stripe webhook requires raw body
+const stripeWebhookPath = "/api/monetization/stripe-webhook";
 app.use(stripeWebhookPath, express.raw({ type: "application/json", limit: JSON_LIMIT }));
 
 // For all other routes, use JSON parser. Skip JSON parse on webhook path.

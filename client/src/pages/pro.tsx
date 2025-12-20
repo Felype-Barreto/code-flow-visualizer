@@ -122,16 +122,16 @@ export default function ProPage() {
     },
   ];
   const inspectorLabels: Record<string, string> = {
-    user: t.inspectorLabelUser,
-    nested: t.inspectorLabelNested,
-    array: t.inspectorLabelArray,
-    closure: t.inspectorLabelClosure,
-    prototype: t.inspectorLabelPrototype,
-    async: t.inspectorLabelAsync,
-    circular: t.inspectorLabelCircular,
-    mixed: t.inspectorLabelMixed,
-    symbols: t.inspectorLabelSymbols,
-    graph: t.inspectorLabelGraph,
+    user: 'User',
+    nested: 'Nested',
+    array: 'Array',
+    closure: 'Closure',
+    prototype: 'Prototype',
+    async: 'Async',
+    circular: 'Circular',
+    mixed: 'Mixed',
+    symbols: 'Symbols',
+    graph: 'Graph',
   };
   const inspectorDescriptions: Record<string, string> = {
     user: t.inspectorDescUser,
@@ -153,6 +153,7 @@ export default function ProPage() {
   const [scratchpad, setScratchpad] = useState(
     "// VIP Playground\n// Sketch ideas or quick pseudo-code here.\nfunction snippet() {\n  return ['stack', 'heap', 'tests'];\n}"
   );
+  const [trialUses, setTrialUses] = useState<Record<string, number>>({});
 
   const handleGoToPricing = () => setLocation("/pricing?vip=1");
 
@@ -160,6 +161,18 @@ export default function ProPage() {
     try {
       console.info("[pro-analytics]", name, payload || {});
     } catch (_) {}
+  };
+
+  const allowProAction = (feature: string) => {
+    if (user?.isPro) return true;
+    const used = trialUses[feature] || 0;
+    if (used === 0) {
+      setTrialUses((prev) => ({ ...prev, [feature]: used + 1 }));
+      toast({ title: t.proFeatureAiTitle || "Primeiro uso liberado", description: t.proFeatureAiDesc || "Assine Pro para uso ilimitado." });
+      return true;
+    }
+    toast({ title: t.proFeature || "Recurso exclusivo Pro", description: t.upgradeToPro || "Assine para continuar usando este recurso." });
+    return false;
   };
 
   const scrollToSection = (id: string) => {
@@ -170,6 +183,7 @@ export default function ProPage() {
   };
 
   const copyScratchpad = async () => {
+    if (!allowProAction("scratchpad-copy")) return;
     try {
       await navigator.clipboard.writeText(scratchpad);
       toast({ title: t.proPlaygroundCopied, description: t.proPlaygroundCopy });
@@ -178,9 +192,13 @@ export default function ProPage() {
     }
   };
 
-  const clearScratchpad = () => setScratchpad("");
+  const clearScratchpad = () => {
+    if (!allowProAction("scratchpad-clear")) return;
+    setScratchpad("");
+  };
 
   const runProfiler = () => {
+    if (!allowProAction("profiler-run")) return;
     try {
       const instrumentSource = (code: string) => {
         return code
@@ -261,6 +279,7 @@ export default function ProPage() {
   };
 
   const addBreakpoint = () => {
+    if (!allowProAction("breakpoint-add")) return;
     const nextId = `bp-${breakpoints.length + 1}`;
     setBreakpoints((prev) => [...prev, { id: nextId, line: 1, condition: "", active: true }]);
   };
@@ -282,6 +301,7 @@ export default function ProPage() {
   };
 
   const parseInspector = () => {
+    if (!allowProAction("inspector-parse")) return;
     try {
       const parsed = JSON.parse(inspectorInput);
       setInspectorParsed(parsed);
@@ -449,6 +469,7 @@ export default function ProPage() {
   };
 
   const applyInspectorExample = (id: string) => {
+    if (!allowProAction("inspector-example")) return;
     const ex = inspectorExamples.find((e) => e.id === id);
     if (ex) {
       setInspectorInput(ex.value);
@@ -460,6 +481,7 @@ export default function ProPage() {
   };
 
   const applyProfilerExample = (id: string) => {
+    if (!allowProAction("profiler-example")) return;
     const ex = profilerExamples.find((e) => e.id === id);
     if (ex) {
       setProfilerCode(ex.code);

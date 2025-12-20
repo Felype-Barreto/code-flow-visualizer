@@ -3,9 +3,24 @@ import { createServer, type Server } from "http";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { db } from "./db";
-import { progress, users, webhookEvents, stripeCustomers } from "../shared/schema";
+import { 
+  progress, 
+  users, 
+  webhookEvents, 
+  stripeCustomers,
+  activityHistory,
+  userAchievements,
+  journalEntries,
+  storePurchases,
+  dailyChallenges,
+  coinTransactions,
+  infinityPayPurchases,
+  adRewards
+} from "../shared/schema";
+import { createPayment, stripeWebhook, watchAd, checkUsage, consumeUsage } from "../api/monetization";
+import { trackAdImpression, verifyAdWatch, getAdStats, skipAdForCoins } from "../api/analytics/ads";
 import { storage } from "./storage";
 import { getStripe, getBaseUrl, STRIPE_PRICE_PRO_MONTHLY, STRIPE_PRICE_PRO_MONTHLY_USD, STRIPE_WEBHOOK_SECRET } from "./stripe";
 import Stripe from "stripe";
@@ -25,6 +40,163 @@ const computeIsPro = (user: any) => {
   const active = user?.isPro && (!user.proExpiresAt || new Date(user.proExpiresAt) > new Date());
   return FORCE_PRO || active;
 };
+
+// ============================================================================
+// GAMIFICATION HELPERS
+// ============================================================================
+
+// Calculate level from XP
+function calculateLevel(xp: number): number {
+  if (xp < 100) return 1; // Rookie
+  if (xp < 500) return 2; // Coder
+  if (xp < 1500) return 3; // Developer
+  if (xp < 3000) return 4; // Engineer
+  if (xp < 10000) return 5; // Architect
+  return 6; // Legend
+}
+
+// Achievements catalog
+const ACHIEVEMENTS_CATALOG = [
+  // Streak achievements
+  { id: 'streak_3', name: '3-Day Streak', description: 'Complete exercises for 3 consecutive days', xp: 25, category: 'streak', icon: '🔥', progress: true },
+  { id: 'streak_7', name: 'Week Warrior', description: 'Complete exercises for 7 consecutive days', xp: 50, category: 'streak', icon: '🔥', progress: true },
+  { id: 'streak_30', name: 'Monthly Champion', description: 'Complete exercises for 30 consecutive days', xp: 200, category: 'streak', icon: '🔥', progress: true },
+  { id: 'streak_100', name: 'Century Master', description: 'Complete exercises for 100 consecutive days', xp: 500, category: 'streak', icon: '🔥', progress: true },
+  
+  // Exercise count achievements
+  { id: 'exercises_10', name: 'Getting Started', description: 'Complete 10 exercises', xp: 30, category: 'exercises', icon: '🏆', progress: true },
+  { id: 'exercises_50', name: 'Coder', description: 'Complete 50 exercises', xp: 100, category: 'exercises', icon: '🏆', progress: true },
+  { id: 'exercises_100', name: 'Developer', description: 'Complete 100 exercises', xp: 250, category: 'exercises', icon: '🏆', progress: true },
+  { id: 'exercises_500', name: 'Pro Coder', description: 'Complete 500 exercises', xp: 1000, category: 'exercises', icon: '🏆', progress: true },
+  
+  // Speed achievements
+  { id: 'speed_demon', name: 'Speed Demon', description: 'Complete an exercise in under 30 seconds', xp: 50, category: 'speed', icon: '⚡', progress: false },
+  { id: 'lightning_fast', name: 'Lightning Fast', description: 'Complete 10 exercises in under 1 minute each', xp: 150, category: 'speed', icon: '⚡', progress: true },
+  
+  // Accuracy achievements
+  { id: 'perfectionist', name: 'Perfectionist', description: 'Get 100% score on 10 exercises', xp: 75, category: 'accuracy', icon: '🎯', progress: true },
+  { id: 'flawless', name: 'Flawless', description: 'Get 100% score on 50 exercises', xp: 250, category: 'accuracy', icon: '🎯', progress: true },
+  { id: 'master', name: 'Master', description: 'Maintain 95% average score over 100 exercises', xp: 500, category: 'accuracy', icon: '🎯', progress: true },
+  
+  // Learning achievements
+  { id: 'algorithm_wizard', name: 'Algorithm Wizard', description: 'Complete all algorithm exercises', xp: 300, category: 'learning', icon: '🧠', progress: false },
+  { id: 'data_structure_master', name: 'Data Structure Master', description: 'Complete all data structure exercises', xp: 300, category: 'learning', icon: '🧠', progress: false },
+  { id: 'async_pro', name: 'Async Pro', description: 'Complete all async/await exercises', xp: 200, category: 'learning', icon: '🧠', progress: false },
+  
+  // Special achievements
+  { id: 'pro_starter', name: 'Pro Starter', description: 'Complete first week as Pro member', xp: 100, category: 'special', icon: '⭐', progress: false },
+  { id: 'early_bird', name: 'Early Bird', description: 'Complete 10 exercises before 8 AM', xp: 100, category: 'special', icon: '🌅', progress: true },
+  { id: 'night_owl', name: 'Night Owl', description: 'Complete 10 exercises after 10 PM', xp: 100, category: 'special', icon: '🦉', progress: true },
+  { id: 'comeback_kid', name: 'Comeback Kid', description: 'Return after 30+ days of inactivity', xp: 150, category: 'special', icon: '🎉', progress: false },
+  { id: 'boss_challenger', name: 'Boss Challenger', description: 'Purchased a boss challenge with FlowCoins', xp: 200, category: 'special', icon: '🏆', progress: false },
+];
+
+// Store catalog
+const STORE_CATALOG = [
+  // Avatars (cosmetics)
+  { id: 'avatar_ninja', name: 'Ninja Avatar', description: 'Become a coding ninja', type: 'cosmetic', category: 'avatar', price: 50, icon: '🥷' },
+  { id: 'avatar_robot', name: 'Robot Avatar', description: 'Transform into a robot', type: 'cosmetic', category: 'avatar', price: 50, icon: '🤖' },
+  { id: 'avatar_wizard', name: 'Wizard Avatar', description: 'Cast coding spells', type: 'cosmetic', category: 'avatar', price: 75, icon: '🧙' },
+  { id: 'avatar_alien', name: 'Alien Avatar', description: 'Code from outer space', type: 'cosmetic', category: 'avatar', price: 75, icon: '👽' },
+  { id: 'avatar_pirate', name: 'Pirate Avatar', description: 'Sail the code seas', type: 'cosmetic', category: 'avatar', price: 100, icon: '🏴‍☠️' },
+  { id: 'avatar_astronaut', name: 'Astronaut Avatar', description: 'Code in zero gravity', type: 'cosmetic', category: 'avatar', price: 150, icon: '👨‍🚀' },
+  
+  // Badges (cosmetics)
+  { id: 'badge_fire', name: 'Fire Badge', description: 'Show your burning passion', type: 'cosmetic', category: 'badge', price: 100, icon: '🔥' },
+  { id: 'badge_diamond', name: 'Diamond Badge', description: 'Shine bright', type: 'cosmetic', category: 'badge', price: 200, icon: '💎' },
+  { id: 'badge_crown', name: 'Crown Badge', description: 'Rule the leaderboard', type: 'cosmetic', category: 'badge', price: 300, icon: '👑' },
+  
+  // Themes (cosmetics)
+  { id: 'theme_neon', name: 'Neon Theme', description: 'Vibrant neon colors', type: 'cosmetic', category: 'theme', price: 200, icon: '🌈' },
+  { id: 'theme_ocean', name: 'Ocean Theme', description: 'Calming blue waves', type: 'cosmetic', category: 'theme', price: 200, icon: '🌊' },
+  { id: 'theme_forest', name: 'Forest Theme', description: 'Natural green tones', type: 'cosmetic', category: 'theme', price: 200, icon: '🌲' },
+  
+  // Profile frames (cosmetics)
+  { id: 'frame_gold', name: 'Gold Frame', description: 'Premium golden border', type: 'cosmetic', category: 'frame', price: 250, icon: '🥇' },
+  { id: 'frame_silver', name: 'Silver Frame', description: 'Elegant silver border', type: 'cosmetic', category: 'frame', price: 150, icon: '🥈' },
+  { id: 'frame_rainbow', name: 'Rainbow Frame', description: 'Colorful rainbow border', type: 'cosmetic', category: 'frame', price: 200, icon: '🌈' },
+  
+  // Utilities
+  { id: 'hint_token', name: 'Hint Token', description: 'Get one free hint', type: 'utility', category: 'hint', price: 10, icon: '💡' },
+  { id: 'hint_pack_5', name: 'Hint Pack (5x)', description: 'Bundle of 5 hints', type: 'utility', category: 'hint', price: 40, icon: '💡' },
+  { id: 'solution_unlock', name: 'Solution Unlock', description: 'View solution for one exercise', type: 'utility', category: 'solution', price: 25, icon: '🔓' },
+  { id: 'solution_pack_3', name: 'Solution Pack (3x)', description: 'Bundle of 3 solution unlocks', type: 'utility', category: 'solution', price: 60, icon: '🔓' },
+  { id: 'skip_cooldown', name: 'Skip Cooldown', description: 'Skip exercise cooldown once', type: 'utility', category: 'cooldown', price: 30, icon: '⏩' },
+  
+  // Boosts
+  { id: 'xp_boost_2h', name: '2x XP Boost (2h)', description: 'Double XP for 2 hours', type: 'boost', category: 'xp', price: 100, icon: '⚡' },
+  { id: 'xp_boost_24h', name: '2x XP Boost (24h)', description: 'Double XP for 24 hours', type: 'boost', category: 'xp', price: 300, icon: '⚡' },
+  { id: 'streak_shield', name: 'Streak Shield (3 days)', description: 'Protect your streak for 3 days', type: 'boost', category: 'streak', price: 150, icon: '🛡️' },
+  
+  // Weekly Challenge
+  { id: 'boss_challenge', name: 'Boss Challenge (Weekly)', description: 'Unlock a special weekly challenge', type: 'utility', category: 'challenge', price: 200, icon: '🏆' },
+];
+
+// Calculate achievement progress
+function calculateAchievementProgress(achievementId: string, user: any, activities: any[]): number {
+  switch (achievementId) {
+    case 'streak_3':
+      return Math.min(100, ((user.dailyStreak || 0) / 3) * 100);
+    case 'streak_7':
+      return Math.min(100, ((user.dailyStreak || 0) / 7) * 100);
+    case 'streak_30':
+      return Math.min(100, ((user.dailyStreak || 0) / 30) * 100);
+    case 'streak_100':
+      return Math.min(100, ((user.dailyStreak || 0) / 100) * 100);
+    
+    case 'exercises_10':
+      return Math.min(100, ((user.totalExercises || 0) / 10) * 100);
+    case 'exercises_50':
+      return Math.min(100, ((user.totalExercises || 0) / 50) * 100);
+    case 'exercises_100':
+      return Math.min(100, ((user.totalExercises || 0) / 100) * 100);
+    case 'exercises_500':
+      return Math.min(100, ((user.totalExercises || 0) / 500) * 100);
+    
+    case 'lightning_fast':
+      const fastCount = activities.filter(a => a.type === 'exercise' && a.timeSpent && a.timeSpent < 60).length;
+      return Math.min(100, (fastCount / 10) * 100);
+    
+    case 'perfectionist':
+      const perfectCount = activities.filter(a => a.type === 'exercise' && a.score === 100).length;
+      return Math.min(100, (perfectCount / 10) * 100);
+    case 'flawless':
+      const flawlessCount = activities.filter(a => a.type === 'exercise' && a.score === 100).length;
+      return Math.min(100, (flawlessCount / 50) * 100);
+    case 'master':
+      const exerciseActivities = activities.filter(a => a.type === 'exercise' && a.score !== null);
+      if (exerciseActivities.length < 100) return (exerciseActivities.length / 100) * 100;
+      const avgScore = exerciseActivities.reduce((acc, a) => acc + (a.score || 0), 0) / exerciseActivities.length;
+      return avgScore >= 95 ? 100 : 0;
+    
+    case 'early_bird':
+      const earlyCount = activities.filter(a => {
+        const hour = new Date(a.createdAt).getHours();
+        return hour < 8;
+      }).length;
+      return Math.min(100, (earlyCount / 10) * 100);
+    
+    case 'night_owl':
+      const lateCount = activities.filter(a => {
+        const hour = new Date(a.createdAt).getHours();
+        return hour >= 22;
+      }).length;
+      return Math.min(100, (lateCount / 10) * 100);
+    
+    default:
+      return 0;
+  }
+}
+
+// Check if achievement should be unlocked
+function checkAchievementUnlock(achievementId: string, user: any, activities: any[]): boolean {
+  const progress = calculateAchievementProgress(achievementId, user, activities);
+  return progress >= 100;
+}
+
+// ============================================================================
+// END GAMIFICATION HELPERS
+// ============================================================================
 
 // Resend configuration
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -211,6 +383,26 @@ function requirePro(req: Request, res: Response, next: NextFunction) {
     const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string };
     (req as any).userId = decoded.userId;
     // Will check isPro in route handler after fetching user
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+}
+
+// Middleware: authenticateToken - attaches full user object to req.user
+async function authenticateToken(req: Request, res: Response, next: NextFunction) {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ message: "Missing Authorization" });
+  const [type, token] = auth.split(" ");
+  if (type !== "Bearer" || !token) return res.status(401).json({ message: "Invalid Authorization" });
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET as string) as { userId: string };
+    const user = await db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.id, decoded.userId),
+    });
+    if (!user) return res.status(401).json({ message: "User not found" });
+    (req as any).user = user;
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });
@@ -502,7 +694,24 @@ export async function registerRoutes(
       firstName: user.firstName,
       lastName: user.lastName,
       isAdmin: user.isAdmin,
-      isPro
+      isPro,
+      proExpiresAt: user.proExpiresAt ?? null,
+      emailVerified: user.emailVerified ?? false,
+      // Gamification fields
+      xp: user.xp ?? 0,
+      level: user.level ?? 1,
+      coins: user.coins ?? 0,
+      avatar: user.avatar ?? null,
+      bio: user.bio ?? null,
+      theme: user.theme ?? null,
+      language: user.language ?? null,
+      dailyStreak: user.dailyStreak ?? 0,
+      lastActivityDate: user.lastActivityDate ?? null,
+      dailyGoal: user.dailyGoal ?? 5,
+      totalExercises: user.totalExercises ?? 0,
+      totalTime: user.totalTime ?? 0,
+      country: user.country ?? null,
+      dateOfBirth: user.dateOfBirth ?? null,
     });
   });
 
@@ -523,6 +732,696 @@ export async function registerRoutes(
       isPro
     });
   });
+
+  // ============================================================================
+  // GAMIFICATION ROUTES
+  // ============================================================================
+
+  // Update user profile
+  app.post("/api/profile/update", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const { firstName, lastName, country, bio, avatar, theme, dailyGoal, dateOfBirth } = req.body;
+
+      const updateData: any = {};
+      if (firstName !== undefined) updateData.firstName = firstName;
+      if (lastName !== undefined) updateData.lastName = lastName;
+      if (country !== undefined) updateData.country = country;
+      if (bio !== undefined) updateData.bio = bio;
+      if (avatar !== undefined) updateData.avatar = avatar;
+      if (theme !== undefined) updateData.theme = theme;
+      if (dailyGoal !== undefined) updateData.dailyGoal = dailyGoal;
+      if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
+
+      await db.update(users).set(updateData).where(eq(users.id, userId));
+
+      return res.json({ message: "Profile updated successfully" });
+    } catch (error: any) {
+      console.error("Error updating profile:", error);
+      return res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
+  // Get activity history
+  app.get("/api/history", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const { type } = req.query;
+
+      let query = db
+        .select()
+        .from(activityHistory)
+        .where(eq(activityHistory.userId, userId))
+        .orderBy(desc(activityHistory.createdAt));
+
+      const activities = await query;
+
+      // Filter by type if provided
+      const filteredActivities = type && type !== 'all' 
+        ? activities.filter(a => a.type === type)
+        : activities;
+
+      // Calculate stats
+      const stats = {
+        totalExercises: activities.filter(a => a.type === 'exercise').length,
+        avgScore: activities.filter(a => a.score !== null).reduce((acc, a) => acc + (a.score || 0), 0) / activities.filter(a => a.score !== null).length || 0,
+        avgTime: activities.filter(a => a.timeSpent !== null).reduce((acc, a) => acc + (a.timeSpent || 0), 0) / activities.filter(a => a.timeSpent !== null).length || 0,
+        totalXP: activities.reduce((acc, a) => acc + a.xpEarned, 0),
+      };
+
+      return res.json({ activities: filteredActivities, stats });
+    } catch (error: any) {
+      console.error("Error fetching history:", error);
+      return res.status(500).json({ message: "Failed to fetch history" });
+    }
+  });
+
+  // Log new activity (called when completing exercises, lessons, etc)
+  app.post("/api/activity", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const { type, title, xpEarned, timeSpent, score, metadata } = req.body;
+
+      if (!type || !title) {
+        return res.status(400).json({ message: "type and title are required" });
+      }
+
+      // Insert activity
+      await db.insert(activityHistory).values({
+        userId,
+        type,
+        title,
+        xpEarned: xpEarned || 0,
+        timeSpent: timeSpent || null,
+        score: score || null,
+        metadata: metadata ? JSON.stringify(metadata) : null,
+      });
+
+      // Update user stats
+      const user = await storage.getUser(userId);
+      if (user) {
+        const newXP = (user.xp || 0) + (xpEarned || 0);
+        const newLevel = calculateLevel(newXP);
+        const newTotalExercises = (user.totalExercises || 0) + (type === 'exercise' ? 1 : 0);
+        const newTotalTime = (user.totalTime || 0) + (timeSpent || 0);
+
+        // Update streak if needed
+        const today = new Date().toDateString();
+        const lastActivity = user.lastActivityDate ? new Date(user.lastActivityDate).toDateString() : null;
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        
+        let newStreak = user.dailyStreak || 0;
+        if (lastActivity !== today) {
+          if (lastActivity === yesterday) {
+            newStreak += 1;
+          } else if (lastActivity && lastActivity !== yesterday) {
+            newStreak = 1;
+          } else {
+            newStreak = 1;
+          }
+        }
+
+        // Earn FlowCoins: 1 coin per 50 XP earned
+        const coinsEarned = Math.floor((xpEarned || 0) / 50);
+
+        await db.update(users).set({
+          xp: newXP,
+          level: newLevel,
+          totalExercises: newTotalExercises,
+          totalTime: newTotalTime,
+          coins: (user.coins || 0) + coinsEarned,
+          dailyStreak: newStreak,
+          lastActivityDate: new Date(),
+        }).where(eq(users.id, userId));
+
+        if (coinsEarned > 0) {
+          await db.insert(coinTransactions).values({
+            userId,
+            amount: coinsEarned,
+            type: 'earn',
+            source: 'activity',
+            metadata: JSON.stringify({ xpEarned: xpEarned || 0, type }),
+          });
+        }
+      }
+
+      return res.json({ message: "Activity logged successfully" });
+    } catch (error: any) {
+      console.error("Error logging activity:", error);
+      return res.status(500).json({ message: "Failed to log activity" });
+    }
+  });
+
+  // Get journal entries
+  app.get("/api/journal", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const entries = await db
+        .select()
+        .from(journalEntries)
+        .where(eq(journalEntries.userId, userId))
+        .orderBy(desc(journalEntries.date));
+
+      return res.json({ entries });
+    } catch (error: any) {
+      console.error("Error fetching journal:", error);
+      return res.status(500).json({ message: "Failed to fetch journal" });
+    }
+  });
+
+  // Create journal entry
+  app.post("/api/journal", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const { title, content, tags, code } = req.body;
+
+      if (!content) {
+        return res.status(400).json({ message: "content is required" });
+      }
+
+      await db.insert(journalEntries).values({
+        userId,
+        title: title || null,
+        content,
+        tags: tags || null,
+        code: code || null,
+        date: new Date(),
+      });
+
+      return res.json({ message: "Journal entry created successfully" });
+    } catch (error: any) {
+      console.error("Error creating journal entry:", error);
+      return res.status(500).json({ message: "Failed to create journal entry" });
+    }
+  });
+
+  // Update journal entry
+  app.put("/api/journal/:id", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const { id } = req.params;
+      const { title, content, tags, code } = req.body;
+
+      // Verify ownership
+      const existing = await db.select().from(journalEntries).where(eq(journalEntries.id, id)).limit(1);
+      if (!existing.length || existing[0].userId !== userId) {
+        return res.status(404).json({ message: "Journal entry not found" });
+      }
+
+      await db.update(journalEntries).set({
+        title: title !== undefined ? title : existing[0].title,
+        content: content !== undefined ? content : existing[0].content,
+        tags: tags !== undefined ? tags : existing[0].tags,
+        code: code !== undefined ? code : existing[0].code,
+        updatedAt: new Date(),
+      }).where(eq(journalEntries.id, id));
+
+      return res.json({ message: "Journal entry updated successfully" });
+    } catch (error: any) {
+      console.error("Error updating journal entry:", error);
+      return res.status(500).json({ message: "Failed to update journal entry" });
+    }
+  });
+
+  // Delete journal entry
+  app.delete("/api/journal/:id", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const { id } = req.params;
+
+      // Verify ownership
+      const existing = await db.select().from(journalEntries).where(eq(journalEntries.id, id)).limit(1);
+      if (!existing.length || existing[0].userId !== userId) {
+        return res.status(404).json({ message: "Journal entry not found" });
+      }
+
+      await db.delete(journalEntries).where(eq(journalEntries.id, id));
+
+      return res.json({ message: "Journal entry deleted successfully" });
+    } catch (error: any) {
+      console.error("Error deleting journal entry:", error);
+      return res.status(500).json({ message: "Failed to delete journal entry" });
+    }
+  });
+
+  // Get achievements
+  app.get("/api/achievements", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      
+      // Get user's unlocked achievements
+      const unlocked = await db.select().from(userAchievements).where(eq(userAchievements.userId, userId));
+      
+      // Get user stats for progress calculation
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const activities = await db.select().from(activityHistory).where(eq(activityHistory.userId, userId));
+      
+      // Calculate progress for each achievement
+      const achievementsWithProgress = ACHIEVEMENTS_CATALOG.map(achievement => {
+        const isUnlocked = unlocked.some(u => u.achievementId === achievement.id);
+        const unlockedEntry = unlocked.find(u => u.achievementId === achievement.id);
+        
+        let progress = 0;
+        if (!isUnlocked && achievement.progress) {
+          progress = calculateAchievementProgress(achievement.id, user, activities);
+        }
+
+        return {
+          ...achievement,
+          unlocked: isUnlocked,
+          unlockedAt: unlockedEntry?.unlockedAt || null,
+          progress: isUnlocked ? 100 : progress,
+        };
+      });
+
+      return res.json({ achievements: achievementsWithProgress });
+    } catch (error: any) {
+      console.error("Error fetching achievements:", error);
+      return res.status(500).json({ message: "Failed to fetch achievements" });
+    }
+  });
+
+  // Check and unlock achievements (called after activities)
+  app.post("/api/achievements/check", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const activities = await db.select().from(activityHistory).where(eq(activityHistory.userId, userId));
+      const unlocked = await db.select().from(userAchievements).where(eq(userAchievements.userId, userId));
+      
+      const newlyUnlocked: string[] = [];
+
+      for (const achievement of ACHIEVEMENTS_CATALOG) {
+        const alreadyUnlocked = unlocked.some(u => u.achievementId === achievement.id);
+        if (alreadyUnlocked) continue;
+
+        const shouldUnlock = checkAchievementUnlock(achievement.id, user, activities);
+        if (shouldUnlock) {
+          await db.insert(userAchievements).values({
+            userId,
+            achievementId: achievement.id,
+          });
+          newlyUnlocked.push(achievement.id);
+
+          // Award XP
+          const newXP = (user.xp || 0) + achievement.xp;
+          await db.update(users).set({ xp: newXP, level: calculateLevel(newXP) }).where(eq(users.id, userId));
+        }
+      }
+
+      return res.json({ newlyUnlocked });
+    } catch (error: any) {
+      console.error("Error checking achievements:", error);
+      return res.status(500).json({ message: "Failed to check achievements" });
+    }
+  });
+
+  // Get store items
+  app.get("/api/store", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const purchases = await db.select().from(storePurchases).where(eq(storePurchases.userId, userId));
+      
+      const itemsWithOwnership = STORE_CATALOG.map(item => ({
+        ...item,
+        owned: purchases.some(p => p.itemId === item.id),
+      }));
+
+      return res.json({ items: itemsWithOwnership });
+    } catch (error: any) {
+      console.error("Error fetching store:", error);
+      return res.status(500).json({ message: "Failed to fetch store" });
+    }
+  });
+
+  // Coins endpoints
+  app.get("/api/coins/balance", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+      const txCount = (await db.select().from(coinTransactions).where(eq(coinTransactions.userId, userId))).length;
+      return res.json({ coins: user.coins || 0, transactions: txCount });
+    } catch (error: any) {
+      console.error("Error fetching coins:", error);
+      return res.status(500).json({ message: "Failed to fetch coins" });
+    }
+  });
+
+  app.get("/api/coins/transactions", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const tx = await db.select().from(coinTransactions)
+        .where(eq(coinTransactions.userId, userId))
+        .orderBy(desc(coinTransactions.createdAt));
+      return res.json({ transactions: tx });
+    } catch (error: any) {
+      console.error("Error fetching coin transactions:", error);
+      return res.status(500).json({ message: "Failed to fetch transactions" });
+    }
+  });
+
+  // Purchase store item
+  app.post("/api/store/purchase", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const { itemId } = req.body;
+
+      if (!itemId) {
+        return res.status(400).json({ message: "itemId is required" });
+      }
+
+      // Check if item exists
+      const item = STORE_CATALOG.find(i => i.id === itemId);
+      if (!item) {
+        return res.status(404).json({ message: "Item not found" });
+      }
+
+      // Check if already owned
+      const existing = await db.select().from(storePurchases).where(
+        and(eq(storePurchases.userId, userId), eq(storePurchases.itemId, itemId))
+      ).limit(1);
+      
+      if (existing.length > 0) {
+        return res.status(400).json({ message: "Item already owned" });
+      }
+
+      // Check if user has enough coins
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+      if ((user.coins || 0) < item.price) {
+        return res.status(400).json({ message: "Not enough coins" });
+      }
+
+      // Deduct coins and record purchase
+      const newCoins = (user.coins || 0) - item.price;
+      await db.update(users).set({ coins: newCoins }).where(eq(users.id, userId));
+
+      await db.insert(storePurchases).values({
+        userId,
+        itemId: item.id,
+        itemType: item.type,
+        xpCost: 0,
+        coinCost: item.price,
+      });
+
+      // Record coin transaction
+      await db.insert(coinTransactions).values({
+        userId,
+        amount: -item.price,
+        type: 'spend',
+        source: 'purchase',
+        metadata: JSON.stringify({ itemId: item.id }),
+      });
+
+      // Unlock special badge if boss challenge
+      if (item.id === 'boss_challenge') {
+        const existingBadge = await db.select().from(userAchievements)
+          .where(and(eq(userAchievements.userId, userId), eq(userAchievements.achievementId, 'boss_challenger')))
+          .limit(1);
+        if (existingBadge.length === 0) {
+          await db.insert(userAchievements).values({
+            userId,
+            achievementId: 'boss_challenger',
+          });
+        }
+      }
+
+      return res.json({ message: "Purchase successful", newCoins });
+    } catch (error: any) {
+      console.error("Error purchasing item:", error);
+      return res.status(500).json({ message: "Failed to purchase item" });
+    }
+  });
+
+  // Get daily streak info
+  app.get("/api/streak", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req as any).userId as string;
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      return res.json({
+        dailyStreak: user.dailyStreak || 0,
+        lastActivityDate: user.lastActivityDate,
+        dailyGoal: user.dailyGoal || 5,
+      });
+    } catch (error: any) {
+      console.error("Error fetching streak:", error);
+      return res.status(500).json({ message: "Failed to fetch streak" });
+    }
+  });
+
+  // Leaderboard: Top XP
+  app.get("/api/leaderboard/xp", async (req: Request, res: Response) => {
+    try {
+      const limit = Math.min(Number(req.query.limit) || 50, 100);
+      const topUsers = await db.select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        xp: users.xp,
+        level: users.level,
+        avatar: users.avatar,
+        isPro: users.isPro,
+      }).from(users).orderBy(desc(users.xp)).limit(limit);
+      
+      return res.json({ leaderboard: topUsers });
+    } catch (error: any) {
+      console.error("Error fetching XP leaderboard:", error);
+      return res.status(500).json({ message: "Failed to fetch leaderboard" });
+    }
+  });
+
+  // Leaderboard: Top Streak
+  app.get("/api/leaderboard/streak", async (req: Request, res: Response) => {
+    try {
+      const limit = Math.min(Number(req.query.limit) || 50, 100);
+      const topUsers = await db.select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        dailyStreak: users.dailyStreak,
+        level: users.level,
+        avatar: users.avatar,
+        isPro: users.isPro,
+      }).from(users).orderBy(desc(users.dailyStreak)).limit(limit);
+      
+      return res.json({ leaderboard: topUsers });
+    } catch (error: any) {
+      console.error("Error fetching streak leaderboard:", error);
+      return res.status(500).json({ message: "Failed to fetch leaderboard" });
+    }
+  });
+
+  // ============================================================================
+  // CHALLENGES ROUTES
+  // ============================================================================
+
+  // GET /api/challenges/progress - Get user's challenge progress
+  app.get("/api/challenges/progress", authenticateToken, async (req: Request & { user?: any }, res: Response) => {
+    try {
+      const userId = (req.user as any).id;
+      // For now, return empty progress. In production, fetch from database
+      return res.json({ progress: [] });
+    } catch (error: any) {
+      console.error("Error fetching challenge progress:", error);
+      return res.status(500).json({ message: "Failed to fetch progress" });
+    }
+  });
+
+  // GET /api/challenges/daily - Get today's daily challenge
+  app.get("/api/challenges/daily", authenticateToken, async (req: Request & { user?: any }, res: Response) => {
+    try {
+      const { CHALLENGES } = require("../shared/challenges");
+      // Get daily challenge based on current date
+      const today = new Date();
+      const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
+      const challengeIndex = dayOfYear % CHALLENGES.length;
+      const dailyChallenge = CHALLENGES[challengeIndex];
+
+      return res.json({ challengeId: dailyChallenge.id });
+    } catch (error: any) {
+      console.error("Error fetching daily challenge:", error);
+      return res.status(500).json({ message: "Failed to fetch daily challenge" });
+    }
+  });
+
+  // POST /api/challenges/execute - Execute challenge code
+  app.post("/api/challenges/execute", authenticateToken, async (req: Request & { user?: any }, res: Response) => {
+    try {
+      const userId = ((req as any).user as any).id;
+      const { challengeId, code, hintsUsed, solutionViewed } = req.body;
+      const { CHALLENGES, getXPWithHint, getXPWithSolution, getDailyBonusXP } = require("../shared/challenges");
+
+      // Find the challenge
+      const challenge = CHALLENGES.find((c: any) => c.id === challengeId);
+      if (!challenge) {
+        return res.status(404).json({ message: "Challenge not found" });
+      }
+
+      // Execute the code and test it
+      try {
+        const userFunction = new Function(code);
+        const fn = userFunction();
+
+        // Run test cases
+        let allPassed = true;
+        let failedTest = null;
+
+        for (const testCase of challenge.testCases) {
+          let result;
+          if (Array.isArray(testCase.input)) {
+            result = fn(...testCase.input);
+          } else if (testCase.input === undefined) {
+            result = fn();
+          } else {
+            result = fn(testCase.input);
+          }
+
+          // Compare results (deep equality for objects/arrays)
+          const passed = JSON.stringify(result) === JSON.stringify(testCase.output);
+          if (!passed) {
+            allPassed = false;
+            failedTest = {
+              input: testCase.input,
+              expected: testCase.output,
+              received: result,
+              description: testCase.description,
+            };
+            break;
+          }
+        }
+
+        if (!allPassed) {
+          return res.json({
+            success: false,
+            message: `Test failed: ${failedTest?.description}`,
+            details: `Input: ${JSON.stringify(failedTest?.input)}\nExpected: ${JSON.stringify(failedTest?.expected)}\nReceived: ${JSON.stringify(failedTest?.received)}`,
+          });
+        }
+
+        // Calculate XP earned
+        let earnedXP = challenge.baseXP;
+        if (solutionViewed) {
+          earnedXP = getXPWithSolution(challenge.baseXP);
+        } else if (hintsUsed > 0) {
+          earnedXP = getXPWithHint(challenge.baseXP, hintsUsed);
+        }
+
+        // Check for daily bonus
+        const today = new Date();
+        const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
+        const challengeIndex = dayOfYear % CHALLENGES.length;
+        const isDailyChallenge = CHALLENGES[challengeIndex].id === challengeId;
+        let bonus = 0;
+        if (isDailyChallenge) {
+          bonus = getDailyBonusXP(challenge.baseXP);
+        }
+
+        const totalXP = earnedXP + bonus;
+
+        // Update user XP and streak
+        const user = await db.query.users.findFirst({
+          where: (users, { eq }) => eq(users.id, userId),
+        });
+
+        if (user) {
+          const newXP = (user.xp || 0) + totalXP;
+          const newCoins = (user.coins || 0) + Math.floor(totalXP / 50); // 1 coin per 50 XP
+
+          // Check if it's a new day for streak
+          const lastActivityDate = user.lastActivityDate ? new Date(user.lastActivityDate) : null;
+          const today = new Date();
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+
+          let newStreak = user.dailyStreak || 0;
+          if (!lastActivityDate || lastActivityDate.toDateString() !== today.toDateString()) {
+            if (lastActivityDate && lastActivityDate.toDateString() === yesterday.toDateString()) {
+              newStreak += 1;
+            } else if (!lastActivityDate) {
+              newStreak = 1;
+            } else {
+              newStreak = 1;
+            }
+          }
+
+          await db.update(users).set({
+            xp: newXP,
+            coins: newCoins,
+            dailyStreak: newStreak,
+            lastActivityDate: new Date(),
+          }).where(eq(users.id, userId));
+
+          // Log activity
+          await db.insert(activityHistory).values({
+            userId,
+            type: 'challenge_completed',
+            title: `Completed challenge: ${challenge.title}`,
+            xpEarned: totalXP,
+            metadata: JSON.stringify({ challengeId, earnedXP: earnedXP, bonus, hintsUsed, solutionViewed }),
+          } as any);
+
+          // Log coin transaction
+          if (newCoins > user.coins!) {
+            await db.insert(coinTransactions).values({
+              userId,
+              amount: newCoins - (user.coins || 0),
+              type: 'earn',
+              source: 'challenge_completion',
+              metadata: JSON.stringify({ challengeId, xpToCoins: Math.floor(totalXP / 50) }),
+            } as any);
+          }
+        }
+
+        return res.json({
+          success: true,
+          message: "All tests passed!",
+          xpEarned: earnedXP,
+          bonusXP: bonus,
+          totalXP,
+        });
+      } catch (execError: any) {
+        return res.json({
+          success: false,
+          message: "Code execution error",
+          details: execError.message,
+        });
+      }
+    } catch (error: any) {
+      console.error("Error executing challenge:", error);
+      return res.status(500).json({ message: "Failed to execute challenge" });
+    }
+  });
+
+  // ============================================================================
+  // END GAMIFICATION ROUTES
+  // ============================================================================
+
+  // ============================================================================
+  // MONETIZATION ROUTES
+  // ============================================================================
+  
+  app.post("/api/monetization/create-payment", requireAuth, createPayment);
+  app.post("/api/monetization/stripe-webhook", stripeWebhook);
+  app.post("/api/monetization/watch-ad", requireAuth, watchAd);
+  app.get("/api/monetization/check-usage", requireAuth, checkUsage);
+  app.post("/api/monetization/consume-usage", requireAuth, consumeUsage);
+  
+  // Ad Analytics & Tracking
+  app.post("/api/analytics/ad-impression", trackAdImpression);
+  app.post("/api/analytics/verify-ad-watch", requireAuth, verifyAdWatch);
+  app.get("/api/analytics/ad-stats", requireAuth, getAdStats);
+  app.post("/api/monetization/skip-ad-cooldown", requireAuth, skipAdForCoins);
+
+  // ============================================================================
+  // END MONETIZATION ROUTES
+  // ============================================================================
 
   // Save progress
   app.post("/api/progress", requireAuth, async (req: Request, res: Response) => {

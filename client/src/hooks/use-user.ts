@@ -9,6 +9,23 @@ interface User {
   isPro?: boolean;
   proExpiresAt?: string | null;
   emailVerified?: boolean;
+  // Gamification fields
+  xp?: number;
+  level?: number;
+  coins?: number;
+  avatar?: string;
+  bio?: string;
+  theme?: string;
+  language?: string;
+  dailyStreak?: number;
+  lastActivityDate?: string;
+  dailyGoal?: number;
+  totalExercises?: number;
+  totalTime?: number;
+  country?: string;
+  dateOfBirth?: string;
+  // Monetization fields
+  freeUsageCount?: number;
 }
 
 export function useUser() {

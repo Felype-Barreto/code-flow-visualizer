@@ -12,6 +12,7 @@
     "start:env": "cross-env NODE_ENV=production node -r dotenv/config dist/index.cjs",
     "check": "tsc",
     "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
     "images:convert": "node script/convert-images.js",
     "stripe:setup": "tsx script/create-stripe-price.ts",
     "dev:strict": "tsx script/dev-strict.ts",

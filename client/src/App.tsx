@@ -11,6 +11,15 @@ import ExercisesPage from "@/pages/exercises";
 import AdminPage from "@/pages/admin";
 import ProPage from "@/pages/pro";
 import PricingPage from "@/pages/pricing";
+import ProfilePage from "@/pages/profile";
+import HistoryPage from "@/pages/history";
+import JournalPage from "@/pages/journal";
+import AchievementsPage from "@/pages/achievements";
+import StorePage from "@/pages/store";
+import LeaderboardPage from "@/pages/leaderboard";
+import DailyChallengesPage from "@/pages/daily-challenges";
+import ChallengesPage from "@/pages/challenges";
+import MonetizationPage from "@/pages/monetization";
 
 function Router() {
   return (
@@ -20,6 +29,16 @@ function Router() {
       <Route path="/exercises" component={ExercisesPage} />
       <Route path="/pro" component={ProPage} />
       <Route path="/pricing" component={PricingPage} />
+      {/* Gamification */}
+      <Route path="/profile" component={ProfilePage} />
+      <Route path="/history" component={HistoryPage} />
+      <Route path="/journal" component={JournalPage} />
+      <Route path="/achievements" component={AchievementsPage} />
+      <Route path="/store" component={StorePage} />
+      <Route path="/leaderboard" component={LeaderboardPage} />
+      <Route path="/daily-challenges" component={DailyChallengesPage} />
+      <Route path="/challenges" component={ChallengesPage} />
+      <Route path="/monetization" component={MonetizationPage} />
       <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
     </Switch>
