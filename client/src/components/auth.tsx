@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
+
 
 const COUNTRIES = [
   'Argentina', 'Australia', 'Brazil', 'Canada', 'Chile', 'China', 'Colombia', 'France', 'Germany',
@@ -51,7 +51,7 @@ function useAuth() {
 
 export default function Auth() {
   const { user, token, login, logout } = useAuth();
-  const { t } = useLanguage();
+
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<'login' | 'signup-form' | 'signup-verify' | 'forgot-email' | 'forgot-verify' | 'forgot-password'>('login');
 
@@ -87,13 +87,13 @@ export default function Auth() {
 
     try {
       if (!email || !validateEmail(email)) {
-        setError(t.invalidEmail || 'Invalid email');
+        setError('Invalid email');
         setIsLoading(false);
         return;
       }
 
       if (!password) {
-        setError(t.passwordRequired || 'Password required');
+        setError('Password required');
         setIsLoading(false);
         return;
       }
@@ -121,43 +121,43 @@ export default function Auth() {
 
     try {
       if (!email || !validateEmail(email)) {
-        setError(t.invalidEmail || 'Invalid email');
+        setError('Invalid email');
         setIsLoading(false);
         return;
       }
 
       if (!firstName.trim()) {
-        setError(t.firstNameRequired);
+        setError('First name required');
         setIsLoading(false);
         return;
       }
 
       if (!lastName.trim()) {
-        setError(t.lastNameRequired);
+        setError('Last name required');
         setIsLoading(false);
         return;
       }
 
       if (!dateOfBirth) {
-        setError(t.dateOfBirthRequired);
+        setError('Date of birth required');
         setIsLoading(false);
         return;
       }
 
       if (!country.trim()) {
-        setError(t.countryRequired);
+        setError('Country required');
         setIsLoading(false);
         return;
       }
 
       if (!proToken.trim()) {
-        setError(t.proCodeRequired);
+        setError('Pro code required');
         setIsLoading(false);
         return;
       }
 
       if (!validatePassword(password)) {
-        setError(t.passwordRequired || 'Password must be 10+ chars with letters and numbers');
+        setError('Password must be 10+ chars with letters and numbers');
         setIsLoading(false);
         return;
       }
@@ -263,7 +263,7 @@ export default function Auth() {
 
     try {
       if (!email || !validateEmail(email)) {
-        setError(t.invalidEmail || 'Invalid email');
+        setError('Invalid email');
         setIsLoading(false);
         return;
       }
@@ -327,13 +327,13 @@ export default function Auth() {
 
     try {
       if (!newPassword) {
-        setError(t.passwordRequired || 'New password required');
+        setError('New password required');
         setIsLoading(false);
         return;
       }
 
       if (!validatePassword(newPassword)) {
-        setError(t.passwordRequired || 'Password must be 10+ chars with letters and numbers');
+        setError('Password must be 10+ chars with letters and numbers');
         setIsLoading(false);
         return;
       }
@@ -396,11 +396,11 @@ export default function Auth() {
       {user ? (
         <div className="flex items-center gap-3">
           <div className="flex flex-col items-end">
-            <span className="text-sm font-medium">{t.hello || 'Hello'}, {user.firstName || user.email.split('@')[0]}</span>
+            <span className="text-sm font-medium">Hello, {user.firstName || user.email.split('@')[0]}</span>
             <span className="text-xs text-slate-400">{user.isPro ? 'Pro' : 'Free'}</span>
           </div>
           <Button variant="outline" size="sm" onClick={logout} className="text-xs">
-            {t.logOut || 'Logout'}
+            Logout
           </Button>
         </div>
       ) : (

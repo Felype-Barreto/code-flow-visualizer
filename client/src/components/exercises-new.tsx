@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useLanguage } from "@/contexts/LanguageContext";
+// import removed: useLanguage
 import { useUser } from "@/hooks/use-user";
 import { checkAndConsumeExecution } from "@/lib/execution-limit";
 
@@ -35,7 +35,7 @@ interface ExecutionState {
 }
 
 export function ExercisesViewNew() {
-  const { t, language } = useLanguage();
+  // const t = {};
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { user } = useUser();

@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Play, RotateCcw, SkipForward, SkipBack, Download, Flag, Clock3, Copy, Sparkles, Lock, Crown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
-import { useLanguage } from "@/contexts/LanguageContext";
+// import removed: useLanguage
 import { useLocation } from "wouter";
 import CallStack from "./call-stack";
 import HeapMemory from "./heap-memory";
@@ -53,7 +53,7 @@ interface Breakpoint {
 
 export function ProDebugger() {
   const { user } = useUser();
-  const { t } = useLanguage();
+  // const t = {};
   const [, setLocation] = useLocation();
   const isPro = user?.isPro || false;
 

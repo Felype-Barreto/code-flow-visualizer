@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Code2, Lightbulb, AlertTriangle, Zap, Lock, Crown, ArrowRight, GitBranch } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useUser } from "@/hooks/use-user";
-import { useLanguage } from "@/contexts/LanguageContext";
+// import removed: useLanguage
 import { useLocation } from "wouter";
 
 interface CodeInsight {
@@ -23,7 +23,7 @@ interface FlowNode {
 
 export function AICodeInspector() {
   const { user } = useUser();
-  const { t } = useLanguage();
+  // const t = {};
   const [, setLocation] = useLocation();
   const isPro = user?.isPro || false;
 

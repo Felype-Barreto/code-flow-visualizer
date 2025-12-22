@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Auth from "@/components/auth";
 import { LanguageSelector } from "@/components/language-selector";
-import { useLanguage } from "@/contexts/LanguageContext";
+// import removed: useLanguage
 import { useUser } from "@/hooks/use-user";
 import { Footer } from "@/components/footer";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { t } = useLanguage();
+  // const t = {};
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const { user, token } = useUser();

@@ -12,7 +12,7 @@ import { getPyodideInstance } from "@/lib/pyodide";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@/hooks/use-user";
 import { checkAndConsumeExecution } from "@/lib/execution-limit";
-import { useLanguage } from "@/contexts/LanguageContext";
+// import removed: useLanguage
 
 interface ExerciseProgressState {
   [exerciseId: string]: {
@@ -39,7 +39,7 @@ interface ExecutionState {
 
 export function ExercisesView() {
   const { user } = useUser();
-  const { t } = useLanguage();
+  // const t = {};
   const [selectedExercise, setSelectedExercise] = useState<Exercise>(exercises[0]);
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");
   const [code, setCode] = useState<string>("");

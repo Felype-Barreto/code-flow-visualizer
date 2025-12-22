@@ -20,7 +20,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
+// import removed: useLanguage
 import { useUser } from "@/hooks/use-user";
 import { toast } from "@/hooks/use-toast";
 
@@ -35,7 +35,7 @@ interface ExecutionFrame {
 }
 
 export function VIPPlayground() {
-  const { t } = useLanguage();
+  // const t = {};
   const { user } = useUser();
   const isPro = user?.isPro || false;
 

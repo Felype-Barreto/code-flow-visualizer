@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { CheckCircle2, HelpCircle, Lock, Unlock, ChevronRight, Sparkles } from "lucide-react";
-import { useLanguage } from "@/contexts/LanguageContext";
+// import removed: useLanguage
 
 export interface GuidedStep {
   id: string;
@@ -44,7 +44,7 @@ export function GuidedPath({ id, title, steps, onComplete }: GuidedPathProps) {
   const currentStep = steps[currentIdx];
   const [answer, setAnswer] = useState<string>("");
   const [result, setResult] = useState<{ ok: boolean; messages?: string[] } | null>(null);
-  const { t } = useLanguage();
+  // const t = {};
 
   useEffect(() => {
     setCurrentIdx(progress);

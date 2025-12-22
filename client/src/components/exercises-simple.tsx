@@ -11,7 +11,7 @@ import { StackFrame, HeapObject } from "@/lib/types";
 import { getPyodideInstance } from "@/lib/pyodide";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { useLanguage } from "@/contexts/LanguageContext";
+// import removed: useLanguage
 import { useUser } from "@/hooks/use-user";
 import { checkAndConsumeExecution } from "@/lib/execution-limit";
 
@@ -40,7 +40,7 @@ interface ExecutionState {
 
 export function ExercisesView() {
   const { toast } = useToast();
-  const { t } = useLanguage();
+  // const t = {};
   const { user } = useUser();
   const [selectedExercise, setSelectedExercise] = useState<Exercise>(exercises[0]);
   const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");

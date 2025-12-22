@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
+// import removed: useLanguage
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Send, Mail, Bug, MessageSquare } from 'lucide-react';
 
 export function Footer() {
-  const { t } = useLanguage();
+  // const t = {};
   const { toast } = useToast();
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
