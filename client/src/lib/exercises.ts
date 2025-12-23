@@ -379,8 +379,8 @@ export const exercises: Exercise[] = [
   },
   {
     id: "count-occurrences",
-    title: "Contar Ocorr?ncias",
-    description: "Conte quantas vezes um element aparece em um array.",
+    title: "Count Occurrences",
+    description: "Count how many times an element appears in an array.",
     difficulty: "Beginner",
     variants: {
       javascript: {
@@ -393,7 +393,7 @@ export const exercises: Exercise[] = [
         language: "python",
         initialCode: `def count_occurrences(array, element):\n    # Your code here\n    pass`,
         solution: `def count_occurrences(array, element):\n    return array.count(element)`,
-        hint: "Use o m?todo .count() da list",
+        hint: "Use the list's .count() method",
       },
       c: {
         language: "c",

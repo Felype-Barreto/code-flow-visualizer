@@ -30,17 +30,17 @@ export default function PricingPage() {
       period: "per month",
       description: "Limited access to basic features.",
       features: [
-        "Feature A",
-        "Feature B",
-        "Feature C",
-        "Feature D",
-        "Feature E",
+        "Basic editor and exercise access",
+        "Community challenges",
+        "Limited AI suggestions (trial)",
+        "Public examples and docs",
+        "Basic debugging tools",
       ],
       notIncluded: [
-        "Plan Not Included1",
-        "Plan Not Included2",
-        "Plan Not Included3",
-        "Plan Not Included4",
+        "Unlimited AI suggestions",
+        "Snapshots & versioning",
+        "Private playgrounds",
+        "Priority support",
       ],
       cta: "Current Plan",
       ctaVariant: "secondary" as const,
@@ -48,19 +48,19 @@ export default function PricingPage() {
     },
     {
       name: "Pro",
-      price: "$9/mo",
-      period: "per month",
-      description: "Full access to Pro features and priority support.",
+      price: "$2.00",
+      period: "/month",
+      description: "Full access to Pro features, tools and premium content.",
       badge: "Pro",
       features: [
-        "Plan Feature6",
-        "Plan Feature7",
-        "Plan Feature8",
-        "Plan Feature9",
-        "Plan Feature10",
-        "Plan Feature11",
-        "Feature D",
-        "Feature E",
+        "Advanced visual debugger (breakpoints, step, inspect)",
+        "Unlimited AI code suggestions & automated fixes",
+        "Snapshots, restore points and version history",
+        "Performance profiler with actionable insights",
+        "Private VIP playground and experiment workspace",
+        "Database inspector & mock data tooling",
+        "Curated Pro learning tracks and challenges",
+        "Priority email support",
       ],
       notIncluded: [],
       cta: "Activate Pro",
@@ -83,10 +83,12 @@ export default function PricingPage() {
 
   const monthlyBenefits = useMemo(
     () => [
-      "Priority support",
-      "AI code suggestions",
-      "Snapshots & versioning",
-      "Performance analysis",
+      "Priority support with faster SLAs",
+      "Unlimited AI code suggestions and fixes",
+      "Snapshots, restore points and versioning",
+      "Performance analysis and profiling tools",
+      "Private playground and experiment workspaces",
+      "Curated learning tracks and Pro-only challenges",
     ],
     []
   );
@@ -145,15 +147,15 @@ export default function PricingPage() {
   const proExerciseTracks = useMemo(
     () => [
       {
-        title: "Beginner Track",
+        title: "Foundations Track",
         accent: "from-emerald-500/15 to-emerald-700/10",
         items: [
-          "Pro Track Beginner1",
-          "Pro Track Beginner2",
-          "Pro Track Beginner3",
-          "Pro Track Beginner4",
-          "Pro Track Beginner5",
-          "Pro Track Beginner6",
+          "Editor & Tooling Basics",
+          "Reading Errors & Stack Traces",
+          "Basic Debugging Techniques",
+          "Console, Logs & Breakpoints",
+          "Writing Simple Tests",
+          "Safe Refactoring Patterns",
         ],
       },
       {
@@ -327,7 +329,7 @@ export default function PricingPage() {
             Choose a plan that fits you
           </p>
             <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-200">
-            <span className="font-semibold text-white">Pro: $9/mo</span>
+            <span className="font-semibold text-white">Pro: $2.00/mo</span>
             <span className="text-gray-300">USD</span>
           </div>
 
@@ -364,8 +366,8 @@ export default function PricingPage() {
               <Crown className="w-5 h-5 text-amber-300" />
               <span className="text-sm font-semibold text-amber-200">Premium Badge</span>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-3">Premium Headline</h2>
-            <p className="text-sm text-gray-300 max-w-3xl mx-auto">Premium description about Pro features.</p>
+            <h2 className="text-3xl font-bold text-white mb-3">Everything Pro: Faster debugging, smarter code</h2>
+            <p className="text-sm text-gray-300 max-w-3xl mx-auto">Subscribe to Pro and get the full suite: advanced debugger, AI-powered fixes, snapshots, profiler, private playgrounds, and curated learning tracks to accelerate your development.</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

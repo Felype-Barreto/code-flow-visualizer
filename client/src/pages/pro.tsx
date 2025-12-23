@@ -51,10 +51,10 @@ export default function ProPage() {
     { id: "sort", code: "function main(){ const arr=[5,1,9,2]; return arr.sort((a,b)=>a-b); }" },
   ];
   const profilerExampleLabels: Record<string, string> = {
-    fib: "Profiler Example Fib",
-    loop: "Profiler Example Loop",
-    async: "Profiler Example Async",
-    sort: "Profiler Example Sort",
+    fib: "Measure recursive function performance (Fibonacci)",
+    loop: "Measure loop throughput and hot-paths",
+    async: "Analyze async/await and promise behavior",
+    sort: "Benchmark sorting and compare algorithms",
   };
   const [profilerRuns, setProfilerRuns] = useState<Array<{ run: number; ms: number; result?: any }>>([]);
   const [profilerError, setProfilerError] = useState<string | null>(null);
@@ -135,16 +135,16 @@ export default function ProPage() {
     graph: 'Graph',
   };
   const inspectorDescriptions: Record<string, string> = {
-    user: "Inspect user-related objects and properties.",
-    nested: "Explore deeply nested object structures and their relationships.",
-    array: "View arrays, indices, and common array operations.",
-    closure: "Inspect closures and captured lexical scope values.",
-    prototype: "Examine prototype chains and inherited properties.",
-    async: "Analyze async functions, promises, and timing behavior.",
-    circular: "Detect and visualize circular references in objects.",
-    mixed: "Inspect mixed-type collections and heterogeneous structures.",
-    symbols: "Reveal symbol-keyed properties and metadata.",
-    graph: "Render object graphs for complex data visualizations.",
+    user: "Inspect user objects: properties, methods and metadata.",
+    nested: "Drill into deeply nested objects and visualize relationships.",
+    array: "Explore arrays, indices and contents with quick previews.",
+    closure: "See captured variables inside closures and their values.",
+    prototype: "Trace prototype chains and inherited properties.",
+    async: "Inspect promises, async functions and timing behavior.",
+    circular: "Detect circular references and visualize links safely.",
+    mixed: "Inspect heterogeneous collections with type hints.",
+    symbols: "Reveal symbol-keyed properties and hidden metadata.",
+    graph: "Render interactive object graphs for complex structures.",
   };
   const [inspectorParsed, setInspectorParsed] = useState<any>(null);
   const [inspectorError, setInspectorError] = useState<string | null>(null);
@@ -169,10 +169,10 @@ export default function ProPage() {
     const used = trialUses[feature] || 0;
     if (used === 0) {
       setTrialUses((prev) => ({ ...prev, [feature]: used + 1 }));
-      toast({ title: "First use unlocked", description: "Subscribe to Pro for unlimited use." });
+      toast({ title: "First use unlocked", description: "Try this Pro feature free — subscribe for unlimited access." });
       return true;
     }
-    toast({ title: "Pro exclusive feature", description: "Subscribe to continue using this feature." });
+    toast({ title: "Pro feature", description: "This feature requires a Pro subscription. Upgrade to unlock everything." });
     return false;
   };
 
@@ -187,7 +187,7 @@ export default function ProPage() {
     if (!allowProAction("scratchpad-copy")) return;
     try {
       await navigator.clipboard.writeText(scratchpad);
-      toast({ title: "Copied!", description: "Pro Playground code copied to clipboard." });
+      toast({ title: "Copied!", description: "Code copied to clipboard." });
     } catch (err) {
       toast({ title: "Copy failed", description: String(err) });
     }
@@ -372,9 +372,7 @@ export default function ProPage() {
         <div className="px-3 py-2 text-[11px] text-amber-100 border-b border-amber-400/20 bg-amber-500/10 flex items-center justify-between">
           <span>Code Map</span>
           {selectedPath && (
-            <span className="font-mono text-amber-300">
-              Inspector Current Path Label: {selectedPath}
-            </span>
+            <span className="font-mono text-amber-300">{selectedPath}</span>
           )}
         </div>
         <div className="max-h-64 overflow-auto font-mono text-xs text-amber-50/90">
@@ -592,7 +590,7 @@ export default function ProPage() {
                   </span>
                 </span>
               </h1>
-              <p className="text-sm text-amber-100/90">Learn advanced concepts with examples</p>
+              <p className="text-sm text-amber-100/90">Hands-on advanced problems with guided solutions and expert explanations.</p>
             </div>
           </div>
         </div>
@@ -606,7 +604,7 @@ export default function ProPage() {
                 <span className="text-sm font-semibold text-amber-200">Pro Challenges</span>
               </div>
               <h3 className="text-lg font-bold mb-1">Pro Challenges</h3>
-              <p className="text-sm text-gray-300 mb-4">Learn advanced concepts with examples</p>
+              <p className="text-sm text-gray-300 mb-4">Hands-on advanced problems with guided solutions and expert explanations.</p>
               <Button
                 variant="secondary"
                 className="w-full"
@@ -659,7 +657,7 @@ export default function ProPage() {
                   Pro Playground
                 </div>
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-amber-200 to-amber-400 bg-clip-text text-transparent">Pro Playground</h3>
-                <p className="text-sm text-amber-100/90">VIP Playground</p>
+                <p className="text-sm text-amber-100/90">A private, fast playground to prototype ideas and reproduce bugs.</p>
                 <div className="space-y-2 text-sm text-amber-50/90">
                   <div className="flex items-start gap-2">
                     <Sparkles className="w-4 h-4 text-amber-300 mt-0.5" />
@@ -693,10 +691,10 @@ export default function ProPage() {
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" variant="secondary" className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold shadow-[0_0_10px_rgba(251,191,36,0.3)]" onClick={copyScratchpad}>
-                    Pro Playground Copy
+                    Copy
                   </Button>
                   <Button size="sm" variant="outline" className="border-amber-500/50 text-amber-200 hover:bg-amber-500/10" onClick={clearScratchpad}>
-                    Pro Playground Clear
+                    Clear
                   </Button>
                 </div>
               </div>
@@ -726,12 +724,12 @@ export default function ProPage() {
           {/* Category filter */}
           <div className="flex flex-wrap gap-2 mb-3">
             {[
-              { id: "all", label: "Pro Category All" },
-              { id: "algorithms", label: "Pro Category Algorithms" },
-              { id: "data-structures", label: "Pro Category Data Structures" },
-              { id: "async", label: "Pro Category Async" },
-              { id: "performance", label: "Pro Category Performance" },
-              { id: "design-patterns", label: "Pro Category Design Patterns" },
+              { id: "all", label: "All" },
+              { id: "algorithms", label: "Algorithms" },
+              { id: "data-structures", label: "Data Structures" },
+              { id: "async", label: "Async" },
+              { id: "performance", label: "Performance" },
+              { id: "design-patterns", label: "Design Patterns" },
             ].map((c: any) => (
               <button
                 key={c.id}
@@ -750,7 +748,7 @@ export default function ProPage() {
           {/* Difficulty + search */}
           <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
             <div className="flex flex-wrap gap-2">
-              {[{id:"all",label:"Pro Category All"},{id:"beginner",label:"Beginner"},{id:"intermediate",label:"Intermediate"},{id:"advanced",label:"Advanced"}].map((d:any)=> (
+              {[{id:"all",label:"All"},{id:"beginner",label:"Beginner"},{id:"intermediate",label:"Intermediate"},{id:"advanced",label:"Advanced"}].map((d:any)=> (
                 <button
                   key={d.id}
                   onClick={() => setDifficulty(d.id)}
@@ -773,9 +771,9 @@ export default function ProPage() {
                 onChange={(e)=> setSort(e.target.value as any)}
                 className="text-sm px-3 py-2 rounded-lg bg-slate-950/60 border border-slate-700 text-slate-200 focus:outline-none"
               >
-                <option value="relevance">Pro Sort Recommended</option>
-                <option value="difficulty">Pro Sort Difficulty</option>
-                <option value="time">Pro Sort Time</option>
+                <option value="relevance">Recommended</option>
+                <option value="difficulty">Difficulty</option>
+                <option value="time">Time</option>
               </select>
             </div>
           </div>
@@ -798,7 +796,7 @@ export default function ProPage() {
               })}
             completedIds={[]}
             onSelectExercise={(ex) => {
-              toast({ title: `$Pro Feature: ${ex.title}`, description: "Pro Challenges" });
+              toast({ title: `Pro Feature: ${ex.title}`, description: ex.description || "Open this Pro challenge to learn more." });
             }}
           />
         </div>
@@ -841,7 +839,7 @@ export default function ProPage() {
               <Sparkles className="w-4 h-4" />
               Mini Demos
             </span>
-            <p className="text-sm text-amber-200/70">Pro Mini Demos Note</p>
+            <p className="text-sm text-amber-200/70">Quick interactive demos that showcase Pro features and workflows.</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -861,7 +859,7 @@ export default function ProPage() {
                     onClick={() => applyProfilerExample(ex.id)}
                     className="px-3 py-1 rounded-full border border-amber-300/40 text-amber-100 bg-black/30 hover:bg-amber-500/10"
                   >
-                    {ex.id === 'fib' ? "Profiler Example Fib" : ex.id === 'loop' ? "Profiler Example Loop" : ex.id === 'async' ? "Profiler Example Async" : "Profiler Example Sort"}
+                    {profilerExampleLabels[ex.id]}
                   </button>
                 ))}
               </div>
@@ -956,9 +954,9 @@ export default function ProPage() {
               {renderTimeline()}
               <div className="bg-slate-800/80 border border-slate-700 rounded-lg p-3 text-xs text-slate-200 space-y-1">
                 <div className="font-semibold text-slate-100">What to Watch</div>
-                <div>Profiler What to Watch1</div>
-                <div>Profiler What to Watch2</div>
-                <div>Profiler What to Watch3</div>
+                <div>Long-running functions and recursive hotspots.</div>
+                <div>Heavy allocations and memory churn that cause pauses.</div>
+                <div>CPU-bound hotspots and I/O wait queues to optimize.</div>
               </div>
             </div>
 
@@ -1002,8 +1000,8 @@ export default function ProPage() {
               <h3 className="text-lg font-semibold text-amber-100">Variable Inspector</h3>
             </div>
             <div className="flex flex-wrap gap-2 text-xs text-amber-50 items-center">
-              <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-600/30 to-amber-700/30 border border-amber-400/50">Inspector Guide Label</span>
-              <span className="text-amber-100/80">Inspector Guide Text</span>
+              <span className="px-2 py-1 rounded-full bg-gradient-to-r from-amber-600/30 to-amber-700/30 border border-amber-400/50">Inspector Guide</span>
+              <span className="text-amber-100/80">Use the inspector to explore object structure, values and metadata.</span>
             </div>
             <div className="flex flex-wrap gap-2 text-xs">
               {inspectorExamples.map((ex) => (
@@ -1033,7 +1031,7 @@ export default function ProPage() {
               </div>
               {selectedPath && (
                 <div className="text-xs text-amber-200 inline-flex items-center gap-1">
-                  <ArrowRight className="w-3 h-3" /> Inspector Path Label: <span className="font-mono">{selectedPath}</span>
+                  <ArrowRight className="w-3 h-3" /> Path: <span className="font-mono">{selectedPath}</span>
                 </div>
               )}
             </div>
@@ -1057,24 +1055,24 @@ export default function ProPage() {
                 <div className="bg-black/25 border border-slate-700 rounded-lg p-3 space-y-2">
                   <div className="flex items-center justify-between text-xs text-amber-200">
                     <span>Focus</span>
-                    <span className="font-mono text-amber-300">{selectedPath || "Inspector Select in Tree"}</span>
+                    <span className="font-mono text-amber-300">{selectedPath || "Select a value in the tree to inspect it"}</span>
                   </div>
                   <div className="flex flex-wrap gap-2 text-[11px] text-amber-50">
                     <span className="px-2 py-1 rounded-full bg-amber-600/25 border border-amber-300/60 shadow-[0_0_0_1px_rgba(251,191,36,0.35)]">{valueKind}</span>
-                    {arrayLength !== null && <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">Inspector Len Label: {arrayLength}</span>}
+                    {arrayLength !== null && <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">Length: {arrayLength}</span>}
                     {objectKeysCount !== null && (
-                      <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">Inspector Keys Label: {objectKeysCount}</span>
+                      <span className="px-2 py-1 rounded-full bg-amber-600/20 border border-amber-300/50">Keys: {objectKeysCount}</span>
                     )}
-                    <span className="px-2 py-1 rounded-full bg-emerald-600/25 border border-emerald-300/60 text-emerald-50">Stack Heap Hint</span>
+                    <span className="px-2 py-1 rounded-full bg-emerald-600/25 border border-emerald-300/60 text-emerald-50">Stack/Heap</span>
                   </div>
                   <pre className="bg-slate-950/70 border border-slate-700 rounded text-xs text-slate-200 p-2 max-h-40 overflow-auto">
-                    {selectedValuePreview || "Inspector Select Path Prompt"}
+                    {selectedValuePreview || "Select a path in the inspector tree to preview its value."}
                   </pre>
                   <div className="text-[11px] text-slate-200 space-y-1 bg-slate-800/80 border border-slate-700 rounded p-2">
                     <div className="font-semibold text-slate-100">How to Use the Inspector</div>
-                    <div>Inspector How To1</div>
-                    <div>Inspector How To2</div>
-                    <div>Inspector How To3</div>
+                    <div>Click keys or indices to explore nested values.</div>
+                    <div>Use the search box to find properties or values quickly.</div>
+                    <div>Tip: paste JSON to inspect objects or debug API responses.</div>
                   </div>
                 </div>
                 {renderCodePreview()}
@@ -1084,10 +1082,10 @@ export default function ProPage() {
               <div className="bg-black/20 border border-slate-700 rounded p-3">
                 <div className="text-xs text-gray-300 mb-2">Interpreter</div>
                 <ul className="text-xs text-gray-200 space-y-1">
-                  <li>Inspector Interpreter1</li>
-                  <li>Inspector Interpreter2</li>
-                  <li>{"Inspector Interpreter3".replace('{path}', selectedPath || '')}</li>
-                  <li>Inspector Interpreter4</li>
+                  <li>Shows the selected value and its type.</li>
+                  <li>Quickly copy values or paths for debugging.</li>
+                  <li>{`Use the path ${selectedPath || '<path>'} to reference values programmatically.`}</li>
+                  <li>Use the inspector to reproduce and diagnose issues faster.</li>
                 </ul>
               </div>
             )}
@@ -1103,9 +1101,9 @@ export default function ProPage() {
             <div className="max-w-4xl mx-auto text-center text-white space-y-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-semibold">
                 <Crown className="w-4 h-4" />
-                Pro Debugger Requires Badge
+                Pro Debugger
               </div>
-              <p className="text-gray-200">Pro Debugger Requires Text</p>
+              <p className="text-gray-200">The Pro debugger is available to subscribers — try one free use to see its value.</p>
               <Button onClick={handleGoToPricing} className="bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-black font-bold h-12">
                 View Pricing
               </Button>
