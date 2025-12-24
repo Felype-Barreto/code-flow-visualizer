@@ -1,0 +1,400 @@
+import React, { useState, useEffect, useRef } from "react";
+import { exercises, type Exercise, type Language } from "@/lib/exercises-new";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+import { Card } from "@/components/ui/card";
+import { LanguageBadge } from '@/components/language-selector';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertCircle, CheckCircle2, Lightbulb, Eye, Code2, Play, Pause, SkipBack, SkipForward, RotateCcw } from "lucide-react";
+import CallStack from "@/components/visualizer/call-stack";
+import HeapMemory from "@/components/visualizer/heap-memory";
+import { StackFrame, HeapObject } from "@/lib/types";
+import { getPyodideInstance } from "@/lib/pyodide";
+import { motion, AnimatePresence } from "framer-motion";
+import { useUser } from "@/hooks/use-user";
+import { checkAndConsumeExecution } from "@/lib/execution-limit";
+// import removed: useLanguage
+
+interface ExerciseProgressState {
+  [exerciseId: string]: {
+    completed: boolean;
+    score: number;
+    attempts: number;
+    code: string;
+    language: Language;
+  };
+}
+
+interface ExecutionState {
+  isExecuting: boolean;
+  isPaused: boolean;
+  currentLineIndex: number;
+  lines: string[];
+  errorLineIndex: number | null;
+  errorMessage: string | null;
+  variables: Record<string, any>;
+  stack: StackFrame[];
+  heap: HeapObject[];
+  logs: string[];
+}
+
+export function ExercisesView() {
+  const { user } = useUser();
+  const t: any = {};
+  const [selectedExercise, setSelectedExercise] = useState<Exercise>(exercises[0]);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>("javascript");
+  const [code, setCode] = useState<string>("");
+  const [testResults, setTestResults] = useState<any[]>([]);
+  const [showSolution, setShowSolution] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const [allPassed, setAllPassed] = useState(false);
+  const [progress, setProgress] = useState<ExerciseProgressState>({});
+  const [executionState, setExecutionState] = useState<ExecutionState>({
+    isExecuting: false,
+    isPaused: false,
+    currentLineIndex: -1,
+    lines: [],
+    errorLineIndex: null,
+    errorMessage: null,
+    variables: {},
+    stack: [],
+    heap: [],
+    logs: [],
+  });
+  const [showUseSolutionConfirm, setShowUseSolutionConfirm] = useState(false);
+  const [showEnableExecutionConfirm, setShowEnableExecutionConfirm] = useState(false);
+  const [pendingExecutionAction, setPendingExecutionAction] = useState<"line" | "tests" | null>(null);
+  const isPro = !!user?.isPro;
+
+  const [allowExecution, setAllowExecution] = useState<boolean>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("allowExecution") || "false");
+    } catch {
+      return false;
+    }
+  });
+  const [executionSpeed, setExecutionSpeed] = useState<number>(() => {
+    try {
+      const val = Number(localStorage.getItem("executionSpeed")) || 500;
+      return Math.max(10, Math.min(500, val));
+    } catch {
+      return 500;
+    }
+  });
+  // Ref to ensure dynamic reading of the value
+  const executionSpeedRef = useRef(executionSpeed);
+  useEffect(() => {
+    executionSpeedRef.current = executionSpeed;
+  }, [executionSpeed]);
+
+  useEffect(() => {
+    localStorage.setItem("executionSpeed", String(executionSpeed));
+  }, [executionSpeed]);
+
+  useEffect(() => {
+    localStorage.setItem("allowExecution", JSON.stringify(allowExecution));
+  }, [allowExecution]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("exerciseProgress");
+    if (saved) {
+      try {
+        setProgress(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to load progress:", e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const variant = selectedExercise.variants[selectedLanguage];
+    const saveKey = `${selectedExercise.id}-${selectedLanguage}`;
+    const savedProgress = progress[saveKey];
+    
+    if (savedProgress?.code) {
+      setCode(savedProgress.code);
+    } else if (variant) {
+      setCode(variant.initialCode);
+    }
+    setTestResults([]);
+    setShowSolution(false);
+    setShowHint(false);
+    setAllPassed(false);
+  }, [selectedExercise, selectedLanguage, progress]);
+
+  useEffect(() => {
+    const saveKey = `${selectedExercise.id}-${selectedLanguage}`;
+    const currentProgress = progress[saveKey] || { completed: false, score: 0, attempts: 0, code: "", language: selectedLanguage };
+    const newProgress = {
+      ...progress,
+      [saveKey]: {
+        ...currentProgress,
+        code,
+        language: selectedLanguage,
+      },
+    };
+    localStorage.setItem("exerciseProgress", JSON.stringify(newProgress));
+  }, [code, selectedExercise.id, selectedLanguage]);
+
+  const saveTestProgress = (completed: boolean, score: number) => {
+    const saveKey = `${selectedExercise.id}-${selectedLanguage}`;
+    const currentProgress = progress[saveKey] || { completed: false, score: 0, attempts: 0, code: "", language: selectedLanguage };
+    setProgress({
+      ...progress,
+      [saveKey]: {
+        completed,
+        score,
+        attempts: (currentProgress.attempts || 0) + 1,
+        code,
+        language: selectedLanguage,
+      },
+    });
+  };
+
+  const generateFriendlyLog = (line: string, prevVars: Record<string, any>, newVars: Record<string, any>): string => {
+    const trimmed = line.trim();
+        if (!trimmed) return "Empty line skipped";
+    
+    const assignMatch = trimmed.match(/(?:let|const|var)?\s*(\w+)\s*=\s*(.*)/);
+        if (assignMatch) {
+          const varName = assignMatch[1];
+          const newVal = newVars[varName];
+          return `📝 Assigned ${JSON.stringify(newVal)} to "${varName}"`;
+    }
+    
+    if (trimmed.startsWith("if ")) {
+          return `❓ Checked: ${trimmed}`;
+    }
+    
+    if (trimmed.startsWith("for ") || trimmed.startsWith("while ")) {
+          return `🔄 Started a loop: ${trimmed.substring(0, 40)}...`;
+    }
+    
+    if (trimmed.startsWith("return ")) {
+      const returnVal = newVars.__result || trimmed;
+          return `✅ Returned ${typeof returnVal === "object" ? JSON.stringify(returnVal) : returnVal}`;
+    }
+    
+    if (trimmed.includes("console.log") || trimmed.includes("print")) {
+          return `💬 Printed: ${trimmed.substring(0, 50)}...`;
+    }
+    
+    return `⚙️ ${trimmed.substring(0, 60)}${trimmed.length > 60 ? "..." : ""}`;
+  };
+
+  const safeEvalExpression = (expr: string, state: Record<string, any>) => {
+    try {
+      // Evaluate in a narrowed context to avoid leaking global scope
+      return new Function(
+        "state",
+        "Math",
+        "JSON",
+        "Array",
+        "Object",
+        `"use strict"; with(state){ return (${expr}); }`
+      )({ ...state }, Math, JSON, Array, Object);
+    } catch {
+      return undefined;
+    }
+  };
+
+  const buildStackAndHeap = (vars: Record<string, any>): { stack: StackFrame[]; heap: HeapObject[] } => {
+    const variables: StackFrame["variables"] = Object.entries(vars).map(([name, value]) => {
+      const isRef = value && typeof value === "object";
+      return {
+        name,
+        value: isRef ? JSON.stringify(value) : value,
+        type: isRef ? "reference" : "primitive",
+        changed: true,
+      };
+    });
+
+    const heap: HeapObject[] = Object.entries(vars)
+      .filter(([, value]) => value && typeof value === "object")
+      .map(([name, value], idx) => ({
+        id: `${name}-${idx}`,
+        className: Array.isArray(value) ? "Array" : "Object",
+        properties: Object.entries(value as any).map(([k, v]) => ({
+          name: k,
+          value: typeof v === "object" ? JSON.stringify(v) : (v as any),
+          type: typeof v === "object" ? "reference" : "primitive",
+        })),
+      }));
+
+    return {
+      stack: [
+        {
+          id: "global",
+          name: "global",
+          variables,
+          active: true,
+        },
+      ],
+      heap,
+    };
+  };
+
+  const processLine = (line: string, prevVars: Record<string, any>) => {
+    const updatedVars = { ...prevVars };
+    let log = generateFriendlyLog(line, prevVars, updatedVars);
+
+    const assignMatch = line.match(/(?:const|let|var)?\s*([\w$]+)\s*=\s*(.*)/);
+    if (assignMatch) {
+      const [, varName, rhsRaw] = assignMatch;
+      const rhs = rhsRaw.replace(/;\s*$/, "");
+      const val = safeEvalExpression(rhs, updatedVars);
+      updatedVars[varName] = val;
+      log = `🔧 ${varName} = ${JSON.stringify(val)}`;
+    }
+
+    const pushMatch = line.match(/([\w$]+)\.push\((.*)\)/);
+    if (pushMatch) {
+      const [, arrName, rhsRaw] = pushMatch;
+      const rhs = rhsRaw.replace(/;\s*$/, "");
+      const val = safeEvalExpression(rhs, updatedVars);
+      if (!Array.isArray(updatedVars[arrName])) updatedVars[arrName] = [];
+      (updatedVars[arrName] as any[]).push(val);
+      log = `📦 pushed to ${arrName}: ${JSON.stringify(val)}`;
+    }
+
+    const { stack, heap } = buildStackAndHeap(updatedVars);
+    return { updatedVars, stack, heap, log };
+  };
+
+  const runTests = () => {
+    const allowance = checkAndConsumeExecution(user?.id, !!user?.isPro, 5);
+    if (!allowance.allowed) {
+      setTestResults([{ passed: false, name: "Daily Limit", error: "5 executions/day limit on the Free plan. Upgrade to Pro for unlimited executions." }]);
+      setAllPassed(false);
+      return;
+    }
+    if (!allowExecution) {
+      setPendingExecutionAction("tests");
+      setShowEnableExecutionConfirm(true);
+      return;
+    }
+
+    if (selectedLanguage === "python") {
+      runPythonTests();
+    } else {
+      runJavaScriptTests();
+    }
+  };
+
+  const runJavaScriptTests = async () => {
+    try {
+      const functionNameMatch = code.match(/function\s+(\w+)\s*\(/);
+      if (!functionNameMatch) {
+        setTestResults([{ passed: false, name: "Error", error: "No function found. Use 'function' to declare your function." }]);
+        return;
+      }
+
+      const functionName = functionNameMatch[1];
+      const results: any[] = [];
+      for (const test of selectedExercise.tests) {
+        try {
+          const result = await (await import("@/lib/sandbox")).runInWorker(code, functionName, test.input, { timeoutMs: 3000 });
+          const passed = JSON.stringify(result) === JSON.stringify(test.expected);
+          results.push({ name: test.name, passed, result, expected: test.expected, error: null });
+        } catch (e: any) {
+          results.push({ name: test.name, passed: false, error: e?.message || String(e) });
+        }
+      }
+
+      setTestResults(results);
+      const isPassed = results.every((r) => r.passed);
+      setAllPassed(isPassed);
+
+      if (isPassed) {
+        saveTestProgress(true, 100);
+      } else {
+        const passedCount = results.filter((r) => r.passed).length;
+        const score = Math.round((passedCount / results.length) * 100);
+        saveTestProgress(false, score);
+      }
+    } catch (e) {
+      setTestResults([{ passed: false, name: "Error", error: `${(e as any).message}` }]);
+    }
+  };
+
+  const runPythonTests = async () => {
+    try {
+      const functionNameMatch = code.match(/def\s+(\w+)\s*\(/);
+      if (!functionNameMatch) {
+        setTestResults([{ passed: false, name: "Error", error: "No function found. Use 'def' to declare your function." }]);
+        return;
+      }
+
+      const functionName = functionNameMatch[1];
+
+      let py: any;
+      try {
+        py = await getPyodideInstance();
+      } catch (e) {
+        setTestResults([{ passed: false, name: "Error", error: "Failed to load Pyodide: " + ((e as any).message || String(e)) }]);
+        return;
+      }
+
+      const results: any[] = [];
+
+      for (const test of selectedExercise.tests) {
+        try {
+          const inputJSON = JSON.stringify(test.input);
+          const script = `${code}\nimport json\n\ndef __run_test():\n  try:\n    val = ${functionName}(*${inputJSON})\n    return json.dumps({'ok': True, 'result': val})\n  except Exception as e:\n    import traceback\n    return json.dumps({'ok': False, 'error': str(e), 'trace': traceback.format_exc()})\n\n__run_test()`;
+
+          const res = await py.runPythonAsync(script);
+          const resStr = typeof res === 'string' ? res : String(res);
+          const parsed = JSON.parse(resStr);
+
+          if (parsed.ok) {
+            const passed = JSON.stringify(parsed.result) === JSON.stringify(test.expected);
+            results.push({ name: test.name, passed, result: parsed.result, expected: test.expected, error: null });
+          } else {
+            results.push({ name: test.name, passed: false, error: parsed.error || parsed.trace || 'Error' });
+          }
+        } catch (e) {
+          results.push({ name: test.name, passed: false, error: (e as any).message || String(e) });
+        }
+      }
+
+      setTestResults(results);
+      const isPassed = results.every((r) => r.passed);
+      setAllPassed(isPassed);
+
+      if (isPassed) {
+        saveTestProgress(true, 100);
+      } else {
+        const passedCount = results.filter((r) => r.passed).length;
+        const score = Math.round((passedCount / results.length) * 100);
+        saveTestProgress(false, score);
+      }
+    } catch (e) {
+      setTestResults([{ passed: false, name: "Error", error: `${(e as any).message}` }]);
+    }
+  };
+
+  // Execution controlled by play/pause/step forward/step back
+  useEffect(() => {
+    let shouldRun = true;
+    if (!executionState.isExecuting || executionState.isPaused) return;
+    const runStep = async () => {
+      const { lines, currentLineIndex } = executionState;
+      if (currentLineIndex >= lines.length) {
+        setExecutionState(prev => ({ ...prev, isExecuting: false }));
+        return;
+      }
+      const line = lines[currentLineIndex];
+      if (line.trim().length === 0) {
+        setExecutionState(prev => ({ ...prev, currentLineIndex: prev.currentLineIndex + 1 }));
+        return;
+      }
+      await new Promise(resolve => setTimeout(resolve, executionSpeedRef.current));
+      try {
+        setExecutionState(prev => {
+          const { updatedVars, stack, heap, log } = processLine(line, prev.variables);
+          const logs = log ? [...prev.logs, log].slice(-50) : prev.logs;
+          return {
+            ...prev,
+            currentLineIndex: prev.currentLineIndex + 1,
+            variables: updatedVars,
+            stack,
