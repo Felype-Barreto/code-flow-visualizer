@@ -47,9 +47,9 @@ export function AdVideoPlayer({ onAdComplete, onClose }: AdVideoPlayerProps) {
   }, []);
 
   const startSimulatedAd = () => {
-    // Simulate video ad: 15 seconds total, skip after 5 seconds
-    const totalDuration = 15000; // 15 seconds
-    const skipAfter = 5000; // 5 seconds
+    // Simulate internal promo: 40 seconds total, non-skippable
+    const totalDuration = 40000; // 40 seconds
+    const skipAfter = totalDuration; // not skippable before end
     const interval = 100; // Update every 100ms
 
     let elapsed = 0;
@@ -59,10 +59,7 @@ export function AdVideoPlayer({ onAdComplete, onClose }: AdVideoPlayerProps) {
       const currentProgress = (elapsed / totalDuration) * 100;
       setProgress(currentProgress);
 
-      if (elapsed >= skipAfter && !canSkip) {
-        setCanSkip(true);
-      }
-
+      // No skip until end for internal promo
       if (elapsed >= totalDuration) {
         handleAdComplete();
       }
@@ -136,7 +133,7 @@ export function AdVideoPlayer({ onAdComplete, onClose }: AdVideoPlayerProps) {
             {!canSkip && progress < 33 && (
               <div className="absolute bottom-4 right-4 bg-black/70 px-4 py-2 rounded">
                 <span className="text-sm text-gray-300">
-                  You can skip in {Math.ceil((5000 - (progress * 150)) / 1000)}s
+                  Watch the full promo — {Math.max(0, Math.ceil((totalDuration - (progress/100)*totalDuration)/1000))}s left
                 </span>
               </div>
             )}
@@ -171,7 +168,7 @@ export function AdVideoPlayer({ onAdComplete, onClose }: AdVideoPlayerProps) {
               <div>
                 <p className="font-semibold">Earn +5 Free Uses</p>
                 <p className="text-xs text-gray-400">
-                  Watch to the end or skip after {canSkip ? '0' : '5'} seconds
+                  Internal promo: watch 40 seconds to earn +5 free uses
                 </p>
               </div>
             </div>
