@@ -280,8 +280,8 @@ output = output_buffer.getvalue().split('\\n')
   const handleRunProfiler = async () => {
     if (!isPro && profilerUsageCount >= 1) {
       toast({
-        title: "Pro Required" || "Pro Required",
-        description: "Profiler Limit" || "You've used your free profiler run. Upgrade to Pro for unlimited access.",
+        title: "Pro Required",
+        description: "Profiler Limit",
         variant: "destructive",
       });
       return;
@@ -309,11 +309,11 @@ output = output_buffer.getvalue().split('\\n')
       const min = Math.min(...runs).toFixed(2);
       const max = Math.max(...runs).toFixed(2);
       toast({ 
-        title: "Profiler Complete" || "Profiler Complete", 
-        description: `${"Average" || "Average"}: ${avg}ms | ${"Min" || "Min"}: ${min}ms | ${"Max" || "Max"}: ${max}ms` 
+        title: "Profiler Complete", 
+        description: `Average: ${avg}ms | Min: ${min}ms | Max: ${max}ms` 
       });
     } catch (err: any) {
-      toast({ title: "Profiler Error" || "Profiler Error", description: err?.message || String(err) });
+      toast({ title: "Profiler Error", description: err?.message || String(err) });
     }
   };
 
@@ -466,9 +466,9 @@ output = output_buffer.getvalue().split('\\n')
                 <div className="absolute inset-0 bg-black/70 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center">
                   <Card className="p-6 bg-slate-900/90 border border-slate-700 shadow-xl max-w-sm text-center">
                     <Lock className="w-12 h-12 text-amber-400 mx-auto mb-3" />
-                    <h4 className="text-xl font-bold text-white mb-2">{"Pro Feature" || "Pro Feature"}</h4>
+                    <h4 className="text-xl font-bold text-white mb-2">{"Pro Feature"}</h4>
                     <p className="text-amber-100/80 text-sm mb-4">
-                      {"Variable Inspector Pro" || "Variable Inspector is available for Pro users only."}
+                      {"Variable Inspector Pro"}
                     </p>
                     <Button
                       size="sm"
@@ -476,7 +476,7 @@ output = output_buffer.getvalue().split('\\n')
                       onClick={() => setLocation("/pro")}
                     >
                       <Crown className="w-4 h-4 mr-2" />
-                      {"Upgrade to Pro" || "Upgrade to Pro"}
+                      {"Upgrade to Pro"}
                     </Button>
                   </Card>
                 </div>
@@ -594,15 +594,15 @@ output = output_buffer.getvalue().split('\\n')
               <div className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center">
                 <div className="text-center">
                   <Lock className="w-10 h-10 text-amber-400 mx-auto mb-2" />
-                  <p className="text-amber-100 text-sm font-semibold">{"Profiler Locked" || "Profiler Locked"}</p>
-                  <p className="text-amber-200/70 text-xs mt-1">{profilerUsageCount}/1 {"Free Runs Used" || "free runs used"}</p>
+                  <p className="text-amber-100 text-sm font-semibold">{"Profiler Locked"}</p>
+                  <p className="text-amber-200/70 text-xs mt-1">{profilerUsageCount}/1 {"Free Runs Used"}</p>
                 </div>
               </div>
             )}
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2 text-slate-200">
-                <Clock3 className="w-4 h-4" /> {"Profiler" || "Profiler"} (5 {"Executions" || "executions"})
-                {!isPro && <span className="ml-2 px-2 py-0.5 bg-blue-500/20 text-blue-200 text-xs rounded">({1 - profilerUsageCount} {"Free Left" || "free left"})</span>}
+                <div className="flex items-center gap-2 text-slate-200">
+                <Clock3 className="w-4 h-4" /> {"Profiler"} (5 {"Executions"})
+                {!isPro && <span className="ml-2 px-2 py-0.5 bg-blue-500/20 text-blue-200 text-xs rounded">({1 - profilerUsageCount} {"Free Left"})</span>}
               </div>
               <div className="flex gap-2">
                 <Button 
@@ -611,13 +611,13 @@ output = output_buffer.getvalue().split('\\n')
                   onClick={handleRunProfiler}
                   disabled={!isPro && profilerUsageCount >= 1}
                 >
-                  {"Run Profiler" || "Run Profiler"}
+                  {"Run Profiler"}
                 </Button>
                 {profilerRuns.length > 0 && (
                   <Button size="sm" variant="outline" className="border-slate-600 text-slate-200" onClick={() => {
                     setProfilerRuns([]);
                     localStorage.removeItem('pro-debugger-profiler');
-                  }}>{"Clear" || "Clear"}</Button>
+                  }}>Clear</Button>
                 )}
               </div>
             </div>

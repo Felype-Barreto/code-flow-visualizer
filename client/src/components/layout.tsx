@@ -118,6 +118,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               Exercises
             </NavLink>
 
+            <NavLink href="/tracks" active={location.includes("/tracks")}
+            >
+              <GraduationCap className="w-4 h-4" />
+              Learning
+            </NavLink>
+
+            <NavLink href="/pro" active={location.includes("/pro")}>
+              <Crown className="w-4 h-4 text-amber-400" />
+              <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">
+                Pro
+              </span>
+            </NavLink>
+
             <Link href="/pricing">
               <span className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold cursor-pointer",
@@ -131,12 +144,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </span>
               </span>
             </Link>
-            <NavLink href="/pro" active={location.includes("/pro")}>
-              <Crown className="w-4 h-4 text-amber-400" />
-              <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent font-bold">
-                Pro
-              </span>
-            </NavLink>
+            
 
             {/* Gamification dropdown */}
             <DropdownMenu>
@@ -283,6 +291,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     )}>
                       <Dumbbell className="w-4 h-4" />
                       Exercises
+                    </span>
+                  </Link>
+
+                  <Link href="/tracks" onClick={() => setIsOpen(false)}>
+                    <span className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors",
+                      location.includes("/tracks") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                    )}>
+                      <GraduationCap className="w-4 h-4" />
+                      Learning
+                    </span>
+                  </Link>
+
+                  <Link href="/pro" onClick={() => setIsOpen(false)}>
+                    <span className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-bold transition-colors bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:border-amber-500/40",
+                      location.includes("/pro") ? "bg-primary/10 text-primary" : "text-muted-foreground"
+                    )}>
+                      <Crown className="w-4 h-4 text-amber-400" />
+                      <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                        Pro
+                      </span>
                     </span>
                   </Link>
 

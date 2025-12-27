@@ -2,22 +2,22 @@ import React, { ReactNode, useState, useEffect } from 'react';
 import { Language } from '@/lib/types';
 
 type LanguageContextShape = {
-  lang: 'en';
-  setLang: (l: string) => void;
+  lang: string;
+  setLang: React.Dispatch<React.SetStateAction<string>>;
   progLang: Language;
   setProgLang: (p: Language) => void;
 };
 
 const LanguageContext = React.createContext<LanguageContextShape>({
   lang: 'en',
-  setLang: () => undefined,
+  setLang: () => undefined as any,
   progLang: 'javascript',
   setProgLang: () => undefined,
 });
 
 // Simplified language provider extended with a global programming-language selector.
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [lang, setLang] = useState<'en'>('en');
+  const [lang, setLang] = useState<string>('en');
   const [progLang, setProgLang] = useState<Language>(() => {
     try {
       return (localStorage.getItem('progLang') as Language) || 'javascript';

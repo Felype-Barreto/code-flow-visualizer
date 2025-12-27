@@ -50,8 +50,8 @@ print(factorial(5))`);
   const analyzeCode = () => {
     if (!isPro && usageCount >= 1) {
       toast({
-        title: "Pro Required" || "Pro Required",
-        description: "AI Inspector Limit" || "You've used your free analysis. Upgrade to Pro for unlimited access.",
+        title: "Pro Required",
+        description: "AI Inspector Limit",
         variant: "destructive",
       });
       return;
@@ -149,7 +149,7 @@ print(factorial(5))`);
       }
       
       if (newInsights.length === 0) {
-        toast({ title: "Analysis Complete" || "Analysis Complete", description: "No Suggestions" || "No suggestions found. Code looks good!" });
+        toast({ title: "Analysis Complete", description: "No Suggestions" });
       }
     }, 1500);
   };
@@ -187,19 +187,19 @@ print(factorial(5))`);
         <div className="absolute inset-0 bg-black/80 backdrop-blur-md rounded-3xl z-10 flex items-center justify-center">
           <Card className="p-8 bg-gradient-to-br from-purple-900/90 to-slate-900/90 border-2 border-purple-400/50 shadow-2xl max-w-md text-center">
             <Lock className="w-16 h-16 text-purple-400 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white mb-2">{"Pro Required" || "Pro Required"}</h3>
+            <h3 className="text-2xl font-bold text-white mb-2">{"Pro Required"}</h3>
             <p className="text-purple-100/80 mb-6">
-              {"AI Inspector Limit Reached" || "You've used your free analysis. Upgrade to Pro for unlimited AI-powered code analysis."}
+              {"AI Inspector Limit Reached"}
             </p>
             <Button
               className="bg-gradient-to-r from-purple-400 to-purple-600 text-black font-semibold hover:from-purple-500 hover:to-purple-700"
               onClick={() => setLocation("/pro")}
             >
               <Crown className="w-4 h-4 mr-2" />
-              {"Upgrade to Pro" || "Upgrade to Pro"}
+              {"Upgrade to Pro"}
             </Button>
             <p className="text-xs text-purple-200/60 mt-4">
-              {usageCount}/1 {"Free Analyses Used" || "free analyses used"}
+              {usageCount}/1 {"Free Analyses Used"}
             </p>
           </Card>
         </div>
@@ -207,10 +207,10 @@ print(factorial(5))`);
 
       <div className="flex flex-col gap-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-400/40 text-purple-200 text-xs font-semibold w-fit">
-          <Sparkles className="w-4 h-4" /> {"AI Code Inspector" || "IA Code Inspector"} - {"Intelligent Analysis" || "Intelligent Analysis"}
-          {!isPro && <span className="ml-2 px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded">({1 - usageCount} {"Free Left" || "free left"})</span>}
+          <Sparkles className="w-4 h-4" /> {"AI Code Inspector"} - {"Intelligent Analysis"}
+          {!isPro && <span className="ml-2 px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded">({1 - usageCount} {"Free Left"})</span>}
         </div>
-        <h1 className="text-3xl font-bold text-white">{"AI Code Inspector" || "AI Code Inspector"}</h1>
+        <h1 className="text-3xl font-bold text-white">{"AI Code Inspector"}</h1>
         <p className="text-sm text-purple-100/90">
           Automatic analysis with optimization suggestions, warnings, and algorithm explanations.
         </p>
@@ -220,7 +220,7 @@ print(factorial(5))`);
         {/* Code Editor */}
         <Card className="p-4 bg-gradient-to-b from-purple-900/30 to-slate-900 border border-purple-400/30 shadow-lg shadow-purple-500/10">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-white">{"Your Code" || "Your Code"}</h2>
+            <h2 className="text-lg font-semibold text-white">{"Your Code"}</h2>
             <Button
               size="sm"
               className="bg-gradient-to-r from-purple-400 to-purple-600 text-black"
@@ -228,7 +228,7 @@ print(factorial(5))`);
               disabled={analyzing || (!isPro && usageCount >= 1)}
             >
               <Sparkles className="w-4 h-4 mr-2" />
-              {analyzing ? ("Analyzing" || "Analyzing...") : ("Analyze" || "Analyze")}
+              {analyzing ? ("Analyzing") : ("Analyze")}
             </Button>
           </div>
 
@@ -236,16 +236,16 @@ print(factorial(5))`);
             value={code}
             onChange={(e) => setCode(e.target.value)}
             className="w-full h-96 p-3 border rounded-lg font-mono text-sm bg-black/60 text-purple-50 border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-400/60"
-            placeholder={"Paste Code Here" || "Paste your Python code here..."}
+            placeholder={"Paste Code Here"}
           />
 
           <div className="mt-3 text-xs text-purple-200/70 space-y-1">
-            <p>💡 {"Inspector Features" || "The Inspector analyzes your code and provides:"}</p>
+            <p>💡 {"Inspector Features"}</p>
             <ul className="list-disc list-inside pl-2 space-y-0.5">
-              <li>{"Optimization Suggestions" || "Optimization suggestions"}</li>
-              <li>{"Potential Issue Warnings" || "Warnings about potential issues"}</li>
-              <li>{"Algorithm Explanations" || "Algorithm explanations"}</li>
-              <li>{"Best Practices Tips" || "Best practices tips"}</li>
+              <li>{"Optimization Suggestions"}</li>
+              <li>{"Potential Issue Warnings"}</li>
+              <li>{"Algorithm Explanations"}</li>
+              <li>{"Best Practices Tips"}</li>
             </ul>
           </div>
         </Card>

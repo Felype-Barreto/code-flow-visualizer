@@ -16,8 +16,8 @@ export function Footer() {
     
     if (!message.trim()) {
       toast({
-        title: "Error" || 'Empty field',
-        description: "Please write your message" || 'Please write your message',
+        title: "Error",
+        description: "Please write your message",
         variant: 'destructive',
       });
       return;
@@ -34,15 +34,15 @@ export function Footer() {
       window.location.href = mailtoLink;
       
       toast({
-        title: "Thank you" || 'Email opened!',
-        description: "Your message was prepared in your email client." || 'Your email client was opened with the message',
+        title: "Thank you",
+        description: "Your message was prepared in your email client.",
       });
 
       setMessage('');
     } catch (error) {
       toast({
-        title: "Error" || 'Error',
-        description: "Could not open email client" || 'Could not open email',
+        title: "Error",
+        description: "Could not open email client",
         variant: 'destructive',
       });
     } finally {
@@ -58,13 +58,13 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <MessageSquare className="w-6 h-6 text-primary" />
-              <h3 className="text-xl font-bold text-white">
-                {"Suggestions & Bugs" || 'Suggestions & Bugs'}
+                <h3 className="text-xl font-bold text-white">
+                {"Suggestions & Bugs"}
               </h3>
             </div>
             
             <p className="text-sm text-gray-400">
-              {"Help us improve! Send suggestions or report bugs directly to our team." || 'Help us improve! Send suggestions or report bugs directly to our team.'}
+              {"Help us improve! Send suggestions or report bugs directly to our team."}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -86,7 +86,7 @@ export function Footer() {
                   className="bg-primary hover:bg-primary/90"
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  {"Send" || 'Send'}
+                  {"Send"}
                 </Button>
               </div>
             </form>
@@ -106,36 +106,36 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <Bug className="w-6 h-6 text-amber-400" />
-              <h3 className="text-xl font-bold text-white">
-                {"How to Help" || 'How to Help'}
+                <h3 className="text-xl font-bold text-white">
+                {"How to Help"}
               </h3>
             </div>
 
             <div className="space-y-3 text-sm text-gray-300">
               <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
                   <h4 className="font-semibold text-white mb-2">
-                  {"Report Bugs" || '🐛 Report Bugs'}
+                  {"Report Bugs"}
                 </h4>
                 <p className="text-gray-400">
-                  {"Found something not working? Describe the problem in detail so we can fix it quickly." || 'Found something not working? Describe the problem in detail so we can fix it quickly.'}
+                  {"Found something not working? Describe the problem in detail so we can fix it quickly."}
                 </p>
               </div>
 
               <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
                   <h4 className="font-semibold text-white mb-2">
-                  {"Suggestions" || '💡 Suggestions'}
+                  {"Suggestions"}
                 </h4>
                 <p className="text-gray-400">
-                  {"Have an idea to improve Code Flow? Share it with us!" || 'Have an idea to improve Code Flow? Share it with us! We love community feedback.'}
+                  {"Have an idea to improve Code Flow? Share it with us!"}
                 </p>
               </div>
 
               <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
                   <h4 className="font-semibold text-white mb-2">
-                  {"New Features" || '✨ New Features'}
+                  {"New Features"}
                 </h4>
                 <p className="text-gray-400">
-                  {"Want to see a new feature in Code Flow? Send your proposal." || 'Want to see a new feature in Code Flow? Send your proposal and it may become reality!'}
+                  {"Want to see a new feature in Code Flow? Send your proposal."}
                 </p>
               </div>
             </div>
@@ -144,7 +144,7 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-white/10 text-center text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} Code Flow BR. {"All rights reserved." || 'All rights reserved.'}</p>
+          <p>© {new Date().getFullYear()} Code Flow BR. {"All rights reserved."}</p>
         </div>
       </div>
     </footer>

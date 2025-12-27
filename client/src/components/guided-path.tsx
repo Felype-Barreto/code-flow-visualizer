@@ -11,7 +11,7 @@ export interface GuidedStep {
   title: string;
   lesson: string | string[];
   taskPrompt: string;
-  check: (codeOrAnswer: string) => { ok: boolean; messages?: string[] };
+  check: (codeOrAnswer: string) => { ok: boolean; messages?: string[] } | Promise<{ ok: boolean; messages?: string[] }>;
 }
 
 export interface GuidedPathProps {
@@ -160,7 +160,7 @@ export function GuidedPath({ id, title, steps, onComplete }: GuidedPathProps) {
                   Retry
                 </button>
               )}
-          <Button size="sm" variant="outline" className="border-amber-300/40 text-amber-100" onClick={resetProgress}>{"Reset" || "Reset"}</Button>
+          <Button size="sm" variant="outline" className="border-amber-300/40 text-amber-100" onClick={resetProgress}>Reset</Button>
         </div>
       </div>
       <div className="h-2 w-full bg-slate-800 rounded">
@@ -189,10 +189,10 @@ export function GuidedPath({ id, title, steps, onComplete }: GuidedPathProps) {
               </div>
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="outline" className="border-amber-300/40 text-amber-100" onClick={() => { setCurrentIdx(idx); startLesson(); }} disabled={locked}>
-                  <HelpCircle className="w-3 h-3" /> {"Lesson" || "Lesson"}
+                  <HelpCircle className="w-3 h-3" /> {"Lesson"}
                 </Button>
                 <Button size="sm" onClick={() => { setCurrentIdx(idx); setOpen(true); }} disabled={locked}>
-                  {"Practice" || "Practice"} <ChevronRight className="w-3 h-3" />
+                  {"Practice"} <ChevronRight className="w-3 h-3" />
                 </Button>
               </div>
             </div>
@@ -218,7 +218,7 @@ export function GuidedPath({ id, title, steps, onComplete }: GuidedPathProps) {
           </DialogHeader>
 
           <div className="mt-4">
-            <div className="text-sm text-gray-200 mb-2">{("Task Label" || "Task") + ": "}{currentStep?.taskPrompt}</div>
+            <div className="text-sm text-gray-200 mb-2">{"Task Label" + ": "}{currentStep?.taskPrompt}</div>
             <textarea
               className="w-full h-32 rounded-lg bg-black/40 border border-amber-400/20 text-sm text-white p-3 font-mono"
               value={answer}
@@ -226,10 +226,12 @@ export function GuidedPath({ id, title, steps, onComplete }: GuidedPathProps) {
               placeholder="Type your solution here"
             />
             <div className="flex items-center gap-2 mt-2">
-              <Button onClick={verify} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">{"Verify" || "Verify"}</Button>
-              <Button variant="outline" className="border-amber-400/40 text-amber-200" onClick={closeLesson}>{"Close" || "Close"}</Button>
+              <Button onClick={verify} className="bg-amber-500 hover:bg-amber-600 text-black font-semibold">{"Verify"}</Button>
+              <Button variant="outline" className="border-amber-400/40 text-amber-200" onClick={closeLesson}>{"Close"}</Button>
               {result && (
-                <span className={"text-sm " + (result.ok ? "text-emerald-300" : "text-red-300")}>{result.ok ? ("Correct" || "Correct!") : ("Try Again" || "Try again")}</span>
+                <span className={"text-sm " + (result.ok ? "text-emerald-300" : "text-red-300")}>
+                  {result.ok ? ("Correct") : ("Try Again")}
+                </span>
               )}
             </div>
             {result?.messages && result.messages.length > 0 && (

@@ -3,11 +3,18 @@ import fs from "fs";
 import path from "path";
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(__dirname, "public");
+  // Prefer build output at project root: <repo>/dist/public
+  const preferred = path.resolve(__dirname, "..", "dist", "public");
+  const fallback = path.resolve(__dirname, "public");
+  let distPath = preferred;
   if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
-    );
+    if (fs.existsSync(fallback)) {
+      distPath = fallback;
+    } else {
+      throw new Error(
+        `Could not find the build directory: ${preferred} or ${fallback}. Build the client first.`,
+      );
+    }
   }
 
   app.use(

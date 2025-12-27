@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { runInWorker } from "@/lib/sandbox";
 import { exercises, type Exercise, type Language } from "@/lib/exercises-new";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import Roadmap from '@/components/roadmap';
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AdVideoPlayer } from '@/components/ad-video-player';
@@ -54,8 +53,79 @@ export function ExercisesViewNew() {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [showSolution, setShowSolution] = useState(false);
   const [showHint, setShowHint] = useState(false);
-  const [mode, setMode] = useState<'exercises' | 'roadmap'>('exercises');
+  
   const [purchaseDialog, setPurchaseDialog] = useState<{ open: boolean; type?: 'hint' | 'solution'; price?: number }>(() => ({ open: false }));
+  // sidebar hover preview removed — roadmap is a sub-tab opened by button
+  const lang = (progLang || 'javascript') as string;
+
+  type Activity = { id: string; title: string; sampleCode: string };
+  function makeTrackActivities(level: 'basic' | 'medium' | 'advanced'): Activity[] {
+    const items: Activity[] = [];
+    for (let i = 1; i <= 15; i++) {
+      const title = `${i}. ${level === 'basic' ? 'Fundamentals' : level === 'medium' ? 'Patterns' : 'Advanced'} ${i}`;
+      let sampleCode = '';
+      if (lang === 'python') sampleCode = `# ${title}\ndef example_${i}():\n    print(${i})`;
+      else if (lang === 'java') sampleCode = `// ${title}\npublic class Example${i} { public static void main(String[] args){ System.out.println(${i}); } }`;
+      else sampleCode = `// ${title}\nfunction example${i}(){ console.log(${i}); }`;
+      items.push({ id: `${level}-${i}`, title, sampleCode });
+    }
+    return items;
+  }
+
+  const basicActivities = useMemo<Activity[]>(() => makeTrackActivities('basic'), [lang]);
+  const mediumActivities = useMemo<Activity[]>(() => makeTrackActivities('medium'), [lang]);
+  const advancedActivities = useMemo<Activity[]>(() => makeTrackActivities('advanced'), [lang]);
+
+  // Listen for roadmap deep-link open events and localStorage fallback
+  useEffect(() => {
+    const tryOpen = (payload: any) => {
+      if (!payload) return;
+      try {
+        const { title, sampleCode, level, index } = payload;
+        // Create a synthetic exercise object so editor opens with the sample
+        const fakeId = `track-${level}-${(index || 0) + 1}`;
+        const fakeExercise: Exercise = {
+          id: fakeId,
+          title: title || `Track Exercise ${(index || 0) + 1}`,
+          description: `From ${level} track - ${title || ''}`,
+          difficulty: 'Beginner',
+          variants: {
+            javascript: { language: 'javascript', initialCode: sampleCode || '', solution: '', hint: '' }
+          },
+          tests: [],
+        } as Exercise;
+
+        setSelectedExercise(fakeExercise);
+        setCode(sampleCode || '');
+        // remove localStorage so it doesn't reopen repeatedly
+        try { localStorage.removeItem('openTrackItem'); } catch {}
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    const handler = (e: any) => {
+      const payload = e?.detail || null;
+      tryOpen(payload);
+    };
+
+    window.addEventListener('openTrackItem', handler as EventListener);
+
+    // check localStorage on mount
+    try {
+      const raw = localStorage.getItem('openTrackItem');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        tryOpen(parsed);
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    return () => window.removeEventListener('openTrackItem', handler as EventListener);
+  }, []);
+
+  // preview effect removed
   const [serverPurchases, setServerPurchases] = useState<string[]>([]);
   const [showAdPromo, setShowAdPromo] = useState(false);
   const [executionSpeed, setExecutionSpeed] = useState(500);
@@ -70,6 +140,26 @@ export function ExercisesViewNew() {
   });
 
   const currentVariant = selectedExercise.variants[selectedLanguage] || selectedExercise.variants['javascript'];
+
+  // Helper: explain common errors with friendly tips
+  const explainError = (err: any) => {
+    if (!err) return 'Unknown error';
+    const msg = err.message || String(err);
+    if (/SyntaxError/.test(msg)) return msg + ' — Syntax error: check missing parentheses, commas or braces.';
+    if (/ReferenceError/.test(msg)) return msg + ' — Reference error: check variable and function names.';
+    if (/TypeError/.test(msg)) return msg + ' — Type error: check operations on wrong types.';
+    return msg;
+  };
+
+  const sampleExercises = useMemo(() => {
+    const arr = [...exercises];
+    // simple Fisher-Yates shuffle
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.slice(0, 20);
+  }, []);
 
   // Load initial code when exercise or language changes
   useEffect(() => {
@@ -138,9 +228,15 @@ export function ExercisesViewNew() {
         try {
           const result = await runInWorker(code, functionName, test.input, { timeoutMs: jsTimeoutMs });
           const passed = JSON.stringify(result) === JSON.stringify(test.expected);
-          results.push({ name: test.name, passed, result, expected: test.expected, error: null });
+          if (!passed) {
+            const explanation = `Expected: ${JSON.stringify(test.expected)}, Received: ${JSON.stringify(result)}`;
+            results.push({ name: test.name, passed, result, expected: test.expected, error: explanation });
+          } else {
+            results.push({ name: test.name, passed, result, expected: test.expected, error: null });
+          }
         } catch (e: any) {
-          results.push({ name: test.name, passed: false, error: e?.message || String(e) });
+          const expl = explainError(e);
+          results.push({ name: test.name, passed: false, error: expl });
         }
       }
 
@@ -166,6 +262,8 @@ export function ExercisesViewNew() {
 
       if (allPassed) {
         toast({ title: "🎉 " + "All Tests Passed", description: "All Tests Passed", variant: "default" });
+        // auto-advance after small delay
+        setTimeout(() => handleNextExercise(), 800);
       }
     } catch (e) {
       setTestResults([{ name: "Error", passed: false, error: (e as any).message }]);
@@ -173,14 +271,21 @@ export function ExercisesViewNew() {
     }
   };
 
-  const handleAdComplete = () => {
-    grantExecutions(user?.id, 5);
-    setShowAdPromo(false);
-    toast({ title: '✅ Promo complete', description: 'You earned +5 free uses' });
+  const hasPurchased = (exerciseId: string, type: 'hint' | 'solution') => {
+    return serverPurchases.includes(`${exerciseId}:${type}`);
   };
 
-  const handleAdClose = () => {
-    setShowAdPromo(false);
+  const openPurchase = (type: 'hint' | 'solution') => {
+    const price = type === 'hint' ? 5 : 10;
+    setPurchaseDialog({ open: true, type, price });
+  };
+
+  const confirmPurchase = () => {
+    if (!purchaseDialog.type) return;
+    const key = `${selectedExercise.id}:${purchaseDialog.type}`;
+    setServerPurchases(prev => Array.from(new Set([...prev, key])));
+    setPurchaseDialog({ open: false });
+    try { toast({ title: 'Purchase simulated', description: 'Item unlocked' }); } catch {}
   };
 
   const handleNextExercise = () => {
@@ -192,153 +297,15 @@ export function ExercisesViewNew() {
     }
   };
 
-  const hasPurchased = (exerciseId: string, kind: 'hint' | 'solution') => {
-    try {
-      const serverKey = `exercise:${exerciseId}:${kind}`;
-      if (serverPurchases && serverPurchases.includes(serverKey)) return true;
-      return !!localStorage.getItem(`purchased:${kind}:${exerciseId}`);
-    } catch {
-      return false;
-    }
+  const handleAdComplete = () => {
+    grantExecutions(user?.id, 5);
+    setShowAdPromo(false);
+    try { toast({ title: '✅ Promo complete', description: 'You earned +5 free uses' }); } catch {}
   };
 
-  const openPurchase = (kind: 'hint' | 'solution') => {
-    const price = kind === 'hint' ? 5 : 10;
-    setPurchaseDialog({ open: true, type: kind, price });
-  };
-
-  const confirmPurchase = () => {
-    (async () => {
-      const kind = purchaseDialog.type as 'hint' | 'solution';
-      if (!kind) return;
-      setPurchaseDialog({ open: false });
-      try {
-        const res = await fetch('/api/monetization/create-payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ packageId: kind, itemId: `exercise:${selectedExercise.id}:${kind}` }),
-        });
-        if (!res.ok) throw new Error('Failed to create checkout');
-        const data = await res.json();
-        if (data?.checkoutUrl) {
-          // Redirect to Stripe Checkout
-          window.location.href = data.checkoutUrl;
-          return;
-        }
-        throw new Error('No checkout URL');
-      } catch (err: any) {
-        console.error('Purchase error:', err);
-        toast({ title: 'Error', description: err?.message || 'Purchase failed', variant: 'destructive' });
-      }
-    })();
-  };
-
-  // Fetch server-side purchases (entitlements)
-  const fetchServerPurchases = async () => {
-    try {
-      const res = await fetch('/api/monetization/purchases', { credentials: 'include' });
-      if (!res.ok) return;
-      const data = await res.json();
-      setServerPurchases(Array.isArray(data.items) ? data.items : []);
-    } catch (e) {
-      // ignore
-    }
-  };
-
-  useEffect(() => {
-    fetchServerPurchases();
-    const onFocus = () => fetchServerPurchases();
-    window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
-  }, [user?.id]);
+  const handleAdClose = () => setShowAdPromo(false);
 
   const renderContent = () => {
-    if (mode === 'roadmap') return <div className="p-6"><Roadmap /></div>;
-    if (isMobile) {
-      return (
-        <div className="flex flex-col h-full overflow-y-auto pb-20 gap-4 p-4">
-          {/* Description */}
-          <Card className="p-4 bg-card/50 border-white/10">
-            <h3 className="text-lg font-bold mb-2">{selectedExercise.title}</h3>
-            <p className="text-sm text-muted-foreground mb-3">{selectedExercise.description}</p>
-            {currentVariant?.hint && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => {
-                  if (user?.isPro || hasPurchased(selectedExercise.id, 'hint')) {
-                    setShowHint(!showHint);
-                    return;
-                  }
-                  openPurchase('hint');
-                }}
-                className="gap-2"
-              >
-                <Lightbulb className="w-4 h-4" /> {showHint ? "Hide" : "View"} Hint
-              </Button>
-            )}
-            {showHint && currentVariant?.hint && (
-              <div className="mt-3 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded">
-                <p className="text-sm text-yellow-200">{currentVariant.hint}</p>
-              </div>
-            )}
-          </Card>
-
-          {/* Editor */}
-          <Card className="p-4">
-            <h4 className="text-sm font-bold mb-2 flex items-center gap-2">
-              <ChevronRight className="w-3 h-3" /> Your Code
-            </h4>
-                    <textarea
-                      value={code}
-                      onChange={(e) => setCode(e.target.value)}
-                      className="w-full h-64 p-3 font-mono text-sm bg-slate-900 text-slate-50 rounded border border-white/20 resize-vertical focus:outline-none focus:ring-2 focus:ring-primary"
-                      placeholder="Write your code here..."
-                      spellCheck="false"
-                    />
-          </Card>
-
-          {/* Resultados */}
-          {testResults.length > 0 && (
-            <Card className="p-4">
-              <h4 className="text-sm font-bold mb-3">📊 Results</h4>
-              <div className="space-y-2">
-                {testResults.map((result, idx) => (
-                  <div
-                    key={idx}
-                    className={`p-3 rounded border ${
-                      result.passed
-                        ? "bg-green-500/10 border-green-500/30"
-                        : "bg-red-500/10 border-red-500/30"
-                    }`}
-                  >
-                    <div className="flex items-start gap-2">
-                      {result.passed ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-400 mt-0.5" />
-                      ) : (
-                        <AlertCircle className="w-4 h-4 text-red-400 mt-0.5" />
-                      )}
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold">{result.name}</p>
-                        {result.error && <p className="text-xs text-red-300 mt-1">{result.error}</p>}
-                        {!result.passed && !result.error && (
-                          <div className="text-xs mt-1">
-                            <p>Expected: {JSON.stringify(result.expected)}</p>
-                            <p>Received: {JSON.stringify(result.result)}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-        </div>
-      );
-    }
-
     return (
       <ResizablePanelGroup direction="horizontal">
         {/* Left panel: Description + Editor */}
@@ -594,9 +561,7 @@ export function ExercisesViewNew() {
           <div className="hidden md:block">
             <LanguageBadge />
           </div>
-          <div className="hidden md:block">
-            <Button variant="ghost" size="sm" onClick={() => setMode(mode === 'exercises' ? 'roadmap' : 'exercises')}>{mode === 'exercises' ? 'Roadmap' : 'Exercises'}</Button>
-          </div>
+          
         </div>
 
         {/* Action Buttons */}
@@ -634,9 +599,44 @@ export function ExercisesViewNew() {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content: Left tiles (20 random exercises) + Right sandbox editor */}
       <div className="flex-1 overflow-hidden">
-        {renderContent()}
+        <div className="flex flex-col md:flex-row h-full">
+          {/* Left: tiles */}
+          <div className="w-full md:w-1/2 lg:w-1/3 p-6 overflow-auto border-r border-white/5">
+            <div className="mb-4">
+              <h3 className="text-lg font-bold text-white">Exercises</h3>
+              <p className="text-sm text-gray-300">20 randomized activities — from simple to complex. Click one to open the sandbox on the right.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {sampleExercises.map((ex) => (
+                <button
+                  key={ex.id}
+                  onClick={() => {
+                    setSelectedExercise(ex);
+                    const v = ex.variants[selectedLanguage] || ex.variants.javascript;
+                    setCode(v?.initialCode || '');
+                    resetExecution();
+                    setTestResults([]);
+                    
+                  }}
+                  className="p-3 text-left rounded bg-slate-800/40 hover:bg-slate-800/60 transition"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold text-white">{ex.title}</div>
+                    <div className="text-xs text-gray-300">{ex.difficulty}</div>
+                  </div>
+                  <div className="text-xs text-gray-400 mt-2">{ex.description}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: sandbox editor + visualizer */}
+          <div className="flex-1 p-4 overflow-auto">
+            {renderContent()}
+          </div>
+        </div>
       </div>
 
       {/* Barra de Progresso */}

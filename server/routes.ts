@@ -19,7 +19,7 @@ import {
   infinityPayPurchases,
   adRewards
 } from "../shared/schema";
-import { createPayment, stripeWebhook, watchAd, checkUsage, consumeUsage } from "../api/monetization";
+import { createPayment, stripeWebhook, watchAd, checkUsage, consumeUsage, confirmPurchase } from "../api/monetization";
 import { getRoadmap, getRoadmapItem, getProgress, completeProgress } from "../api/roadmap";
 import { trackAdImpression, verifyAdWatch, getAdStats, skipAdForCoins } from "../api/analytics/ads";
 import { storage } from "./storage";
@@ -1409,6 +1409,7 @@ export async function registerRoutes(
   // ============================================================================
   
   app.post("/api/monetization/create-payment", requireAuth, createPayment);
+  app.post("/api/monetization/confirm", confirmPurchase);
   app.post("/api/monetization/stripe-webhook", stripeWebhook);
   // Roadmap endpoints
   app.get("/api/roadmap", getRoadmap);

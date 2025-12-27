@@ -407,15 +407,15 @@ export default function Auth() {
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-              {"Sign in" || 'Sign In'}
+              {"Sign in"}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md bg-slate-950 border-slate-800">
             <DialogHeader>
               <DialogTitle className="text-xl text-white">
                 {step === 'login' 
-                  ? ("Sign in" || 'Sign In')
-                  : step === 'signup-form' ? ("Create Account" || 'Create Account')
+                  ? ("Sign in")
+                  : step === 'signup-form' ? ("Create Account")
                   : step === 'signup-verify' ? `📧 $Verify Email`
                   : step === 'forgot-email' ? `🔑 $Reset Password`
                   : step === 'forgot-verify' ? `📧 $Verify Code`
@@ -502,7 +502,7 @@ export default function Auth() {
                     disabled={isLoading}
                     className="text-xs text-blue-400 hover:text-blue-300 font-semibold transition-colors disabled:opacity-60"
                   >
-                    {"Create Account" || 'Create Account'}
+                    {"Create Account"}
                   </button>
                 </div>
 

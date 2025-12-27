@@ -33,7 +33,7 @@ const PACKAGES: Record<string, PackageConfig> = {
 
 export async function createPayment(req: Request, res: Response) {
   try {
-    const { packageId, itemId } = req.body;
+    const { packageId, itemId, returnUrl } = req.body;
     const userId = (req as any).user?.id;
     const userEmail = (req as any).user?.email;
 
@@ -71,6 +71,7 @@ export async function createPayment(req: Request, res: Response) {
         userId,
         packageId,
         itemId: itemId || '',
+        returnUrl: returnUrl || '',
         type: packageConfig.type,
       },
     });
@@ -269,6 +270,19 @@ export async function stripeWebhook(req: Request, res: Response) {
   } catch (error) {
     console.error('Stripe webhook error:', error);
     res.status(500).json({ error: 'Webhook processing failed' });
+  }
+}
+
+export async function confirmPurchase(req: Request, res: Response) {
+  try {
+    const sessionId = (req.body && req.body.sessionId) || (req.query && req.query.session_id);
+    if (!sessionId) return res.status(400).json({ ok: false, error: 'sessionId required' });
+    const session = await stripe.checkout.sessions.retrieve(String(sessionId));
+    const paid = session.payment_status === 'paid' || session.status === 'complete';
+    return res.json({ ok: true, paid, metadata: session.metadata || {} });
+  } catch (err: any) {
+    console.error('confirmPurchase error:', err);
+    return res.status(500).json({ ok: false, error: err?.message || String(err) });
   }
 }
 

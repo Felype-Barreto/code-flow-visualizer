@@ -16,11 +16,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "@/hooks/use-toast";
-import RoadmapPath from "@/components/roadmap-path";
+// Roadmap moved to Exercises page
 
 
 export default function PricingPage() {
-  const { user, token } = useUser();
+  const { user, token, refreshUser } = useUser();
 
   const [, setLocation] = useLocation();
   
@@ -74,6 +74,7 @@ export default function PricingPage() {
   const [vipOpen, setVipOpen] = useState(false);
   const [vipStep, setVipStep] = useState<"collect" | "verify">("collect");
   const [loading, setLoading] = useState(false);
+  const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [country, setCountry] = useState("");
@@ -94,35 +95,11 @@ export default function PricingPage() {
     []
   );
 
-  const [roadmapItems, setRoadmapItems] = useState<Array<any>>([]);
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
-  const [selectedLocked, setSelectedLocked] = useState<boolean>(false);
+  
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/roadmap');
-        if (!res.ok) return;
-        const data = await res.json();
-        setRoadmapItems(Array.isArray(data.items) ? data.items : []);
-      } catch (e) { /* ignore */ }
-    })();
-  }, []);
+  // Roadmap moved to dedicated Tracks page; no roadmap fetch here.
 
-  // fetch a specific item when requested
-  useEffect(() => {
-    if (!selectedSlug) { setSelectedItem(null); setSelectedLocked(false); return; }
-    (async () => {
-      try {
-        const res = await fetch(`/api/roadmap/${encodeURIComponent(selectedSlug)}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        setSelectedItem(data.item || null);
-        setSelectedLocked(Boolean(data.locked));
-      } catch (e) { /* ignore */ }
-    })();
-  }, [selectedSlug]);
+  // Roadmap item fetching removed — handled only on Tracks page.
 
   function renderMarkdownToHtml(md: string) {
     if (!md) return '';
@@ -241,6 +218,90 @@ export default function PricingPage() {
     }, 1000);
     return () => clearInterval(id);
   }, []);
+
+  // If opened with ?product=... optionally open modal/highlight and respect returnTo
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const product = params.get('product');
+    const returnTo = params.get('returnTo') || undefined;
+    if (product) {
+      // scroll to store and show a simple modal — for now we set a selected product
+      setTimeout(() => {
+        const el = document.querySelector('.store');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 200);
+      // store selected in location hash for potential UI; also keep returnTo in URL
+      if (returnTo) {
+        // keep parameters for purchase handler to pick up
+        // nothing else required here
+      }
+    }
+  }, []);
+
+  // If Stripe redirected back with session_id, confirm purchase and refresh user state
+  useEffect(() => {
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session_id') || params.get('sessionId');
+      const returnTo = params.get('returnTo') || undefined;
+      if (!sessionId) return;
+      try {
+        const res = await fetch('/api/monetization/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ sessionId }),
+        });
+        const j = await res.json();
+        if (j?.ok && j.paid) {
+          // refresh local user info to pick up Pro status
+          try { await refreshUser(); } catch (e) { /* ignore */ }
+          // redirect back to origin if provided
+          if (returnTo) {
+            window.location.href = returnTo;
+            return;
+          }
+          // otherwise show a success toast and stay on pricing
+          try { toast({ title: 'Purchase completed', description: 'Thank you — your purchase is active.' }); } catch {}
+        } else {
+          try { toast({ title: 'Purchase not completed', description: 'Payment not confirmed.' }); } catch {}
+        }
+      } catch (err) {
+        try { toast({ title: 'Error', description: 'Unable to confirm purchase.' }); } catch {}
+      } finally {
+        // remove session params from URL to avoid re-checking
+        const url = new URL(window.location.href);
+        url.searchParams.delete('session_id');
+        url.searchParams.delete('sessionId');
+        window.history.replaceState({}, '', url.toString());
+      }
+    })();
+  }, [refreshUser]);
+
+  // Central store purchase handler: create payment then redirect
+  const handleStorePurchase = async (packageId: string, itemId?: string) => {
+    if (!user) {
+      // send to signup / login
+      setLocation('/signup');
+      return;
+    }
+    setPurchaseLoading(packageId);
+    try {
+      const res = await fetch('/api/monetization/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(itemId ? { packageId, itemId } : { packageId }),
+      });
+      if (!res.ok) throw new Error('Failed to create payment');
+      const j = await res.json();
+      if (j?.checkoutUrl) window.location.href = j.checkoutUrl;
+    } catch (e) {
+      toast({ title: 'Error', description: 'Unable to start purchase', variant: 'destructive' });
+    } finally {
+      setPurchaseLoading(null);
+    }
+  };
 
   useEffect(() => {
     // Auto-open VIP modal when coming from Pro with vip=1
@@ -456,6 +517,32 @@ export default function PricingPage() {
           </div>
         </div>
 
+        {/* Store: centralized purchases for small products and roadmap items */}
+        <div className="max-w-6xl mx-auto px-4 mb-12">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white">Store</h3>
+            <p className="text-sm text-gray-400">Centralized purchases for items and extras</p>
+          </div>
+          <div className="flex gap-4 overflow-x-auto py-2">
+            {/* Static small items */}
+            <div className="min-w-[220px] p-4 rounded bg-slate-800 border border-slate-700">
+              <div className="text-sm font-semibold">Hint Pack</div>
+              <div className="text-xs text-gray-300 mb-3">Buy hints for exercises</div>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => handleStorePurchase('hint')}>Buy Hint (5)</Button>
+              </div>
+            </div>
+            <div className="min-w-[220px] p-4 rounded bg-slate-800 border border-slate-700">
+              <div className="text-sm font-semibold">Solution Pack</div>
+              <div className="text-xs text-gray-300 mb-3">Get solution explanations</div>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => handleStorePurchase('solution')}>Buy Solution (10)</Button>
+              </div>
+            </div>
+            {/* Roadmap items removed from Store — handled on Tracks page */}
+          </div>
+        </div>
+
         {/* Single price: $2 USD/month; card conversion handles FX */}
 
         {/* Pricing Cards */}
@@ -583,10 +670,10 @@ export default function PricingPage() {
           <div className="rounded-2xl border border-amber-400/25 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-6 space-y-3">
             <div className="flex items-center gap-2 text-amber-200 font-semibold text-sm">
               <span className="w-4 h-4">👑</span>
-              Roadmap
+              Roadmap (moved to Exercises tab)
             </div>
             <div className="space-y-3 text-sm text-gray-200">
-              <RoadmapPath />
+              <p className="text-sm text-gray-400">The learning tracks were moved to the Exercises page for an improved interactive experience.</p>
             </div>
           </div>
         </div>
@@ -638,7 +725,7 @@ export default function PricingPage() {
         <div className="max-w-4xl mx-auto mt-16">
           <h2 className="text-3xl font-bold text-white text-center mb-8">FAQ</h2>
 
-          <div className="space-y-6">
+            <div className="bg-slate-800/40 border border-gray-700 rounded-lg p-6">
             <div className="bg-slate-800/40 border border-gray-700 rounded-lg p-6">
               <h3 className="text-lg font-bold text-white mb-2">How does Pro billing work?</h3>
               <p className="text-gray-400">
@@ -701,41 +788,7 @@ export default function PricingPage() {
           </div>
         )}
        
-       {/* Roadmap Item Modal */}
-       <Dialog open={Boolean(selectedSlug)} onOpenChange={(open) => { if (!open) setSelectedSlug(null); }}>
-        <DialogContent className="bg-slate-900 border border-amber-400/30 text-white max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-white">{selectedItem?.title || 'Roadmap Item'}</DialogTitle>
-            <DialogDescription className="text-amber-100/80">
-              {selectedItem?.summary || ''}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="mt-4 text-sm text-gray-200">
-            {selectedItem ? (
-              selectedLocked ? (
-                <div>
-                  <div className="mb-3 text-gray-300">This item is locked. Preview:</div>
-                  <div className="prose max-w-none text-sm text-gray-200" dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(selectedItem.content || selectedItem.summary || '') }} />
-                  <div className="mt-4 flex gap-2">
-                    <button className="bg-amber-500 text-black px-3 py-2 rounded font-semibold" onClick={handleUpgrade}>Unlock (Upgrade)</button>
-                    <button className="border border-amber-400/40 text-amber-200 px-3 py-2 rounded" onClick={() => setSelectedSlug(null)}>Close</button>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div className="prose max-w-none text-sm text-gray-200" dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(selectedItem.content || selectedItem.summary || '') }} />
-                  <div className="mt-4">
-                    <button className="bg-amber-500 text-black px-3 py-2 rounded font-semibold" onClick={() => { setSelectedSlug(null); }}>Close</button>
-                  </div>
-                </div>
-              )
-            ) : (
-              <div className="text-xs text-gray-400">Loading...</div>
-            )}
-          </div>
-        </DialogContent>
-       </Dialog>
+       {/* Roadmap modal removed — roadmap is now exclusively on the Tracks page */}
 
        {/* VIP Signup Modal */}
        <Dialog open={vipOpen} onOpenChange={setVipOpen}>
@@ -781,7 +834,7 @@ export default function PricingPage() {
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} />
                 </div>
               </div>
-              <Button type="submit" className="w-full bg-amber-500 text-black font-semibold" disabled={loading}>
+              <Button type="submit" className="w-full bg-amber-500 text-black font-semibold" disabled={loading || Boolean(purchaseLoading)}>
                 {loading ? "Sending Code" : "Continue to Email Confirm"}
               </Button>
             </form>
@@ -803,10 +856,10 @@ export default function PricingPage() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button type="button" variant="outline" className="border-amber-400/50 text-amber-200" onClick={() => setVipStep("collect")} disabled={loading}>
+                <Button type="button" variant="outline" className="border-amber-400/50 text-amber-200" onClick={() => setVipStep("collect")} disabled={loading || Boolean(purchaseLoading)}>
                   Back
                 </Button>
-                <Button type="submit" className="flex-1 bg-amber-500 text-black font-semibold" disabled={loading}>
+                <Button type="submit" className="flex-1 bg-amber-500 text-black font-semibold" disabled={loading || Boolean(purchaseLoading)}>
                   {loading ? "Verifying" : "Continue to Payment"}
                 </Button>
               </div>

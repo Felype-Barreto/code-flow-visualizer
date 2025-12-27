@@ -16,6 +16,7 @@ import HistoryPage from "@/pages/history";
 import JournalPage from "@/pages/journal";
 import AchievementsPage from "@/pages/achievements";
 import StorePage from "@/pages/store";
+import TracksPage from "@/pages/tracks";
 import LeaderboardPage from "@/pages/leaderboard";
 import DailyChallengesPage from "@/pages/daily-challenges";
 import ChallengesPage from "@/pages/challenges";
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/lesson/:id" component={LessonPage} />
       <Route path="/exercises" component={ExercisesPage} />
+      <Route path="/tracks" component={TracksPage} />
       <Route path="/pro" component={ProPage} />
       <Route path="/pricing" component={PricingPage} />
       {/* Gamification */}

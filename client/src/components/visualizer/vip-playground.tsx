@@ -79,7 +79,7 @@ main();`);
   const executeWithFrames = () => {
     if (!isPro) {
       toast({
-        title: "Pro Required" || "Pro Required",
+        title: "Pro Required",
         description: "Advanced playground features require Pro subscription",
         variant: "destructive",
       });

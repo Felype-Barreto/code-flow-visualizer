@@ -3,7 +3,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Language } from '@/lib/types';
 
-const progLanguages: { id: Language; label: string; icon: JSX.Element }[] = [
+const progLanguages: { id: Language; label: string; icon: React.ReactElement }[] = [
   {
     id: 'javascript',
     label: 'JavaScript',

@@ -419,7 +419,7 @@ export default function ProPage() {
           <div className="text-xs text-gray-300 flex-1">Execution timeline</div>
           <div className="flex items-center gap-2 text-xs text-amber-200">
             <Button size="sm" variant="outline" className="border-amber-400/40 text-amber-100" onClick={() => setTimelinePlaying((p) => !p)} disabled={!profilerTimeline?.events.length}>
-              {timelinePlaying ? "Pause" || "Pause" : "Play" || "Play"}
+              {timelinePlaying ? "Pause" : "Play"}
             </Button>
             <input
               type="range"
