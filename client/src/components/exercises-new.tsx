@@ -509,9 +509,7 @@ export function ExercisesViewNew() {
                             <Eye className="w-4 h-4" /> View Solution
                           </Button>
                         )}
-                      </div>
-                        className="p-4 bg-primary/20 border border-primary rounded"
-                      >
+                      <motion.div className="p-4 bg-primary/20 border border-primary rounded">
                         <div className="flex items-center gap-3">
                           <CheckCircle2 className="w-6 h-6 text-primary" />
                           <div className="flex-1">
