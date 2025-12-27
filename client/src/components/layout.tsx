@@ -215,14 +215,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </div>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/store">
-                    <div className={cn("flex items-center gap-3 w-full cursor-pointer py-2", location.includes("/store") ? "text-primary" : "")}> 
-                      <ShoppingBag className="w-4 h-4" />
-                      Store
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
+                {/* Store moved to Pricing page; removed from Gamification menu */}
                 <DropdownMenuItem asChild>
                   <Link href="/monetization">
                     <div className={cn("flex items-center gap-3 w-full cursor-pointer py-2", location.includes("/monetization") ? "text-primary" : "")}> 
@@ -380,12 +373,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       Achievements
                     </span>
                   </Link>
-                  <Link href="/store" onClick={() => setIsOpen(false)}>
-                    <span className={cn("flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors", location.includes("/store") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5")}> 
-                      <ShoppingBag className="w-4 h-4" />
-                      Store
-                    </span>
-                  </Link>
+                  {/* Store moved to Pricing page; removed from mobile Gamification menu */}
                   <Link href="/monetization" onClick={() => setIsOpen(false)}>
                     <span className={cn("flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors", location.includes("/monetization") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5")}> 
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

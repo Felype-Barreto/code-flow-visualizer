@@ -2,7 +2,7 @@ import { useUser } from "@/hooks/use-user";
 import Layout from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Crown, Sparkles, Cpu, BarChart3, Lightbulb, Layers, GitBranch, Database } from "lucide-react";
+import { Check, Crown, Sparkles, Cpu, BarChart3, Lightbulb, Layers, GitBranch, Database, Zap, ShoppingBag, Gift } from "lucide-react";
 import { useLocation } from "wouter";
 import { useEffect, useState, useMemo, ReactNode } from "react";
 import {
@@ -532,9 +532,104 @@ export default function PricingPage() {
             <h3 className="text-lg font-semibold text-white">Store</h3>
             <p className="text-sm text-gray-400">Centralized purchases for items and extras</p>
           </div>
-          <div className="flex gap-4 overflow-x-auto py-2">
-            {/* Static small items removed: Hint/Solution packs are no longer sold here. Use Pro subscription or dedicated micro-purchase flows inside Exercises. */}
-            {/* Roadmap items removed from Store — handled on Tracks page */}
+
+          {/* Inline FlowCoins store UI copied from the dedicated Store page so all purchases live on Pricing */}
+          <div className="space-y-6">
+            {/* FlowCoins Balance */}
+            <div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <ShoppingBag className="w-8 h-8 text-amber-400" />
+                    XP Store
+                  </h1>
+                  <p className="text-gray-400 mt-2">Spend your hard-earned FlowCoins on power-ups and cosmetics.</p>
+                </div>
+              </div>
+            </div>
+
+            <Card className="p-6 bg-gradient-to-r from-amber-900/30 to-yellow-900/30 border-amber-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-amber-600 rounded-full flex items-center justify-center text-3xl">🪙</div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                      <Zap className="w-6 h-6 text-yellow-400" />
+                      {user?.coins || 0} FlowCoins
+                    </h2>
+                    <p className="text-amber-200 text-sm">Your current balance • Earn 1 coin per 50 XP</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-amber-300">Level {user?.level || 1}</p>
+                  <p className="text-xs text-amber-200/70">{user?.xp || 0} XP</p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Store Grid */}
+            <div>
+              {(() => {
+                const STORE_CATALOG = [
+                  { id: 'avatar_ninja', name: 'Ninja Avatar', description: 'Stealthy and cool 🥷', type: 'cosmetic', price: 50, icon: '🥷', category: 'avatar' },
+                  { id: 'avatar_robot', name: 'Robot Avatar', description: 'Beep boop 🤖', type: 'cosmetic', price: 50, icon: '🤖', category: 'avatar' },
+                  { id: 'badge_fire', name: 'Fire Badge', description: "Show you're on fire 🔥", type: 'cosmetic', price: 100, icon: '🔥', category: 'badge' },
+                  { id: 'hint_token', name: 'Hint Token', description: 'Get 1 free hint in any exercise', type: 'utility', price: 10, icon: '💡', category: 'utility' },
+                  { id: 'hint_pack_5', name: 'Hint Pack (5x)', description: 'Get 5 free hints', type: 'utility', price: 40, icon: '💡', category: 'utility' },
+                  { id: 'solution_unlock', name: 'Solution Unlock', description: 'Instantly view 1 solution', type: 'utility', price: 25, icon: '🔓', category: 'utility' },
+                  { id: 'xp_boost_2h', name: '2x XP Boost (2h)', description: 'Double XP for 2 hours', type: 'boost', price: 100, icon: '⚡', category: 'boost' },
+                ];
+
+                const purchases: string[] = [];
+                const filteredItems = STORE_CATALOG;
+
+                return (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredItems.map((item) => {
+                      const owned = purchases.includes(item.id);
+                      const canAfford = (user?.coins || 0) >= item.price;
+                      const proOnly = !user?.isPro;
+
+                      return (
+                        <Card key={item.id} className={`p-6 transition-all ${owned ? 'bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-600/50' : canAfford ? 'bg-slate-900 border-slate-700 hover:border-amber-500 hover:scale-105' : 'bg-slate-900/50 border-slate-800 opacity-60'}`}>
+                          <div className="flex items-start gap-4 mb-4">
+                            <div className={`text-5xl ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}>{item.icon}</div>
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between mb-2">
+                                <h3 className="font-bold text-white">{item.name}</h3>
+                                {owned && <span className="text-xs px-2 py-1 bg-green-600/30 text-green-400 rounded-full">Owned</span>}
+                              </div>
+                              <p className="text-sm text-gray-400 mb-3">{item.description}</p>
+                              <span className={`text-xs px-2 py-1 rounded-full ${item.type === 'cosmetic' ? 'bg-purple-600/30 text-purple-400' : item.type === 'utility' ? 'bg-blue-600/30 text-blue-400' : 'bg-amber-600/30 text-amber-400'}`}>{item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-4 border-t border-slate-700">
+                            <div className="flex items-center gap-2 text-amber-400 font-bold"><Zap className="w-5 h-5" />{item.price} FlowCoins</div>
+                            <Button
+                              onClick={() => { if (proOnly) { toast({ title: 'Pro only', description: 'Purchases are available to Pro users only.' }); return; } }}
+                              disabled={owned || !canAfford || !user?.isPro}
+                              className={`${owned ? 'bg-green-700 cursor-not-allowed' : !canAfford ? 'bg-slate-700 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'}`}
+                            >
+                              {owned ? 'Owned' : !user?.isPro ? 'Pro only' : !canAfford ? 'Not enough coins' : 'Buy'}
+                            </Button>
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </div>
+
+            <Card className="p-6 bg-slate-900/90 border-slate-700">
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Gift className="w-6 h-6 text-purple-400" />How to Earn FlowCoins</h2>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="p-4 bg-slate-800/50 rounded-lg"><div className="text-3xl mb-2">✅</div><h3 className="font-semibold text-white mb-1">Complete Exercises</h3><p className="text-sm text-gray-400">Earn 1 FlowCoin per 50 XP (10-50 XP per exercise)</p></div>
+                <div className="p-4 bg-slate-800/50 rounded-lg"><div className="text-3xl mb-2">🔥</div><h3 className="font-semibold text-white mb-1">Daily Streak</h3><p className="text-sm text-gray-400">Bonus XP for streaks = more FlowCoins</p></div>
+                <div className="p-4 bg-slate-800/50 rounded-lg"><div className="text-3xl mb-2">🏆</div><h3 className="font-semibold text-white mb-1">Unlock Achievements</h3><p className="text-sm text-gray-400">Each achievement gives 25-500 XP</p></div>
+              </div>
+            </Card>
           </div>
         </div>
 

@@ -327,7 +327,7 @@ export default function ProfilePage() {
           </Card>
 
           <Card className="p-6 bg-gradient-to-br from-amber-900/40 to-yellow-900/40 border-amber-600/40 cursor-pointer hover:scale-105 transition-all shadow-[0_0_15px_rgba(251,191,36,0.15)]">
-            <a href="/store" className="block">
+            <a href="/pricing#store" className="block">
               <Zap className="w-8 h-8 text-amber-400 mb-3" />
               <h3 className="text-xl font-bold text-amber-200 mb-2">FlowCoins Store</h3>
               <p className="text-amber-300 text-sm mb-2 font-semibold">{user.coins || 0} FlowCoins</p>
