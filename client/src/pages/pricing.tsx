@@ -293,9 +293,18 @@ export default function PricingPage() {
         credentials: 'include',
         body: JSON.stringify(itemId ? { packageId, itemId } : { packageId }),
       });
-      if (!res.ok) throw new Error('Failed to create payment');
-      const j = await res.json();
-      if (j?.checkoutUrl) window.location.href = j.checkoutUrl;
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const serverMessage = (j && (j.error || j.message)) || 'Server failed to create payment.';
+        // Common cause in dev: Stripe keys not configured
+        toast({ title: 'Unable to start checkout', description: serverMessage + ' Check server Stripe configuration (STRIPE_SECRET_KEY).', variant: 'destructive' });
+        return;
+      }
+      if (j?.checkoutUrl) {
+        window.location.href = j.checkoutUrl;
+      } else {
+        toast({ title: 'Unable to start checkout', description: 'No checkout URL returned from server.', variant: 'destructive' });
+      }
     } catch (e) {
       toast({ title: 'Error', description: 'Unable to start purchase', variant: 'destructive' });
     } finally {

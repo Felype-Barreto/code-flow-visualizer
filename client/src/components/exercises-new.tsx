@@ -330,8 +330,11 @@ export function ExercisesViewNew() {
                         size="sm" 
                         onClick={() => {
                           if (user?.isPro || hasPurchased(selectedExercise.id, 'hint')) {
-                            setShowHint(!showHint);
-                            if (!showHint) setShowSolution(false);
+                            setShowHint((s) => {
+                              const next = !s;
+                              if (next) setShowSolution(false);
+                              return next;
+                            });
                             return;
                           }
                           openPurchase('hint');
@@ -346,9 +349,12 @@ export function ExercisesViewNew() {
                         variant="outline" 
                         size="sm" 
                         onClick={() => {
-                          if (user?.isPro || hasPurchased(selectedExercise.id, 'solution')) {
-                            setShowSolution(!showSolution);
-                            if (!showSolution) setShowHint(false);
+                            if (user?.isPro || hasPurchased(selectedExercise.id, 'solution')) {
+                            setShowSolution((s) => {
+                              const next = !s;
+                              if (next) setShowHint(false);
+                              return next;
+                            });
                             return;
                           }
                           openPurchase('solution');

@@ -86,17 +86,13 @@ function getLessonSpec(title: string, sampleCode: string, idx: number) {
   if (/variable/i.test(lower)) {
     return {
       teaching: (
-        <div className="mt-4 text-sm text-gray-200 space-y-3">
-          <div className="font-semibold">What is a variable?</div>
-          <div>
-            A variable is a named container that holds a value. Think of it as a labeled box — the label is the name, the box holds a value you can reuse and change.
-          </div>
-          <div className="font-semibold">How to use it</div>
-          <div>
-            Assign a value with <span className="font-mono">const</span> or <span className="font-mono">let</span>. Use the variable name to refer to that value later. Try returning the value from the function.
-          </div>
-          <div className="font-semibold">Activity</div>
-          <div>Edit the function to store a value in a variable and return it. The validator expects the function to return <strong>{n}</strong>.</div>
+        <div className="mt-4 text-sm space-y-3">
+          <div className="inline-block px-3 py-1 rounded bg-amber-700/20 text-amber-200 font-semibold">What is a variable?</div>
+          <div className="text-gray-200">A variable is a named container for a value — like a labeled box. You put a value inside and use the name to get it later.</div>
+          <div className="inline-block px-3 py-1 rounded bg-slate-800/60 text-slate-200 font-semibold">How to use it</div>
+          <div className="text-gray-200">Create a variable with <span className="font-mono">const</span> or <span className="font-mono">let</span>, store a value, then return that value from the function.</div>
+          <div className="inline-block px-3 py-1 rounded bg-emerald-700/10 text-emerald-200 font-semibold">Activity</div>
+          <div className="text-gray-200">Edit the function so it stores a value in a variable and returns it. The validator expects <strong className="text-amber-300">{n}</strong>.</div>
         </div>
       ),
       validate: (res: any) => {
@@ -109,11 +105,11 @@ function getLessonSpec(title: string, sampleCode: string, idx: number) {
   if (/string/i.test(lower)) {
     return {
       teaching: (
-        <div className="mt-4 text-sm text-gray-200 space-y-3">
-          <div className="font-semibold">What is a string?</div>
-          <div>A string holds text. Surround text with quotes and return it from the function.</div>
-          <div className="font-semibold">Activity</div>
-          <div>Edit the function so it returns the string <strong>"hello{n}"</strong>.</div>
+        <div className="mt-4 text-sm space-y-3">
+          <div className="inline-block px-3 py-1 rounded bg-amber-700/20 text-amber-200 font-semibold">What is a string?</div>
+          <div className="text-gray-200">A string is text. Use quotes and return the text value from the function.</div>
+          <div className="inline-block px-3 py-1 rounded bg-emerald-700/10 text-emerald-200 font-semibold">Activity</div>
+          <div className="text-gray-200">Edit the function to return the exact string <strong className="text-amber-300">"hello{n}"</strong>.</div>
         </div>
       ),
       validate: (res: any) => {
@@ -127,11 +123,11 @@ function getLessonSpec(title: string, sampleCode: string, idx: number) {
   if (/array|list/i.test(lower)) {
     return {
       teaching: (
-        <div className="mt-4 text-sm text-gray-200 space-y-3">
-          <div className="font-semibold">What is an array?</div>
-          <div>An array is an ordered collection of values. You can return an array and check its contents.</div>
-          <div className="font-semibold">Activity</div>
-          <div>Edit the function so it returns an array whose first element is <strong>{n}</strong>.</div>
+        <div className="mt-4 text-sm space-y-3">
+          <div className="inline-block px-3 py-1 rounded bg-amber-700/20 text-amber-200 font-semibold">What is an array?</div>
+          <div className="text-gray-200">An array (or list) holds items in order. You can return an array and the validator will check its elements.</div>
+          <div className="inline-block px-3 py-1 rounded bg-emerald-700/10 text-emerald-200 font-semibold">Activity</div>
+          <div className="text-gray-200">Edit the function so it returns an array whose first element equals <strong className="text-amber-300">{n}</strong>.</div>
         </div>
       ),
       validate: (res: any) => {
@@ -427,16 +423,23 @@ export default function LearningTrack() {
                       </div>
                     )}
                     <div className="mt-3 flex gap-2">
+                      {lang !== 'javascript' && (
+                        <div className="w-full mb-2 p-2 rounded bg-blue-900/40 text-sm text-blue-100">Run is available for JavaScript exercises only. For Python and Java tracks, please follow the examples and try locally.</div>
+                      )}
                       <Button onClick={async () => {
                         setRunning(true); setResultMsg(null);
                         try {
+                          if (lang !== 'javascript') {
+                            setResultMsg('Execution is supported only for JavaScript in this demo.');
+                            return;
+                          }
                           const fnMatch = editorCode.match(/function\s+(\w+)\s*\(/);
                           if (!fnMatch) {
                             setResultMsg('No function found. Make sure you define a function to run.');
                             return;
                           }
-                              const fn = fnMatch[1];
-                              const res = await runInWorker(editorCode, fn, []);
+                          const fn = fnMatch[1];
+                          const res = await runInWorker(editorCode, fn, []);
                               // Use lesson spec validator when available
                               try {
                                 const idxNum = openItem ? Number(openItem.id.split('-')[1]) - 1 : 0;
@@ -474,7 +477,7 @@ export default function LearningTrack() {
                           setResultMsg('❌ Error: ' + friendly + '\nTip: check the function name and syntax.');
                           setLiveError(friendly);
                         } finally { setRunning(false); }
-                      }} disabled={running}>{running ? 'Running...' : 'Run'}</Button>
+                      }} disabled={running || lang !== 'javascript'}>{running ? 'Running...' : 'Run'}</Button>
                       <Button variant="ghost" onClick={() => { setEditorCode(openItem.sampleCode); setResultMsg(null); setLiveError(null); }}>Reset</Button>
                     </div>
                   </div>
