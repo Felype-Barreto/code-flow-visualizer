@@ -83,14 +83,14 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       - name: Deploy to Vercel (CLI)
-        # run from repo root so the copied `dist` is uploaded; use --prebuilt to skip remote build
+        # run from repo root and let Vercel run the build there (no --prebuilt)
         working-directory: ${{ github.workspace }}
         run: |
           set -e
-          echo "Deploying from repo root (prebuilt)"
+          echo "Deploying from repo root (let Vercel build)"
           echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
           echo "PWD: $(pwd)"
-          npx --yes vercel --prod --yes --prebuilt --token "${{ secrets.VERCEL_TOKEN }}"
+          npx --yes vercel --prod --yes --token "${{ secrets.VERCEL_TOKEN }}"
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
