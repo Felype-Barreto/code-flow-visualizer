@@ -12,12 +12,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.19.0
+      - name: Detect project subdirectory
+        id: detect
+        run: |
+          if [ -d "Code-Flow-Visualizer" ]; then
+            echo "subdir=Code-Flow-Visualizer" >> $GITHUB_OUTPUT
+          else
+            echo "subdir=." >> $GITHUB_OUTPUT
+          fi
       - name: Install dependencies
-        working-directory: Code-Flow-Visualizer
+        working-directory: ${{ steps.detect.outputs.subdir }}
         run: |
           npm install --no-audit --prefer-offline
       - name: Build
-        working-directory: Code-Flow-Visualizer
+        working-directory: ${{ steps.detect.outputs.subdir }}
         run: |
           npm run build --if-present
       - name: Deploy to Vercel
@@ -26,7 +34,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: Code-Flow-Visualizer
+          working-directory: ${{ steps.detect.outputs.subdir }}
           prod: true
           wait-for-completion: true
         env:
