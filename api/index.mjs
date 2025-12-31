@@ -4,6 +4,22 @@ import { createServer } from 'http';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
+// Static require hint: some bundlers only include files that are
+// statically required. Attempt harmless static requires so the
+// files are bundled into the function package.
+try {
+	require('./dist/index.cjs');
+} catch (e) {
+	// ignore — the file may not exist at build time
+}
+
+// Also hint bundlers to include a top-level function-local bundle.
+try {
+	require('./index.cjs');
+} catch (e) {
+	// ignore — the file may not exist at build time
+}
+
 let appPromise = null;
 async function getApp() {
 	if (appPromise) return appPromise;
@@ -38,6 +54,16 @@ async function getApp() {
 			const candidates = [];
 			candidates.push(pathMod.resolve(process.cwd(), 'dist', 'index.cjs'));
 			candidates.push(pathMod.resolve(process.cwd(), '..', 'dist', 'index.cjs'));
+				// also check for an index.cjs placed directly inside the api folder
+				try {
+					const thisFile3 = new URL(import.meta.url).pathname;
+					candidates.push(pathMod.resolve(pathMod.dirname(thisFile3), 'index.cjs'));
+				} catch (e) {}
+			// Also check for a dist bundled under the api folder (included in some deploys)
+			try {
+				const thisFile2 = new URL(import.meta.url).pathname;
+				candidates.push(pathMod.resolve(pathMod.dirname(thisFile2), 'dist', 'index.cjs'));
+			} catch (e) { /* ignore */ }
 			try {
 				const thisFile = new URL(import.meta.url).pathname;
 				candidates.push(pathMod.resolve(pathMod.dirname(thisFile), '..', 'dist', 'index.cjs'));
@@ -93,6 +119,10 @@ async function getApp() {
 				try {
 					const thisFile = new URL(import.meta.url).pathname;
 					candidates.push(pathMod.resolve(pathMod.dirname(thisFile), '..', 'dist', 'index.cjs'));
+					// Also report on a potential api-local dist (api/dist/index.cjs)
+					candidates.push(pathMod.resolve(pathMod.dirname(thisFile), 'dist', 'index.cjs'));
+					// Also report on a potential api/index.cjs placed next to this file
+					candidates.push(pathMod.resolve(pathMod.dirname(thisFile), 'index.cjs'));
 				} catch (e) { }
 				candidates.push('/var/task/dist/index.cjs');
 				const results = [];
