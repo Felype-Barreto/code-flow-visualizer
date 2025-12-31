@@ -99,3 +99,25 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+
+      - name: Prebuild with Vercel (runner)
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -e
+          echo "Running 'vercel build' in the runner to produce .vercel/output"
+          npx --yes vercel build --token "${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Deploy prebuilt to Vercel (CLI)
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -e
+          echo "Deploying prebuilt output to Vercel"
+          npx --yes vercel deploy --prebuilt --prod --yes --token "${{ secrets.VERCEL_TOKEN }}"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
