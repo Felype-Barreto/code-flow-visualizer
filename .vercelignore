@@ -1,8 +1,10 @@
 api/**
-!api/index.cjs
+!api/index.mjs
 node_modules/**
 .env.local
 .env
 /*.log
 /.vercel
 **/test/**
+!api/index.js
+!api/index.mjs

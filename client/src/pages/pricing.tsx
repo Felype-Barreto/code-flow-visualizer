@@ -767,41 +767,7 @@ export default function PricingPage() {
               </div>
             </Card>
 
-            {/* Buy FlowCoins (USD) - visible to all, purchase button disabled for free users */}
-            <div className="my-6">
-              <h3 className="text-lg font-semibold text-white mb-3">Buy FlowCoins</h3>
-              <div className="grid sm:grid-cols-3 gap-4">
-                {coinPackages.map((pkg) => (
-                  <Card key={pkg.id} className="p-4 bg-slate-900 border-slate-700">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="text-sm text-gray-300 font-semibold">{pkg.coins} FlowCoins</h4>
-                        <p className="text-xs text-gray-500">{formatUSD(pkg.priceCents)}</p>
-                      </div>
-                      <div>
-                        {(() => {
-                          const coinBtnDisabled = Boolean(purchaseLoading) || (user ? !user.isPro : false);
-                          const coinLabel = !user ? 'Sign in to buy' : (!user?.isPro ? 'Pro only' : purchaseLoading === pkg.id ? 'Processing...' : `Buy ${formatUSD(pkg.priceCents)}`);
-                          return (
-                            <Button
-                              onClick={() => {
-                                if (!user) { setLocation('/signup'); return; }
-                                if (!user?.isPro) return;
-                                handleStorePurchase(pkg.id);
-                              }}
-                              disabled={coinBtnDisabled}
-                              className={`${coinBtnDisabled ? 'bg-slate-700 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'}`}
-                            >
-                              {coinLabel}
-                            </Button>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
+            {/* Top Buy FlowCoins section removed — keep the in-store purchase buttons below */}
 
             {/* Store Grid (fetched from server) */}
             <div>
