@@ -34,8 +34,8 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          # Run deploy from repo root to avoid duplicating the project Root Directory
-          working-directory: .
+          # Run deploy from the same directory we built in (detected earlier)
+          working-directory: ${{ steps.detect.outputs.subdir }}
           prod: true
           wait-for-completion: true
         env:
