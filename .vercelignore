@@ -1,5 +1,5 @@
 api/**
-!api/index.js
+!api/index.cjs
 node_modules/**
 .env.local
 .env
