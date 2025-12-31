@@ -52,6 +52,21 @@ async function getApp() {
     } catch (err: any) {
       console.error('[api/index] Failed to import/register routes:', err && (err.stack || err.message || err));
 
+      // Try to load the compiled server bundle (created by `npm run build`) if present.
+      // On some deploys the TypeScript `server/` tree isn't shipped, but a built `dist/index.cjs`
+      // may exist. Attempt to import it before falling back to api/* handlers.
+      try {
+        const compiled = await import('../dist/index.cjs');
+        const registerRoutes = compiled && (compiled.registerRoutes || compiled.default?.registerRoutes);
+        if (typeof registerRoutes === 'function') {
+          await registerRoutes(httpServer as any, app as any);
+          return app;
+        }
+      } catch (e) {
+        // ignore - we'll continue to fallback handlers below
+        console.info('[api/index] no compiled `dist/index.cjs` found or failed to load:', e && (e.message || e));
+      }
+
       // Fallback: try to mount standalone API handlers that live under the `api/` folder
       // This helps when the full `server/` tree isn't present in the deployed bundle.
       const adaptServerlessHandler = (handler: any) => {
