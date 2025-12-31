@@ -1,7 +1,5 @@
-# Include API handlers in Vercel deployment
-# Previously excluded entire api/ folder which caused serverless handlers and
-# fallback modules (server/dist) to be missing at runtime.
-!api/**
+api/**
+!api/index.ts
 node_modules/**
 .env.local
 .env
