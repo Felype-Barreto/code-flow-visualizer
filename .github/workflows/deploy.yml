@@ -82,6 +82,12 @@ jobs:
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - name: Vercel: pull project settings
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -e
+          echo "Pulling Vercel project settings into runner (.vercel)"
+          npx --yes vercel pull --yes --token "${{ secrets.VERCEL_TOKEN }}" --project "${{ secrets.VERCEL_PROJECT_ID }}" || true
       - name: Deploy to Vercel (CLI)
         # run from repo root and let Vercel run the build there (no --prebuilt)
         working-directory: ${{ github.workspace }}
