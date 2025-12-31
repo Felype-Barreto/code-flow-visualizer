@@ -20,6 +20,14 @@ jobs:
           else
             echo "subdir=." >> $GITHUB_OUTPUT
           fi
+      - name: Debug workspace
+        run: |
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+          pwd
+          echo "Listing repo root:"; ls -la
+          echo "Listing Code-Flow-Visualizer (if present):"; ls -la Code-Flow-Visualizer || true
+          echo "Detected subdir: '${{ steps.detect.outputs.subdir }}'";
+          ls -la "${{ steps.detect.outputs.subdir }}" || true
       - name: Install dependencies
         working-directory: ${{ steps.detect.outputs.subdir }}
         run: |
