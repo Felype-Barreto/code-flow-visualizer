@@ -143,6 +143,33 @@ async function getApp() {
 			}
 		});
 
+		function parseFallbackToken(req) {
+			const hdr = req.headers && (req.headers.authorization || req.headers.Authorization || req.headers.Auth);
+			let token = null;
+			if (hdr && String(hdr).startsWith('Bearer ')) token = String(hdr).slice(7).trim();
+			if (!token && req.query && req.query.token) token = req.query.token;
+			if (!token) return null;
+			try {
+				const raw = Buffer.from(String(token), 'base64').toString('utf8');
+				const parts = raw.split(':');
+				return { id: parts[0], email: parts.slice(1).join(':') };
+			} catch (e) {
+				return null;
+			}
+		}
+
+		app.get('/api/me', (req, res) => {
+			const user = parseFallbackToken(req);
+			if (!user) return res.status(401).json({ error: 'not_authenticated' });
+			return res.json({ ok: true, user });
+		});
+
+		app.get('/api/coins/balance', (req, res) => {
+			const user = parseFallbackToken(req);
+			if (!user) return res.status(401).json({ error: 'not_authenticated' });
+			return res.json({ ok: true, balance: 0 });
+		});
+
 		app.get('/api/health', (_req, res) => res.json({ ok: false, error: 'server bundle missing' }));
 		app.use((req, res) => {
 			res.setHeader('Content-Type', 'application/json');
