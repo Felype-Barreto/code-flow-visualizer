@@ -34,8 +34,9 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          # Run deploy from the same directory we built in (detected earlier)
-          working-directory: ${{ steps.detect.outputs.subdir }}
+          # Run deploy from the repository root so Vercel's configured Root Directory
+          # (Code-Flow-Visualizer) is resolved correctly relative to the workspace.
+          working-directory: .
           prod: true
           wait-for-completion: true
         env:
