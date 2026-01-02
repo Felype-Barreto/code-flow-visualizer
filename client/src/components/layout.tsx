@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Terminal, Menu, ChevronDown, GraduationCap, Code, Dumbbell, Crown, Award, Activity, BookOpen, ShoppingBag, UserCircle, Trophy, Target, Flame, Code2 } from "lucide-react";
+import { Terminal, Menu, ChevronDown, GraduationCap, Code, Dumbbell, Crown, Award, Activity, BookOpen, ShoppingBag, UserCircle, Trophy, Target, Flame, Code2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -156,6 +156,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <div className={cn("flex items-center gap-3 w-full cursor-pointer py-2", location.includes("/battle-pass") ? "text-amber-400" : "")}> 
                       <Crown className="w-4 h-4 text-amber-400" />
                       <span className="font-semibold">Battle Pass</span>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/cosmetics">
+                    <div className={cn("flex items-center gap-3 w-full cursor-pointer py-2", location.includes("/cosmetics") ? "text-fuchsia-400" : "")}> 
+                      <Sparkles className="w-4 h-4 text-fuchsia-400" />
+                      <span className="font-semibold">Cosmetics</span>
                     </div>
                   </Link>
                 </DropdownMenuItem>
@@ -334,6 +342,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <span className={cn("flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors", location.includes("/profile") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5")}> 
                       <UserCircle className="w-4 h-4" />
                       Profile
+                    </span>
+                  </Link>
+                  <Link href="/battle-pass" onClick={() => setIsOpen(false)}>
+                    <span className={cn("flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-bold transition-colors", location.includes("/battle-pass") ? "bg-amber-500/10 text-amber-300" : "text-muted-foreground hover:text-foreground hover:bg-white/5")}> 
+                      <Crown className="w-4 h-4 text-amber-400" />
+                      <span className="bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">Battle Pass</span>
+                    </span>
+                  </Link>
+                  <Link href="/cosmetics" onClick={() => setIsOpen(false)}>
+                    <span className={cn("flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-bold transition-colors", location.includes("/cosmetics") ? "bg-fuchsia-500/10 text-fuchsia-300" : "text-muted-foreground hover:text-foreground hover:bg-white/5")}> 
+                      <Sparkles className="w-4 h-4 text-fuchsia-400" />
+                      <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">Cosmetics</span>
                     </span>
                   </Link>
                   <Link href="/battle-pass" onClick={() => setIsOpen(false)}>
