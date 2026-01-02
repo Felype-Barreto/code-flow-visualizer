@@ -19,9 +19,6 @@ export function AdUnit({ slot, format = 'responsive', className = '' }: AdUnitPr
   const { user } = useUser();
   const adRef = useRef<HTMLDivElement>(null);
 
-  // Hide ads for Pro users
-  if (user?.isPro) return null;
-
   useEffect(() => {
     // Push ads script only after component mounts
     if (adRef.current && window.adsbygoogle) {
@@ -44,6 +41,9 @@ export function AdUnit({ slot, format = 'responsive', className = '' }: AdUnitPr
         return 'w-full';
     }
   };
+
+  // Hide ads for Pro users - MUST be after all hooks
+  if (user?.isPro) return null;
 
   return (
     <div
