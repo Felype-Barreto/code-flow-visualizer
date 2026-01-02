@@ -4,6 +4,7 @@ import Layout from "@/components/layout";
 import { lessons } from "@/lib/lessons";
 import { Language } from "@/lib/types";
 import CodeEditor from "@/components/code-editor";
+import { AdUnit, AD_SLOTS } from "@/components/ad-unit";
 import CallStack from "@/components/visualizer/call-stack";
 import HeapMemory from "@/components/visualizer/heap-memory";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";

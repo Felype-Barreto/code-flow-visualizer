@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { ArrowRight, Code, Box, Layers, Play, Repeat } from "lucide-react";
 import { motion } from "framer-motion";
 import generatedImage from "@assets/generated_images/blueprint_style_programming_visualization_concept.png";
+import { AdUnit, AD_SLOTS } from "@/components/ad-unit";
 
 
 export default function Home() {
@@ -14,6 +15,10 @@ export default function Home() {
         {/* Hero Section */}
         <section className="relative pt-20 pb-32">
           <div className="container mx-auto px-4 relative z-10">
+            {/* Top Banner Ad */}
+            <div className="mb-8 max-w-4xl mx-auto">
+              <AdUnit slot={AD_SLOTS.HEADER_BANNER} format="responsive" />
+            </div>
             <div className="max-w-3xl">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -64,6 +69,11 @@ export default function Home() {
         <section className="container mx-auto px-4 py-20 border-t border-white/5">
           <h2 className="text-3xl font-bold mb-12">Learning Modules</h2>
           
+          {/* Ad between grid and content */}
+          <div className="mb-8 max-w-4xl">
+            <AdUnit slot={AD_SLOTS.LESSON_FEED} format="responsive" />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <LessonCard 
               icon={<Code className="w-8 h-8 text-blue-400" />}

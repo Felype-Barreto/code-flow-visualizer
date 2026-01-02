@@ -6,6 +6,7 @@ import { Check, Crown, Sparkles, Cpu, BarChart3, Lightbulb, Layers, GitBranch, D
 import { useLocation } from "wouter";
 import { useEffect, useState, useMemo, ReactNode } from "react";
 import { trackInitiateCheckout, trackPurchase } from "@/lib/analytics";
+import { AdUnit, AD_SLOTS } from "@/components/ad-unit";
 import {
   Dialog,
   DialogContent,
@@ -764,6 +765,11 @@ export default function PricingPage() {
                 </div>
               </div>
             </Card>
+          </div>
+
+          {/* Ad after pricing section */}
+          <div className="max-w-6xl mx-auto px-4 mb-12">
+            <AdUnit slot={AD_SLOTS.PRICING_PAGE} format="vertical" className="mx-auto w-fit" />
           </div>
 
           {/* Store: centralized purchases for small products and roadmap items */}
