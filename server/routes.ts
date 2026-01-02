@@ -1774,8 +1774,16 @@ export async function registerRoutes(
         }
       }
 
-      // Price IDs are often copy/pasted into Vercel envs; defensively trim CR/LF.
-      price = String(price || "").trim();
+      const normalizeStripeId = (value: string) =>
+        value
+          .trim()
+          .replace(/\\r\\n/g, "")
+          .replace(/\\n/g, "")
+          .replace(/\\r/g, "")
+          .trim();
+
+      // Price IDs are often copy/pasted into Vercel envs; defensively normalize CR/LF.
+      price = normalizeStripeId(String(price || ""));
 
       const sessionConfig: any = {
         mode,
@@ -1805,7 +1813,7 @@ export async function registerRoutes(
         session = await stripe.checkout.sessions.create(sessionConfig);
       } catch (err: any) {
         const msg = String(err?.message || "");
-        const isStripeTaxUnsupported = msg.includes("Stripe Tax is not supported for your account country");
+        const isStripeTaxUnsupported = /Stripe Tax is not supported\s+for your account country/i.test(msg);
         if (isStripeTaxUnsupported && sessionConfig.automatic_tax) {
           console.warn('[CHECKOUT] Stripe Tax unsupported; retrying without automatic_tax');
           const retryConfig = { ...sessionConfig };

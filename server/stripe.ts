@@ -5,6 +5,16 @@ function envTrim(name: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function envTrimStripeId(name: string): string {
+  // Some env UIs end up storing literal "\r\n" sequences in values.
+  // Normalize both real newlines and the literal backslash sequences.
+  return envTrim(name)
+    .replace(/\\r\\n/g, "")
+    .replace(/\\n/g, "")
+    .replace(/\\r/g, "")
+    .trim();
+}
+
 const STRIPE_SECRET_KEY = envTrim("STRIPE_SECRET_KEY");
 
 if (!STRIPE_SECRET_KEY) {
@@ -28,22 +38,22 @@ export function getBaseUrl(req: { headers: any; protocol?: string }) {
 }
 
 // Legacy generic price IDs (fallback)
-export const STRIPE_PRICE_PRO_MONTHLY = envTrim("STRIPE_PRICE_PRO_MONTHLY");
-export const STRIPE_PRICE_PRO_ANNUAL = envTrim("STRIPE_PRICE_PRO_ANNUAL");
+export const STRIPE_PRICE_PRO_MONTHLY = envTrimStripeId("STRIPE_PRICE_PRO_MONTHLY");
+export const STRIPE_PRICE_PRO_ANNUAL = envTrimStripeId("STRIPE_PRICE_PRO_ANNUAL");
 
 // Currency-specific price IDs
-export const STRIPE_PRICE_PRO_MONTHLY_USD = envTrim("STRIPE_PRICE_PRO_MONTHLY_USD");
-export const STRIPE_PRICE_PRO_MONTHLY_BRL = envTrim("STRIPE_PRICE_PRO_MONTHLY_BRL");
-export const STRIPE_PRICE_PRO_ANNUAL_USD = envTrim("STRIPE_PRICE_PRO_ANNUAL_USD");
-export const STRIPE_PRICE_PRO_ANNUAL_BRL = envTrim("STRIPE_PRICE_PRO_ANNUAL_BRL");
+export const STRIPE_PRICE_PRO_MONTHLY_USD = envTrimStripeId("STRIPE_PRICE_PRO_MONTHLY_USD");
+export const STRIPE_PRICE_PRO_MONTHLY_BRL = envTrimStripeId("STRIPE_PRICE_PRO_MONTHLY_BRL");
+export const STRIPE_PRICE_PRO_ANNUAL_USD = envTrimStripeId("STRIPE_PRICE_PRO_ANNUAL_USD");
+export const STRIPE_PRICE_PRO_ANNUAL_BRL = envTrimStripeId("STRIPE_PRICE_PRO_ANNUAL_BRL");
 export const STRIPE_WEBHOOK_SECRET = envTrim("STRIPE_WEBHOOK_SECRET");
 
 // Battle Pass (one-time $5 purchase)
-export const STRIPE_PRICE_BATTLE_PASS = envTrim("STRIPE_PRICE_BATTLE_PASS");
+export const STRIPE_PRICE_BATTLE_PASS = envTrimStripeId("STRIPE_PRICE_BATTLE_PASS");
 
 // Helper to get Battle Pass price with validation
 export function getBattlePassPrice(): string {
-  const price = envTrim("STRIPE_PRICE_BATTLE_PASS");
+  const price = envTrimStripeId("STRIPE_PRICE_BATTLE_PASS");
   if (!price) {
     console.warn('[WARN] STRIPE_PRICE_BATTLE_PASS not configured. Set in environment.');
   }
