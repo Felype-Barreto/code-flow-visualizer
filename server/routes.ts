@@ -1813,6 +1813,7 @@ export async function registerRoutes(
         session = await stripe.checkout.sessions.create(sessionConfig);
       } catch (err: any) {
         const msg = String(err?.message || "");
+
         const isStripeTaxUnsupported = /Stripe Tax is not supported\s+for your account country/i.test(msg);
         if (isStripeTaxUnsupported && sessionConfig.automatic_tax) {
           console.warn('[CHECKOUT] Stripe Tax unsupported; retrying without automatic_tax');
@@ -1820,7 +1821,19 @@ export async function registerRoutes(
           delete (retryConfig as any).automatic_tax;
           session = await stripe.checkout.sessions.create(retryConfig);
         } else {
-          throw err;
+          const recurringPriceInPaymentMode =
+            product === "battle_pass" &&
+            sessionConfig.mode === "payment" &&
+            /passed a recurring price|You specified `payment` mode/i.test(msg);
+          if (recurringPriceInPaymentMode) {
+            console.warn('[CHECKOUT] Battle Pass price is recurring; retrying with subscription mode');
+            const retryConfig: any = { ...sessionConfig, mode: "subscription" };
+            retryConfig.subscription_data = { metadata: { userId } };
+            retryConfig.allow_promotion_codes = false;
+            session = await stripe.checkout.sessions.create(retryConfig);
+          } else {
+            throw err;
+          }
         }
       }
       console.log('[CHECKOUT] Session created:', { id: session.id, url: session.url, duration: Date.now() - startTime });
@@ -1896,6 +1909,17 @@ export async function registerRoutes(
           // Activate Battle Pass if purchased
           if (userId && product === "battle_pass") {
             try {
+              // If battle pass was purchased using a recurring price (subscription mode), cancel immediately to prevent renewals.
+              const subscriptionId = session.subscription ? String(session.subscription) : "";
+              if (subscriptionId) {
+                try {
+                  await stripe.subscriptions.del(subscriptionId);
+                  console.log(`[BATTLE_PASS] Canceled subscription ${subscriptionId} after activation`);
+                } catch (e: any) {
+                  console.error(`[BATTLE_PASS] Failed to cancel subscription ${subscriptionId}:`, e?.message || e);
+                }
+              }
+
               const user = await storage.getUser(userId);
               if (user && !user.battlePassActive) {
                 await db.update(users).set({
