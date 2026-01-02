@@ -1,6 +1,11 @@
 import Stripe from "stripe";
 
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+function envTrim(name: string): string {
+  const value = process.env[name];
+  return typeof value === "string" ? value.trim() : "";
+}
+
+const STRIPE_SECRET_KEY = envTrim("STRIPE_SECRET_KEY");
 
 if (!STRIPE_SECRET_KEY) {
   // We only throw when attempting to use Stripe without config.
@@ -23,22 +28,22 @@ export function getBaseUrl(req: { headers: any; protocol?: string }) {
 }
 
 // Legacy generic price IDs (fallback)
-export const STRIPE_PRICE_PRO_MONTHLY = process.env.STRIPE_PRICE_PRO_MONTHLY || "";
-export const STRIPE_PRICE_PRO_ANNUAL = process.env.STRIPE_PRICE_PRO_ANNUAL || "";
+export const STRIPE_PRICE_PRO_MONTHLY = envTrim("STRIPE_PRICE_PRO_MONTHLY");
+export const STRIPE_PRICE_PRO_ANNUAL = envTrim("STRIPE_PRICE_PRO_ANNUAL");
 
 // Currency-specific price IDs
-export const STRIPE_PRICE_PRO_MONTHLY_USD = process.env.STRIPE_PRICE_PRO_MONTHLY_USD || "";
-export const STRIPE_PRICE_PRO_MONTHLY_BRL = process.env.STRIPE_PRICE_PRO_MONTHLY_BRL || "";
-export const STRIPE_PRICE_PRO_ANNUAL_USD = process.env.STRIPE_PRICE_PRO_ANNUAL_USD || "";
-export const STRIPE_PRICE_PRO_ANNUAL_BRL = process.env.STRIPE_PRICE_PRO_ANNUAL_BRL || "";
-export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
+export const STRIPE_PRICE_PRO_MONTHLY_USD = envTrim("STRIPE_PRICE_PRO_MONTHLY_USD");
+export const STRIPE_PRICE_PRO_MONTHLY_BRL = envTrim("STRIPE_PRICE_PRO_MONTHLY_BRL");
+export const STRIPE_PRICE_PRO_ANNUAL_USD = envTrim("STRIPE_PRICE_PRO_ANNUAL_USD");
+export const STRIPE_PRICE_PRO_ANNUAL_BRL = envTrim("STRIPE_PRICE_PRO_ANNUAL_BRL");
+export const STRIPE_WEBHOOK_SECRET = envTrim("STRIPE_WEBHOOK_SECRET");
 
 // Battle Pass (one-time $5 purchase)
-export const STRIPE_PRICE_BATTLE_PASS = process.env.STRIPE_PRICE_BATTLE_PASS || "";
+export const STRIPE_PRICE_BATTLE_PASS = envTrim("STRIPE_PRICE_BATTLE_PASS");
 
 // Helper to get Battle Pass price with validation
 export function getBattlePassPrice(): string {
-  const price = process.env.STRIPE_PRICE_BATTLE_PASS || "";
+  const price = envTrim("STRIPE_PRICE_BATTLE_PASS");
   if (!price) {
     console.warn('[WARN] STRIPE_PRICE_BATTLE_PASS not configured. Set in environment.');
   }

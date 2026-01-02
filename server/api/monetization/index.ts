@@ -5,10 +5,10 @@ import { users, infinityPayPurchases, coinTransactions, adRewards, storePurchase
 import { eq, sql } from 'drizzle-orm';
 
 // Stripe configuration
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+const stripe = new Stripe((process.env.STRIPE_SECRET_KEY || '').trim(), {
   apiVersion: '2023-10-16',
 });
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
+const STRIPE_WEBHOOK_SECRET = (process.env.STRIPE_WEBHOOK_SECRET || '').trim();
 const APP_URL = process.env.APP_URL || 'http://localhost:5000';
 
 interface PackageConfig {

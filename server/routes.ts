@@ -1774,6 +1774,9 @@ export async function registerRoutes(
         }
       }
 
+      // Price IDs are often copy/pasted into Vercel envs; defensively trim CR/LF.
+      price = String(price || "").trim();
+
       const sessionConfig: any = {
         mode,
         line_items: [{ price, quantity: 1 }],
@@ -1781,8 +1784,14 @@ export async function registerRoutes(
         cancel_url: cancelUrl,
         client_reference_id: userId,
         metadata: { userId, product: product || "pro" },
-        automatic_tax: { enabled: true },
       };
+
+      // Stripe Tax is not supported for all Stripe account countries.
+      // Keep it OFF by default; allow opting in via env.
+      const enableAutomaticTax = String(process.env.STRIPE_AUTOMATIC_TAX || "").trim().toLowerCase() === "true";
+      if (enableAutomaticTax) {
+        sessionConfig.automatic_tax = { enabled: true };
+      }
 
       if (mode === "subscription") {
         sessionConfig.subscription_data = { metadata: { userId } };
@@ -1790,7 +1799,22 @@ export async function registerRoutes(
       }
 
       console.log('[CHECKOUT] Creating session with config:', sessionConfig);
-      const session = await stripe.checkout.sessions.create(sessionConfig);
+
+      let session: any;
+      try {
+        session = await stripe.checkout.sessions.create(sessionConfig);
+      } catch (err: any) {
+        const msg = String(err?.message || "");
+        const isStripeTaxUnsupported = msg.includes("Stripe Tax is not supported for your account country");
+        if (isStripeTaxUnsupported && sessionConfig.automatic_tax) {
+          console.warn('[CHECKOUT] Stripe Tax unsupported; retrying without automatic_tax');
+          const retryConfig = { ...sessionConfig };
+          delete (retryConfig as any).automatic_tax;
+          session = await stripe.checkout.sessions.create(retryConfig);
+        } else {
+          throw err;
+        }
+      }
       console.log('[CHECKOUT] Session created:', { id: session.id, url: session.url, duration: Date.now() - startTime });
       return res.json({ url: session.url });
     } catch (err: any) {
