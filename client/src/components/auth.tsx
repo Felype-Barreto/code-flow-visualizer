@@ -12,7 +12,7 @@ const COUNTRIES = [
 ];
 
 function useAuth() {
-  const [user, setUser] = useState<{ id: string; email: string; firstName?: string; isPro?: boolean } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; firstName?: string; isPro?: boolean; avatar?: string; level?: number } | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
 
   useEffect(() => {
@@ -401,13 +401,35 @@ export default function Auth() {
     }
   };
 
+  // Avatar emoji mapping
+  const getAvatarEmoji = (avatar?: string) => {
+    const map: Record<string, string> = {
+      default: '👤',
+      ninja: '🥷',
+      robot: '🤖',
+      wizard: '🧙',
+      alien: '👽',
+      pirate: '🏴‍☠️',
+      astronaut: '👨‍🚀',
+    };
+    return map[avatar || 'default'] || '👤';
+  };
+
   return (
     <div>
       {user ? (
         <div className="flex items-center gap-3">
-          <div className="flex flex-col items-end">
-            <span className="text-sm font-medium">Hello, {user.firstName || (user.email ? user.email.split('@')[0] : 'User')}</span>
-            <span className="text-xs text-slate-400">{user.isPro ? 'Pro' : 'Free'}</span>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-xl">
+              {getAvatarEmoji(user.avatar)}
+            </div>
+            <div className="flex flex-col items-start">
+              <span className="text-sm font-medium flex items-center gap-1.5">
+                {user.firstName || (user.email ? user.email.split('@')[0] : 'User')}
+                <span className="text-xs text-yellow-400 font-bold">Lv. {user.level || 1}</span>
+              </span>
+              <span className="text-xs text-slate-400">{user.isPro ? 'Pro' : 'Free'}</span>
+            </div>
           </div>
           <Button variant="outline" size="sm" onClick={logout} className="text-xs">
             Logout

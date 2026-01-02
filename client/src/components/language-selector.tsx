@@ -38,10 +38,9 @@ export function LanguageSelector() {
   const { progLang, setProgLang } = useLanguage();
   return (
     <Select value={progLang} onValueChange={(v) => setProgLang(v as Language)}>
-      <SelectTrigger className="w-[160px] h-8 bg-white/5 border-white/10 text-xs">
-        <div className="flex items-center gap-2 px-2">
+      <SelectTrigger className="w-[40px] h-8 bg-white/5 border-white/10 text-xs p-0 flex items-center justify-center">
+        <div className="flex items-center justify-center w-full">
           <span className="text-sm">{progLanguages.find(p => p.id === progLang)?.icon}</span>
-          <SelectValue />
         </div>
       </SelectTrigger>
       <SelectContent>

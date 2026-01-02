@@ -1251,8 +1251,10 @@ export async function registerRoutes(
       // Cosmetics: apply avatar or theme by updating users table
       if (item.type === 'cosmetic') {
         if (item.category === 'avatar') {
-          await db.update(users).set({ avatar: itemId }).where(eq(users.id, userId));
-          return res.json({ message: 'Avatar equipped', avatar: itemId });
+          // Extract avatar name from itemId (e.g., "avatar_ninja" -> "ninja")
+          const avatarName = itemId.replace('avatar_', '');
+          await db.update(users).set({ avatar: avatarName }).where(eq(users.id, userId));
+          return res.json({ message: 'Avatar equipped', avatar: avatarName });
         }
         if (item.category === 'theme') {
           await db.update(users).set({ theme: itemId }).where(eq(users.id, userId));
