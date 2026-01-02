@@ -25,7 +25,7 @@ export function AdUnit({ slot, format = 'responsive', className = '' }: AdUnitPr
   useEffect(() => {
     // Push ads script only after component mounts
     if (adRef.current && window.adsbygoogle) {
-      try;
+      try {
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       } catch (error) {
         console.error('AdSense error:', error);
