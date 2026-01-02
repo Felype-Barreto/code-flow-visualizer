@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useAuth } from '@/hooks/use-auth';
+import { useUser } from '@/hooks/use-user';
 
 interface AdUnitProps {
   slot: string;
@@ -16,7 +16,7 @@ interface AdUnitProps {
  * <AdUnit slot="XXXXXXXX" format="responsive" />
  */
 export function AdUnit({ slot, format = 'responsive', className = '' }: AdUnitProps) {
-  const { user } = useAuth();
+  const { user } = useUser();
   const adRef = useRef<HTMLDivElement>(null);
 
   // Hide ads for Pro users
