@@ -9,6 +9,11 @@ import path from 'path';
 // use global fetch available in Node 18+
 import dotenv from 'dotenv';
 
+// Load local env files (not committed). Priority: tmp/.env overrides the others.
+// This lets us keep app secrets in .env.production while only adding Vercel auth in tmp/.env.
+dotenv.config({ path: './.env.production' });
+dotenv.config({ path: './.env.local' });
+dotenv.config({ path: './.env' });
 dotenv.config({ path: './tmp/.env' });
 
 const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
@@ -29,6 +34,9 @@ const envKeys = [
   'STRIPE_PUBLISHABLE_KEY',
   'STRIPE_WEBHOOK_SECRET',
   'STRIPE_PRICE_PRO_MONTHLY_USD',
+  'STRIPE_PRICE_PRO_ANNUAL_USD',
+  'STRIPE_PRICE_PRO_MONTHLY_BRL',
+  'STRIPE_PRICE_PRO_ANNUAL_BRL',
   'STRIPE_PRICE_BATTLE_PASS',
   'PUBLIC_BASE_URL'
 ];
