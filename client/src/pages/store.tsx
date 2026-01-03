@@ -47,6 +47,10 @@ const STORE_CATALOG: StoreItem[] = [
   { id: 'theme_sunset', name: 'Sunset Theme', description: 'Warm sunset grid background', type: 'cosmetic', price: 300, icon: '🌅', category: 'theme' },
   { id: 'theme_rose', name: 'Rose Theme', description: 'Pink accent grid background', type: 'cosmetic', price: 300, icon: '🌸', category: 'theme' },
   { id: 'theme_obsidian', name: 'Obsidian Theme', description: 'Ultra subtle dark grid background', type: 'cosmetic', price: 300, icon: '🖤', category: 'theme' },
+  { id: 'theme_rainbow', name: 'Rainbow Theme', description: 'Full rainbow profile background', type: 'cosmetic', price: 500, icon: '🌈', category: 'theme' },
+  { id: 'theme_dark', name: 'Dark Theme', description: 'Deep dark profile background', type: 'cosmetic', price: 400, icon: '🌑', category: 'theme' },
+  { id: 'theme_love', name: 'Love Theme', description: 'Red background with heart vibes', type: 'cosmetic', price: 600, icon: '❤️', category: 'theme' },
+  { id: 'theme_pink', name: 'Pink Theme', description: 'Cute pink profile background', type: 'cosmetic', price: 450, icon: '💗', category: 'theme' },
 
   // Cosmetics - Profile Frames
   { id: 'frame_gold', name: 'Gold Frame', description: 'Legendary profile border', type: 'cosmetic', price: 150, icon: '🟡', category: 'frame' },

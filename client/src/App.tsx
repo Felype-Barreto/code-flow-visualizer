@@ -13,6 +13,7 @@ import AdminPage from "@/pages/admin";
 import ProPage from "@/pages/pro";
 import PricingPage from "@/pages/pricing";
 import ProfilePage from "@/pages/profile";
+import PublicProfilePage from "@/pages/public-profile";
 import HistoryPage from "@/pages/history";
 import JournalPage from "@/pages/journal";
 import AchievementsPage from "@/pages/achievements";
@@ -42,6 +43,7 @@ function Router() {
       <Route path="/library" component={LibraryPage} />
       {/* Gamification */}
       <Route path="/profile" component={ProfilePage} />
+      <Route path="/u/:id" component={PublicProfilePage} />
       <Route path="/history" component={HistoryPage} />
       <Route path="/journal" component={JournalPage} />
       <Route path="/achievements" component={AchievementsPage} />

@@ -37,6 +37,7 @@ export const users = pgTable("users", {
   frameAnimation: text("frame_animation"),
   equippedNameEffect: text("equipped_name_effect"),
   equippedBadge: text("equipped_badge"),
+  activePet: text("active_pet"),
   trophyCase: text("trophy_case"),
   customTheme: text("custom_theme"),
   customWatermark: boolean("custom_watermark").notNull().default(false),

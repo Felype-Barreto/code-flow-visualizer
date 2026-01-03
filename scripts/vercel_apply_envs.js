@@ -14,7 +14,9 @@ import dotenv from 'dotenv';
 dotenv.config({ path: './.env.production' });
 dotenv.config({ path: './.env.local' });
 dotenv.config({ path: './.env' });
-dotenv.config({ path: './tmp/.env' });
+// NOTE: dotenv does NOT override existing process.env values unless override=true.
+// We want tmp/.env to be the highest priority source.
+dotenv.config({ path: './tmp/.env', override: true });
 
 const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
 // Accept either project name or project id.
@@ -28,6 +30,27 @@ if (!VERCEL_TOKEN || !PROJECT) {
 }
 
 const API = 'https://api.vercel.com';
+
+async function resolveTeamId(token, teamValue) {
+  if (!teamValue) return null;
+  const raw = String(teamValue).trim();
+  if (!raw) return null;
+  // If it already looks like a Vercel teamId, use it as-is.
+  if (/^team_[a-zA-Z0-9]+$/.test(raw)) return raw;
+
+  try {
+    const res = await fetch(`${API}/v1/teams`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return raw;
+    const data = await res.json();
+    const teams = Array.isArray(data?.teams) ? data.teams : [];
+    const match = teams.find(t => t?.slug === raw || t?.name === raw || t?.id === raw);
+    return match?.id || raw;
+  } catch {
+    return raw;
+  }
+}
 
 const envKeys = [
   'DATABASE_URL',
@@ -43,9 +66,24 @@ const envKeys = [
   'PUBLIC_BASE_URL'
 ];
 
-async function api(pathSuffix, opts={}){
-  const url = API + pathSuffix + (TEAM ? `?teamId=${TEAM}` : '');
-  const res = await fetch(url, Object.assign({ headers: { Authorization: `Bearer ${VERCEL_TOKEN}`, 'Content-Type': 'application/json' } }, opts));
+let RESOLVED_TEAM_ID = null;
+
+async function api(pathSuffix, opts = {}) {
+  const baseHeaders = { Authorization: `Bearer ${VERCEL_TOKEN}`, 'Content-Type': 'application/json' };
+
+  const makeUrl = (useTeam) => {
+    const teamPart = useTeam && RESOLVED_TEAM_ID ? `?teamId=${encodeURIComponent(RESOLVED_TEAM_ID)}` : '';
+    return API + pathSuffix + teamPart;
+  };
+
+  // First attempt: include teamId if we have a real one.
+  let res = await fetch(makeUrl(true), Object.assign({ headers: baseHeaders }, opts));
+
+  // If scope is wrong (common when users paste an owner/scope slug), retry without teamId.
+  if (!res.ok && RESOLVED_TEAM_ID && (res.status === 404 || res.status === 403)) {
+    res = await fetch(makeUrl(false), Object.assign({ headers: baseHeaders }, opts));
+  }
+
   if (!res.ok) {
     const txt = await res.text();
     throw new Error(`Vercel API ${res.status} ${res.statusText}: ${txt}`);
@@ -54,7 +92,20 @@ async function api(pathSuffix, opts={}){
 }
 
 async function getProject(){
-  return api(`/v9/projects/${encodeURIComponent(PROJECT)}`);
+  try {
+    return await api(`/v9/projects/${encodeURIComponent(PROJECT)}`);
+  } catch (err) {
+    // Fallback: list projects and match by id or name.
+    try {
+      const list = await api(`/v9/projects?limit=100`);
+      const projects = Array.isArray(list?.projects) ? list.projects : [];
+      const match = projects.find(p => p?.id === PROJECT || p?.name === PROJECT);
+      if (match) return match;
+    } catch {
+      // ignore; throw original
+    }
+    throw err;
+  }
 }
 
 async function listEnv(projectId){
@@ -71,6 +122,9 @@ async function createEnv(projectId, key, value){
 }
 
 async function main(){
+  const maybeTeamId = await resolveTeamId(VERCEL_TOKEN, TEAM);
+  // Only use it if it looks like an actual Vercel team id.
+  RESOLVED_TEAM_ID = /^team_[a-zA-Z0-9]+$/.test(String(maybeTeamId || '')) ? String(maybeTeamId) : null;
   const proj = await getProject();
   const projectId = proj.id || proj.uid || proj.projectId || proj.name;
   console.log('Project resolved:', proj.name, projectId);

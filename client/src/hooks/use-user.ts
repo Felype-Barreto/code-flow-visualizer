@@ -29,6 +29,7 @@ interface User {
   equippedFrame?: string | null;
   frameAnimation?: string | null;
   equippedBadge?: string | null;
+  activePet?: string | null;
   language?: string;
   dailyStreak?: number;
   lastActivityDate?: string;

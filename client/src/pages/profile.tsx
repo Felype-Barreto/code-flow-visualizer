@@ -18,6 +18,17 @@ type SocialUser = {
   dailyStreak: number;
 };
 
+type FeaturedUser = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  avatar: string | null;
+  isPro: boolean;
+  level: number;
+  xp: number;
+  featuredUntil?: string | null;
+};
+
 type StoreItem = {
   id: string;
   name: string;
@@ -68,6 +79,42 @@ function getLevelInfo(xp: number) {
   return { ...level, progress };
 }
 
+function getProfileBackgroundClass(theme?: string | null) {
+  switch (String(theme || '')) {
+    case 'theme_vip_gold':
+      return 'bg-gradient-to-br from-amber-950 via-yellow-950 to-slate-950';
+    case 'theme_rainbow':
+      return 'bg-gradient-to-br from-fuchsia-950 via-slate-950 to-cyan-950';
+    case 'theme_dark':
+    case 'dark':
+      return 'bg-gradient-to-br from-black via-slate-950 to-slate-900';
+    case 'theme_love':
+      return 'bg-gradient-to-br from-red-950 via-rose-950 to-slate-950';
+    case 'theme_pink':
+      return 'bg-gradient-to-br from-pink-950 via-fuchsia-950 to-slate-950';
+    case 'theme_rose':
+      return 'bg-gradient-to-br from-rose-950 via-slate-950 to-slate-950';
+    case 'theme_sunset':
+      return 'bg-gradient-to-br from-orange-950 via-amber-950 to-slate-950';
+    case 'theme_aurora':
+      return 'bg-gradient-to-br from-purple-950 via-slate-950 to-emerald-950';
+    case 'theme_neon':
+      return 'bg-gradient-to-br from-cyan-950 via-slate-950 to-indigo-950';
+    case 'theme_ocean':
+      return 'bg-gradient-to-br from-sky-950 via-slate-950 to-blue-950';
+    case 'theme_forest':
+      return 'bg-gradient-to-br from-emerald-950 via-slate-950 to-teal-950';
+    case 'theme_cyberpunk':
+      return 'bg-gradient-to-br from-violet-950 via-slate-950 to-pink-950';
+    case 'theme_matrix':
+      return 'bg-gradient-to-br from-emerald-950 via-slate-950 to-lime-950';
+    case 'theme_obsidian':
+      return 'bg-gradient-to-br from-slate-950 via-slate-950 to-black';
+    default:
+      return 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950';
+  }
+}
+
 export default function ProfilePage() {
   const { user, refreshUser } = useUser();
   const { t } = useLanguage();
@@ -99,6 +146,9 @@ export default function ProfilePage() {
   const [incomingRequests, setIncomingRequests] = useState<Array<{ user: SocialUser; createdAt?: string }>>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<Array<{ user: SocialUser; createdAt?: string }>>([]);
   const [friends, setFriends] = useState<SocialUser[]>([]);
+
+  const [featuredLoading, setFeaturedLoading] = useState(false);
+  const [featuredUsers, setFeaturedUsers] = useState<FeaturedUser[]>([]);
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -286,6 +336,31 @@ export default function ProfilePage() {
     }
   }
 
+  async function equipPet(itemId: string) {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast({
+          title: t('auth.signIn', 'Sign in'),
+          description: t('profile.toast.signInToEquipPets', 'Please sign in to equip pets.'),
+        });
+        return;
+      }
+      const res = await fetch('/api/cosmetics/equip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        credentials: 'include',
+        body: JSON.stringify({ itemId }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j?.message || 'Equip failed');
+      toast({ title: 'Pet equipped', description: j?.item ? `${j.item}` : 'Pet equipped.' });
+      if (refreshUser) await refreshUser();
+    } catch (e: any) {
+      toast({ title: 'Error', description: e?.message || 'Unable to equip pet', variant: 'destructive' });
+    }
+  }
+
   async function refreshSocial() {
     try {
       const token = localStorage.getItem('token');
@@ -333,6 +408,38 @@ export default function ProfilePage() {
     if (!user) return;
     refreshSocial();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        setFeaturedLoading(true);
+        const res = await fetch('/api/featured-profiles?limit=10');
+        if (!res.ok) return;
+        const j = await res.json().catch(() => ({} as any));
+        const rows = Array.isArray((j as any).featured) ? (j as any).featured : [];
+        const next: FeaturedUser[] = rows.map((u: any) => ({
+          id: String(u.id),
+          firstName: u.firstName ?? null,
+          lastName: u.lastName ?? null,
+          avatar: u.avatar ?? null,
+          isPro: Boolean(u.isPro),
+          level: Number(u.level) || 1,
+          xp: Number(u.xp) || 0,
+          featuredUntil: u.featuredUntil ?? null,
+        }));
+        if (!cancelled) setFeaturedUsers(next);
+      } catch {
+        // ignore
+      } finally {
+        if (!cancelled) setFeaturedLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [user?.id]);
 
   async function postJson(url: string, body: any) {
@@ -416,8 +523,9 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="text-white text-xl">Loading profile...</div>
+      <div className={`min-h-screen relative overflow-hidden flex items-center justify-center ${getProfileBackgroundClass('dark')}`}>
+        <div className="absolute inset-0 pointer-events-none opacity-55 bg-gradient-to-b from-white/5 via-transparent to-black/50" />
+        <div className="relative z-10 text-white text-xl">Loading profile...</div>
       </div>
     );
   }
@@ -430,6 +538,9 @@ export default function ProfilePage() {
     return Number.isFinite(dt.getTime()) ? dt : null;
   })();
   const isFeaturedActive = Boolean(featuredUntilDate && featuredUntilDate.getTime() > Date.now());
+
+  const activePetId = (user.activePet || '').trim();
+  const activePet = activePetId ? ownedPets.find((p) => p.id === activePetId) : undefined;
 
   const handleSave = async () => {
     setSaving(true);
@@ -466,8 +577,9 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-8 px-4">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className={`min-h-screen relative overflow-hidden py-8 px-4 ${getProfileBackgroundClass(user?.theme)}`}>
+      <div className="absolute inset-0 pointer-events-none opacity-55 bg-gradient-to-b from-white/5 via-transparent to-black/50" />
+      <div className="max-w-6xl mx-auto space-y-6 relative z-10">
         {/* Header with XP & Level */}
         <Card className="p-6 bg-gradient-to-r from-yellow-900/20 via-amber-900/20 to-yellow-900/20 border-yellow-600/40 shadow-[0_0_25px_rgba(251,191,36,0.2)]">
           <div className="flex flex-col md:flex-row items-center gap-6">
@@ -527,6 +639,15 @@ export default function ProfilePage() {
                   </div>
                 </div>
               )}
+
+              {activePetId ? (
+                <div
+                  className="absolute -bottom-2 -left-2 bg-slate-900/80 border border-white/10 rounded-full px-2 py-1 flex items-center gap-1"
+                  title={activePet?.name || 'Active pet'}
+                >
+                  <span className="text-base leading-none">{activePet?.icon || '🐾'}</span>
+                </div>
+              ) : null}
               {isEditing && (
                 <button
                   onClick={() => setShowAvatarPicker(!showAvatarPicker)}
@@ -625,6 +746,39 @@ export default function ProfilePage() {
           </div>
         </Card>
 
+        {/* Featured Profiles */}
+        <Card className="p-6 bg-slate-900/90 border-slate-700">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-white">{t('profile.featured.title', 'Featured Profiles')}</h2>
+            <a href="/leaderboard" className="text-blue-300 hover:text-blue-200 text-sm">
+              {t('profile.featured.leaderboard', 'Leaderboard →')}
+            </a>
+          </div>
+
+          {featuredLoading ? (
+            <div className="text-sm text-gray-300">{t('profile.featured.loading', 'Loading...')}</div>
+          ) : featuredUsers.length === 0 ? (
+            <div className="text-sm text-gray-300">{t('profile.featured.empty', 'No featured profiles right now.')}</div>
+          ) : (
+            <div className="space-y-2">
+              {featuredUsers.map((u) => (
+                <div key={u.id} className="flex items-center justify-between gap-2 bg-black/20 border border-white/10 rounded px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <div className="text-xl">{(u.avatar || 'default') === 'default' ? '👤' : getAvatarEmoji(u.avatar || 'default')}</div>
+                    <div>
+                      <div className="text-sm text-white">{displayName(u as any)} {u.isPro ? '👑' : ''}</div>
+                      <div className="text-xs text-gray-400">Lvl {u.level} • {u.xp} XP</div>
+                    </div>
+                  </div>
+                  <Button asChild size="sm" variant="outline">
+                    <a href={`/u/${u.id}`}>{t('profile.featured.view', 'View')}</a>
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
         {/* Social */}
         <Card className="p-6 bg-slate-900/90 border-slate-700">
           <div className="flex items-center justify-between mb-4">
@@ -656,6 +810,9 @@ export default function ProfilePage() {
                           </div>
                         </div>
                         <div className="flex gap-2">
+                          <Button asChild size="sm" variant="outline">
+                            <a href={`/u/${u.id}`}>View</a>
+                          </Button>
                           {isFollowing ? (
                             <Button size="sm" variant="outline" onClick={() => unfollow(u.id)}>Unfollow</Button>
                           ) : (
@@ -690,6 +847,9 @@ export default function ProfilePage() {
                         </div>
                       </div>
                       <div className="flex gap-2">
+                        <Button asChild size="sm" variant="outline">
+                          <a href={`/u/${u.id}`}>View</a>
+                        </Button>
                         <Button size="sm" variant="outline" onClick={() => unfollow(u.id)}>Unfollow</Button>
                         <Button size="sm" variant="outline" onClick={() => sendFriendRequest(u.id)}>Add</Button>
                       </div>
@@ -718,6 +878,9 @@ export default function ProfilePage() {
                         <div className="text-sm text-white">{displayName(r.user)} {r.user.isPro ? '👑' : ''}</div>
                       </div>
                       <div className="flex gap-2">
+                        <Button asChild size="sm" variant="outline">
+                          <a href={`/u/${r.user.id}`}>View</a>
+                        </Button>
                         <Button size="sm" onClick={() => acceptFriendRequest(r.user.id)}>Accept</Button>
                         <Button size="sm" variant="outline" onClick={() => declineFriendRequest(r.user.id)}>Decline</Button>
                       </div>
@@ -742,7 +905,12 @@ export default function ProfilePage() {
                         <div className="text-xl">{(r.user.avatar || 'default') === 'default' ? '👤' : getAvatarEmoji(r.user.avatar || 'default')}</div>
                         <div className="text-sm text-white">{displayName(r.user)} {r.user.isPro ? '👑' : ''}</div>
                       </div>
-                      <Button size="sm" variant="outline" onClick={() => cancelFriendRequest(r.user.id)}>Cancel</Button>
+                      <div className="flex gap-2">
+                        <Button asChild size="sm" variant="outline">
+                          <a href={`/u/${r.user.id}`}>View</a>
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => cancelFriendRequest(r.user.id)}>Cancel</Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1161,12 +1329,22 @@ export default function ProfilePage() {
                 <div className="text-sm text-slate-400">No pets yet. Adopt one in the store.</div>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {ownedPets.map((it) => (
-                    <div key={it.id} className="flex items-center gap-2 px-3 py-2 rounded bg-black/20 border border-white/10">
-                      <div className="text-xl">{it.icon || '🐾'}</div>
-                      <div className="text-sm text-white">{it.name}</div>
-                    </div>
-                  ))}
+                  {ownedPets.map((it) => {
+                    const equipped = (user.activePet || '') === it.id;
+                    return (
+                      <div key={it.id} className="flex items-center gap-2 px-3 py-2 rounded bg-black/20 border border-white/10">
+                        <div className="text-xl">{it.icon || '🐾'}</div>
+                        <div className="text-sm text-white">{it.name}</div>
+                        {equipped ? (
+                          <div className="text-xs px-2 py-1 rounded bg-emerald-600 text-black">Equipped</div>
+                        ) : (
+                          <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => equipPet(it.id)}>
+                            Equip
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </Card>

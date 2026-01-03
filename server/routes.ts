@@ -152,6 +152,10 @@ const STORE_CATALOG = [
   { id: 'theme_sunset', name: 'Sunset Theme', description: 'Warm sunset grid background', type: 'cosmetic', category: 'theme', price: 300, icon: '🌅' },
   { id: 'theme_rose', name: 'Rose Theme', description: 'Pink accent grid background', type: 'cosmetic', category: 'theme', price: 300, icon: '🌸' },
   { id: 'theme_obsidian', name: 'Obsidian Theme', description: 'Ultra subtle dark grid background', type: 'cosmetic', category: 'theme', price: 300, icon: '🖤' },
+  { id: 'theme_rainbow', name: 'Rainbow Theme', description: 'Full rainbow profile background', type: 'cosmetic', category: 'theme', price: 500, icon: '🌈' },
+  { id: 'theme_dark', name: 'Dark Theme', description: 'Deep dark profile background', type: 'cosmetic', category: 'theme', price: 400, icon: '🌑' },
+  { id: 'theme_love', name: 'Love Theme', description: 'Red background with heart vibes', type: 'cosmetic', category: 'theme', price: 600, icon: '❤️' },
+  { id: 'theme_pink', name: 'Pink Theme', description: 'Cute pink profile background', type: 'cosmetic', category: 'theme', price: 450, icon: '💗' },
   
   // Profile frames (cosmetics)
   { id: 'frame_gold', name: 'Gold Frame', description: 'Premium golden border', type: 'cosmetic', category: 'frame', price: 250, icon: '🥇' },
@@ -878,6 +882,7 @@ export async function registerRoutes(
       equippedBadge: user.equippedBadge ?? null,
       equippedFrame: user.equippedFrame ?? null,
       frameAnimation: (user as any).frameAnimation ?? null,
+      activePet: (user as any).activePet ?? null,
       particleEffects: user.particleEffects ?? false,
       trophyCase,
       customTheme,
@@ -941,6 +946,44 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error("Error fetching featured profiles:", error);
       return res.status(500).json({ message: "Failed to fetch featured profiles" });
+    }
+  });
+
+  // Public user profile (safe fields only)
+  app.get("/api/users/:id/public", async (req: Request, res: Response) => {
+    try {
+      const id = String((req.params as any)?.id || '').trim();
+      if (!id) return res.status(400).json({ message: "id required" });
+
+      const user = await storage.getUser(id);
+      if (!user) return res.status(404).json({ message: "not found" });
+
+      const featuredUntil = (user as any).featuredUntil ?? null;
+      const featuredActive = Boolean(featuredUntil && new Date(featuredUntil).getTime() > Date.now());
+
+      return res.json({
+        user: {
+          id: user.id,
+          firstName: user.firstName ?? null,
+          lastName: user.lastName ?? null,
+          usernameColor: user.usernameColor ?? null,
+          avatar: user.avatar ?? null,
+          xp: user.xp ?? 0,
+          level: user.level ?? 1,
+          dailyStreak: user.dailyStreak ?? 0,
+          isPro: computeIsPro(user),
+          equippedBadge: user.equippedBadge ?? null,
+          equippedFrame: user.equippedFrame ?? null,
+          frameAnimation: (user as any).frameAnimation ?? null,
+          theme: (user as any).theme ?? null,
+          activePet: (user as any).activePet ?? null,
+          featuredUntil: featuredUntil,
+          featuredActive,
+        },
+      });
+    } catch (error: any) {
+      console.error("Error fetching public user profile:", error);
+      return res.status(500).json({ message: "Failed to fetch profile" });
     }
   });
 
@@ -2418,6 +2461,75 @@ export async function registerRoutes(
     });
   });
 
+  // Create Stripe Checkout session for Pro.
+  // IMPORTANT: This route must exist in Express because `vercel.json` rewrites `/api/*` to `/api`.
+  app.post("/api/pro/create-checkout", async (req: Request, res: Response) => {
+    try {
+      if (!checkRateLimit(`pro-checkout:${req.ip}`, 30, 60_000)) {
+        return res.status(429).json({ ok: false, error: "Too many requests" });
+      }
+
+      const stripe = getStripe();
+      if (!stripe) {
+        return res.status(503).json({ ok: false, error: "Billing not configured" });
+      }
+
+      const body = (req.body || {}) as any;
+      const email = (typeof body.email === "string" && body.email.trim()) ? body.email.trim() : undefined;
+      const planRaw = (typeof body.plan === "string" ? body.plan : "monthly").toLowerCase();
+      const currencyRaw = (typeof body.currency === "string" ? body.currency : "BRL").toUpperCase();
+
+      const plan = planRaw === "annual" ? "annual" : "monthly";
+      const currency = currencyRaw === "USD" ? "USD" : "BRL";
+
+      let price = "";
+      if (plan === "annual" && currency === "USD") price = STRIPE_PRICE_PRO_ANNUAL_USD || STRIPE_PRICE_PRO_ANNUAL;
+      if (plan === "annual" && currency === "BRL") price = STRIPE_PRICE_PRO_ANNUAL_BRL || STRIPE_PRICE_PRO_ANNUAL;
+      if (plan === "monthly" && currency === "USD") price = STRIPE_PRICE_PRO_MONTHLY_USD || STRIPE_PRICE_PRO_MONTHLY;
+      if (plan === "monthly" && currency === "BRL") price = STRIPE_PRICE_PRO_MONTHLY_BRL || STRIPE_PRICE_PRO_MONTHLY;
+
+      // If BRL prices aren't configured (common), fall back to USD/legacy price IDs.
+      if (!price && plan === "annual") {
+        price = STRIPE_PRICE_PRO_ANNUAL || STRIPE_PRICE_PRO_ANNUAL_USD || STRIPE_PRICE_PRO_ANNUAL_BRL;
+      }
+      if (!price && plan === "monthly") {
+        price = STRIPE_PRICE_PRO_MONTHLY || STRIPE_PRICE_PRO_MONTHLY_USD || STRIPE_PRICE_PRO_MONTHLY_BRL;
+      }
+
+      // Defensive normalization (env values can include CR/LF).
+      price = String(price || "")
+        .trim()
+        .replace(/\r\n/g, "")
+        .replace(/\n/g, "")
+        .replace(/\r/g, "")
+        .trim();
+
+      if (!price) {
+        return res.status(503).json({
+          ok: false,
+          error: "Pro price not configured",
+          hint: "Set STRIPE_PRICE_PRO_MONTHLY_BRL / STRIPE_PRICE_PRO_MONTHLY_USD (or legacy STRIPE_PRICE_PRO_MONTHLY) in environment."
+        });
+      }
+
+      const baseUrl = getBaseUrl(req);
+      const session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        line_items: [{ price, quantity: 1 }],
+        success_url: `${baseUrl}/pro?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/pro?canceled=1`,
+        customer_email: email,
+        allow_promotion_codes: true,
+        metadata: { plan, currency },
+      });
+
+      return res.json({ ok: true, id: session.id, url: session.url });
+    } catch (err: any) {
+      console.error("[ERROR] /api/pro/create-checkout:", err);
+      return res.status(500).json({ ok: false, error: err?.message || String(err) });
+    }
+  });
+
   // Confirm Stripe subscription and immediately activate Pro for an existing user.
   // This avoids waiting on webhook timing on the post-checkout return.
   // Security model: session_id is treated as a secret; we still rate-limit by IP.
@@ -3201,6 +3313,8 @@ export async function registerRoutes(
         updates.equippedNameEffect = itemId;
       } else if (item.category === "theme") {
         updates.theme = itemId;
+      } else if (item.category === "pet") {
+        updates.activePet = itemId;
       } else if (item.category === "badge") {
         updates.equippedBadge = itemId;
       }
@@ -3220,6 +3334,7 @@ export async function registerRoutes(
           frameAnimation: (updates.frameAnimation ?? (user as any).frameAnimation) || null,
           nameEffect: updates.equippedNameEffect || user.equippedNameEffect,
           theme: updates.theme || (user as any).theme,
+          activePet: (updates.activePet ?? (user as any).activePet) || null,
           badge: updates.equippedBadge || user.equippedBadge,
         },
       });
