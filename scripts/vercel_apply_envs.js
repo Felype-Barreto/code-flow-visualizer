@@ -17,11 +17,13 @@ dotenv.config({ path: './.env' });
 dotenv.config({ path: './tmp/.env' });
 
 const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
-const PROJECT = process.env.VERCEL_PROJECT;
-const TEAM = process.env.VERCEL_TEAM; // optional
+// Accept either project name or project id.
+const PROJECT = process.env.VERCEL_PROJECT || process.env.VERCEL_PROJECT_ID;
+// Optional: team/owner scope. Vercel APIs generally accept teamId.
+const TEAM = process.env.VERCEL_TEAM || process.env.VERCEL_TEAM_ID; // optional
 
 if (!VERCEL_TOKEN || !PROJECT) {
-  console.error('Set VERCEL_TOKEN and VERCEL_PROJECT (project name) in env or tmp/.env');
+  console.error('Set VERCEL_TOKEN and VERCEL_PROJECT (or VERCEL_PROJECT_ID) in env or tmp/.env');
   process.exit(1);
 }
 
