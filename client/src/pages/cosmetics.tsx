@@ -529,15 +529,52 @@ export default function CosmeticsPage() {
                     const equipped = meta.equipable ? isEquipped(item.id) : false;
                     const rarity = getRarity(item.price || 0);
 
+                    const visual = (() => {
+                      if (item.category === "theme") {
+                        return (
+                          <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-white/20 bg-white/5">
+                            <div className="w-full h-full themed-bg" data-theme={item.id} />
+                          </div>
+                        );
+                      }
+
+                      if (item.category === "name_effect") {
+                        return (
+                          <div className="w-12 h-12 rounded-xl border-2 border-white/20 bg-white/5 flex items-center justify-center">
+                            <span className="cosmetic-name font-bold" data-name-effect={item.id}>
+                              Aa
+                            </span>
+                          </div>
+                        );
+                      }
+
+                      if (item.category === "tab_border") {
+                        return (
+                          <div
+                            className="w-12 h-12 rounded-xl border-2 border-white/20 bg-white/5 flex items-center justify-center"
+                            data-tab-border={item.id}
+                          >
+                            <span className="cosmetic-tab px-2 py-1 rounded-lg text-[10px] font-bold text-slate-100" data-active="true">
+                              TAB
+                            </span>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div className="w-12 h-12 rounded-full border-2 border-white/20 bg-white/5 flex items-center justify-center text-2xl">
+                          {item.icon || "✨"}
+                        </div>
+                      );
+                    })();
+
                     return (
                       <div
                         key={item.id}
                         className={`rounded-xl border-2 ${equipped ? "border-emerald-400" : "border-white/10"} bg-gradient-to-br from-slate-900 to-slate-950 p-4 transition-all`}
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <div className="w-12 h-12 rounded-full border-2 border-white/20 bg-white/5 flex items-center justify-center text-2xl">
-                            {item.icon || "✨"}
-                          </div>
+                          {visual}
                           <div className="text-xs px-2 py-1 rounded-md border border-white/10 bg-white/5 text-slate-200 shrink-0">
                             {rarity.label}
                           </div>

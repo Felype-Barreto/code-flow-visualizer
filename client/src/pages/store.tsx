@@ -265,6 +265,45 @@ export default function StorePage() {
               const owned = purchases.includes(item.id);
               const canAfford = (user.coins || 0) >= item.price;
 
+              const visual = (() => {
+                if (item.category === 'theme') {
+                  return (
+                    <div className={`w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 bg-white/5 ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}>
+                      <div className="w-full h-full themed-bg" data-theme={item.id} />
+                    </div>
+                  );
+                }
+
+                if (item.category === 'name_effect') {
+                  return (
+                    <div className={`w-14 h-14 rounded-xl border-2 border-white/20 bg-white/5 flex items-center justify-center ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}>
+                      <span className="cosmetic-name font-bold text-lg" data-name-effect={item.id}>
+                        Aa
+                      </span>
+                    </div>
+                  );
+                }
+
+                if (item.category === 'tab_border') {
+                  return (
+                    <div
+                      className={`w-14 h-14 rounded-xl border-2 border-white/20 bg-white/5 flex items-center justify-center ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}
+                      data-tab-border={item.id}
+                    >
+                      <span className="cosmetic-tab px-2 py-1 rounded-lg text-[10px] font-bold text-white" data-active="true">
+                        TAB
+                      </span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className={`text-5xl ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}>
+                    {item.icon}
+                  </div>
+                );
+              })();
+
               return (
                 <Card
                   key={item.id}
@@ -278,9 +317,7 @@ export default function StorePage() {
                 >
                   <div className="flex items-start gap-4 mb-4">
                     {/* Icon */}
-                    <div className={`text-5xl ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}>
-                      {item.icon}
-                    </div>
+                    {visual}
 
                     {/* Content */}
                     <div className="flex-1">
