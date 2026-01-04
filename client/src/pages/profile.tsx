@@ -567,7 +567,7 @@ export default function ProfilePage() {
     <div className="min-h-screen relative overflow-hidden py-8 px-4 bg-transparent">
       {/* Profile-only cosmetic theme background */}
       <div
-        className="absolute inset-0 pointer-events-none themed-bg -z-10"
+        className="fixed inset-0 pointer-events-none themed-bg -z-20"
         data-cosmetic-theme={cosmeticTheme || undefined}
       />
       <div className="absolute inset-0 pointer-events-none opacity-55 bg-gradient-to-b from-white/5 via-transparent to-black/50" />

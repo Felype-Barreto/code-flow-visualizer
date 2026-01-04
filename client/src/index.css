@@ -316,10 +316,49 @@
     radial-gradient(1000px circle at 80% 0%, rgba(245, 158, 11, 0.10) 0%, transparent 64%),
     linear-gradient(180deg, var(--color-background), #000);
   --app-bg-pattern:
-    linear-gradient(90deg, rgba(148, 163, 184, 0.04) 25%, transparent 25% 50%, rgba(148, 163, 184, 0.04) 50% 75%, transparent 75%),
-    linear-gradient(0deg, rgba(148, 163, 184, 0.04) 25%, transparent 25% 50%, rgba(148, 163, 184, 0.04) 50% 75%, transparent 75%);
-  /* Smaller checker size so it reads as texture, not huge blocks */
-  --app-bg-pattern-size: 56px 56px;
+    linear-gradient(90deg, rgba(148, 163, 184, 0.025) 25%, transparent 25% 50%, rgba(148, 163, 184, 0.025) 50% 75%, transparent 75%),
+    linear-gradient(0deg, rgba(148, 163, 184, 0.025) 25%, transparent 25% 50%, rgba(148, 163, 184, 0.025) 50% 75%, transparent 75%);
+  /* Smaller and softer so it reads as texture, not blocks */
+  --app-bg-pattern-size: 28px 28px;
+}
+
+/* Legacy/simple profile themes used by the store catalog */
+[data-cosmetic-theme="theme_dark"] {
+  --bg-grid-line: hsl(217 33% 17% / 0.25);
+  --app-bg-base:
+    radial-gradient(1100px circle at 25% 0%, rgba(148, 163, 184, 0.06) 0%, transparent 62%),
+    radial-gradient(900px circle at 80% 10%, rgba(6, 182, 212, 0.06) 0%, transparent 62%),
+    linear-gradient(180deg, var(--color-background), #000);
+  --app-bg-pattern: none;
+}
+
+[data-cosmetic-theme="theme_pink"] {
+  --bg-grid-line: hsl(340 75% 55% / 0.10);
+  --app-bg-base:
+    radial-gradient(1100px circle at 20% 0%, rgba(236, 72, 153, 0.18) 0%, transparent 62%),
+    radial-gradient(900px circle at 80% 10%, rgba(168, 85, 247, 0.10) 0%, transparent 62%),
+    linear-gradient(180deg, var(--color-background), #000);
+  --app-bg-pattern: none;
+}
+
+[data-cosmetic-theme="theme_love"] {
+  --bg-grid-line: hsl(0 62% 30% / 0.25);
+  --app-bg-base:
+    radial-gradient(1100px circle at 22% 0%, rgba(239, 68, 68, 0.18) 0%, transparent 62%),
+    radial-gradient(900px circle at 78% 10%, rgba(236, 72, 153, 0.10) 0%, transparent 62%),
+    linear-gradient(180deg, var(--color-background), #000);
+  --app-bg-pattern: none;
+}
+
+[data-cosmetic-theme="theme_rainbow"] {
+  --bg-grid-line: hsl(190 90% 50% / 0.08);
+  --app-bg-base:
+    radial-gradient(1100px circle at 18% 0%, rgba(6, 182, 212, 0.18) 0%, transparent 62%),
+    radial-gradient(900px circle at 82% 8%, rgba(168, 85, 247, 0.14) 0%, transparent 62%),
+    radial-gradient(800px circle at 55% 78%, rgba(16, 185, 129, 0.12) 0%, transparent 62%),
+    radial-gradient(700px circle at 40% 35%, rgba(245, 158, 11, 0.10) 0%, transparent 62%),
+    linear-gradient(180deg, var(--color-background), #000);
+  --app-bg-pattern: none;
 }
 
 [data-cosmetic-theme="theme_luxe_gold"] {
