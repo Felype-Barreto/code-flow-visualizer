@@ -64,20 +64,26 @@ function App() {
   const { user } = useUser();
 
   useEffect(() => {
-    const theme = user?.theme || 'dark';
+    const selectedTheme = String(user?.theme || '');
+    const baseTheme = selectedTheme === 'light' ? 'light' : 'dark';
+    const cosmeticTheme = selectedTheme && selectedTheme !== 'light' && selectedTheme !== 'dark' ? selectedTheme : '';
     try {
-      document.documentElement.setAttribute('data-theme', theme);
+      // Reserve data-theme for base light/dark.
+      document.documentElement.setAttribute('data-theme', baseTheme);
+
+      // Cosmetic theme selector (patterns/backgrounds). Keep separate so we don't break the base theme system.
+      document.documentElement.setAttribute('data-cosmetic-theme', cosmeticTheme);
 
       // Cosmetic-driven UI effects (used by CSS only)
       document.documentElement.setAttribute('data-name-effect', String((user as any)?.equippedNameEffect || ''));
       document.documentElement.setAttribute('data-tab-border', String((user as any)?.equippedTabBorder || ''));
 
       // Best-effort light/dark toggle for shadcn/tailwind variants.
-      if (theme === 'light') document.documentElement.classList.remove('dark');
+      if (baseTheme === 'light') document.documentElement.classList.remove('dark');
       else document.documentElement.classList.add('dark');
 
       // Apply custom theme (MVP): customize the background grid line color.
-      if (theme === 'theme_custom' && user?.customTheme?.gridColor) {
+      if (selectedTheme === 'theme_custom' && user?.customTheme?.gridColor) {
         const hex = user.customTheme.gridColor;
         const opacity = typeof user.customTheme.gridOpacity === 'number' ? Math.max(0, Math.min(1, user.customTheme.gridOpacity)) : 0.1;
         const r = parseInt(hex.slice(1, 3), 16);

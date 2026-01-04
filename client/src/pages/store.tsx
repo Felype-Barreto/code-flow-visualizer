@@ -269,7 +269,7 @@ export default function StorePage() {
                 if (item.category === 'theme') {
                   return (
                     <div className={`w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 bg-white/5 ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}>
-                      <div className="w-full h-full themed-bg" data-theme={item.id} />
+                      <div className="w-full h-full themed-bg" data-cosmetic-theme={item.id} />
                     </div>
                   );
                 }

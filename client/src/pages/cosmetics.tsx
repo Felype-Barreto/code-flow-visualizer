@@ -18,81 +18,99 @@ type CosmeticCatalogItem = {
   owned?: boolean;
 };
 
-function getRarity(price: number): { label: string } {
-  if (price >= 600) return { label: "Legendary" };
-  if (price >= 300) return { label: "Epic" };
-  if (price >= 150) return { label: "Rare" };
-  return { label: "Common" };
+function getRarity(price: number): { id: "common" | "rare" | "epic" | "legendary"; label: string } {
+  if (price >= 600) return { id: "legendary", label: "Legendary" };
+  if (price >= 300) return { id: "epic", label: "Epic" };
+  if (price >= 150) return { id: "rare", label: "Rare" };
+  return { id: "common", label: "Common" };
 }
 
 const CATEGORY_META: Array<{
   category: CosmeticCatalogItem["category"];
-  title: string;
-  subtitle: string;
+  titleKey: string;
+  titleFallback: string;
+  subtitleKey: string;
+  subtitleFallback: string;
   icon: ReactNode;
   equipable: boolean;
   columns: string;
 }> = [
   {
     category: "avatar",
-    title: "Avatars",
-    subtitle: "Choose your identity",
+    titleKey: "cosmetics.category.avatar.title",
+    titleFallback: "Avatars",
+    subtitleKey: "cosmetics.category.avatar.subtitle",
+    subtitleFallback: "Choose your identity",
     icon: <Sparkles className="w-5 h-5 text-purple-300" />,
     equipable: true,
     columns: "grid md:grid-cols-2 lg:grid-cols-3 gap-4",
   },
   {
     category: "frame",
-    title: "Frames",
-    subtitle: "Frame your profile",
+    titleKey: "cosmetics.category.frame.title",
+    titleFallback: "Frames",
+    subtitleKey: "cosmetics.category.frame.subtitle",
+    subtitleFallback: "Frame your profile",
     icon: <Crown className="w-5 h-5 text-yellow-300" />,
     equipable: true,
     columns: "grid md:grid-cols-2 lg:grid-cols-4 gap-4",
   },
   {
     category: "name_effect",
-    title: "Name Effects",
-    subtitle: "Make your name shine",
+    titleKey: "cosmetics.category.name_effect.title",
+    titleFallback: "Name Effects",
+    subtitleKey: "cosmetics.category.name_effect.subtitle",
+    subtitleFallback: "Make your name shine",
     icon: <Rainbow className="w-5 h-5 text-fuchsia-300" />,
     equipable: true,
     columns: "grid md:grid-cols-2 lg:grid-cols-3 gap-4",
   },
   {
     category: "theme",
-    title: "Themes",
-    subtitle: "Change the app vibe",
+    titleKey: "cosmetics.category.theme.title",
+    titleFallback: "Themes",
+    subtitleKey: "cosmetics.category.theme.subtitle",
+    subtitleFallback: "Change the app vibe",
     icon: <Flame className="w-5 h-5 text-orange-300" />,
     equipable: true,
     columns: "grid md:grid-cols-2 lg:grid-cols-3 gap-4",
   },
   {
     category: "badge",
-    title: "Badges",
-    subtitle: "Collectibles to show progress",
+    titleKey: "cosmetics.category.badge.title",
+    titleFallback: "Badges",
+    subtitleKey: "cosmetics.category.badge.subtitle",
+    subtitleFallback: "Collectibles to show progress",
     icon: <Shield className="w-5 h-5 text-sky-300" />,
     equipable: true,
     columns: "grid md:grid-cols-2 lg:grid-cols-3 gap-4",
   },
   {
     category: "tab_border",
-    title: "Tab Borders",
-    subtitle: "Style your app tabs",
+    titleKey: "cosmetics.category.tab_border.title",
+    titleFallback: "Tab Borders",
+    subtitleKey: "cosmetics.category.tab_border.subtitle",
+    subtitleFallback: "Style your app tabs",
     icon: <Sparkles className="w-5 h-5 text-emerald-300" />,
     equipable: true,
     columns: "grid md:grid-cols-2 lg:grid-cols-3 gap-4",
   },
   {
     category: "emote",
-    title: "Emotes & Stickers",
-    subtitle: "Collectibles for your profile",
+    titleKey: "cosmetics.category.emote.title",
+    titleFallback: "Emotes & Stickers",
+    subtitleKey: "cosmetics.category.emote.subtitle",
+    subtitleFallback: "Collectibles for your profile",
     icon: <Sparkles className="w-5 h-5 text-purple-300" />,
     equipable: false,
     columns: "grid md:grid-cols-2 lg:grid-cols-3 gap-4",
   },
   {
     category: "pet",
-    title: "Pets",
-    subtitle: "Companions for your achievements",
+    titleKey: "cosmetics.category.pet.title",
+    titleFallback: "Pets",
+    subtitleKey: "cosmetics.category.pet.subtitle",
+    subtitleFallback: "Companions for your achievements",
     icon: <Sparkles className="w-5 h-5 text-purple-300" />,
     equipable: false,
     columns: "grid md:grid-cols-2 lg:grid-cols-3 gap-4",
@@ -118,16 +136,16 @@ export default function CosmeticsPage() {
   });
 
   const FRAME_ANIMATIONS: Array<{ id: string; label: string }> = [
-    { id: "rotate", label: "Rotating" },
-    { id: "pulse", label: "Pulsing" },
-    { id: "shimmer", label: "Shimmer" },
-    { id: "glow", label: "Glow" },
-    { id: "wave", label: "Wave" },
-    { id: "bounce", label: "Bounce" },
-    { id: "wobble", label: "Wobble" },
-    { id: "tilt", label: "Tilt" },
-    { id: "zoom", label: "Zoom" },
-    { id: "flicker", label: "Flicker" },
+    { id: "rotate", label: t("cosmetics.frameAnim.rotate", "Rotating") },
+    { id: "pulse", label: t("cosmetics.frameAnim.pulse", "Pulsing") },
+    { id: "shimmer", label: t("cosmetics.frameAnim.shimmer", "Shimmer") },
+    { id: "glow", label: t("cosmetics.frameAnim.glow", "Glow") },
+    { id: "wave", label: t("cosmetics.frameAnim.wave", "Wave") },
+    { id: "bounce", label: t("cosmetics.frameAnim.bounce", "Bounce") },
+    { id: "wobble", label: t("cosmetics.frameAnim.wobble", "Wobble") },
+    { id: "tilt", label: t("cosmetics.frameAnim.tilt", "Tilt") },
+    { id: "zoom", label: t("cosmetics.frameAnim.zoom", "Zoom") },
+    { id: "flicker", label: t("cosmetics.frameAnim.flicker", "Flicker") },
   ];
 
   const frameRingClass = (frameId: string | null | undefined) => {
@@ -371,21 +389,24 @@ export default function CosmeticsPage() {
       }
       if (!res.ok) {
         toast({
-          title: "Equip failed",
-          description: data?.message || "Could not equip the item.",
+          title: t('cosmetics.toast.equipFailed.title', 'Equip failed'),
+          description: data?.message || t('cosmetics.toast.equipFailed.desc', 'Could not equip the item.'),
           variant: "destructive",
         });
         return;
       }
 
-      toast({ title: "Equipped", description: `${itemName} equipped!` });
+      toast({
+        title: t('cosmetics.toast.equipped.title', 'Equipped'),
+        description: t('cosmetics.toast.equipped.desc', `${itemName} equipped!`),
+      });
       setEquippedItems(data.equipped);
       await refreshUser();
       await loadInventory();
     } catch (err: any) {
       toast({
-        title: "Error",
-        description: err?.message || "Unexpected error while equipping.",
+        title: t('common.error', 'Error'),
+        description: err?.message || t('cosmetics.toast.equipFailed.unexpected', 'Unexpected error while equipping.'),
         variant: "destructive",
       });
     } finally {
@@ -504,7 +525,7 @@ export default function CosmeticsPage() {
           {!user && (
             <Card className="p-6 border-amber-400/40 bg-amber-500/10">
               <p className="text-amber-200">
-                <strong>Sign in</strong> to buy and equip cosmetics.
+                <strong>{t('auth.signIn', 'Sign in')}</strong> {t('cosmetics.signInToBuyEquip', 'to buy and equip cosmetics.')}
               </p>
             </Card>
           )}
@@ -519,8 +540,8 @@ export default function CosmeticsPage() {
                 <div className="p-6 border-b border-white/10 flex items-center gap-3">
                   {meta.icon}
                   <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-slate-400">{meta.title}</p>
-                    <h2 className="text-xl font-bold text-amber-100">{meta.subtitle}</h2>
+                    <p className="text-xs uppercase tracking-[0.25em] text-slate-400">{t(meta.titleKey, meta.titleFallback)}</p>
+                    <h2 className="text-xl font-bold text-amber-100">{t(meta.subtitleKey, meta.subtitleFallback)}</h2>
                   </div>
                 </div>
                 <div className={`${meta.columns} p-6`}>
@@ -528,12 +549,13 @@ export default function CosmeticsPage() {
                     const owned = isOwned(item.id);
                     const equipped = meta.equipable ? isEquipped(item.id) : false;
                     const rarity = getRarity(item.price || 0);
+                    const rarityLabel = t(`cosmetics.rarity.${rarity.id}`, rarity.label);
 
                     const visual = (() => {
                       if (item.category === "theme") {
                         return (
                           <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-white/20 bg-white/5">
-                            <div className="w-full h-full themed-bg" data-theme={item.id} />
+                            <div className="w-full h-full themed-bg" data-cosmetic-theme={item.id} />
                           </div>
                         );
                       }
@@ -576,7 +598,7 @@ export default function CosmeticsPage() {
                         <div className="flex items-start justify-between gap-2">
                           {visual}
                           <div className="text-xs px-2 py-1 rounded-md border border-white/10 bg-white/5 text-slate-200 shrink-0">
-                            {rarity.label}
+                            {rarityLabel}
                           </div>
                         </div>
 
@@ -585,12 +607,12 @@ export default function CosmeticsPage() {
 
                         <div className="flex items-center justify-between mt-3">
                           <div className="text-amber-200 font-bold">{item.price} coins</div>
-                          {owned && !meta.equipable && <div className="text-xs text-emerald-200">Collected</div>}
+                          {owned && !meta.equipable && <div className="text-xs text-emerald-200">{t('cosmetics.collected', 'Collected')}</div>}
                         </div>
 
                         {meta.equipable && owned && equipped && (
                           <Button className="w-full mt-3 bg-emerald-600 text-white border-0" disabled>
-                            <Check className="w-4 h-4 mr-2" /> Equipped
+                            <Check className="w-4 h-4 mr-2" /> {t('cosmetics.equipped', 'Equipped')}
                           </Button>
                         )}
 
@@ -600,13 +622,13 @@ export default function CosmeticsPage() {
                             onClick={() => handleEquipCosmetic(item.id, item.name)}
                             disabled={loading}
                           >
-                            Equip
+                            {t('cosmetics.equip', 'Equip')}
                           </Button>
                         )}
 
                         {meta.category === "frame" && item.id === "frame_animated" && owned && equipped && (
                           <div className="mt-3">
-                            <div className="text-xs text-slate-400 mb-1">Choose animation</div>
+                            <div className="text-xs text-slate-400 mb-1">{t('cosmetics.chooseAnimation', 'Choose animation')}</div>
                             <select
                               className="w-full bg-slate-950/60 border border-white/10 rounded-md px-2 py-2 text-xs text-slate-200"
                               value={equippedItems.frameAnimation || "rotate"}
@@ -628,13 +650,13 @@ export default function CosmeticsPage() {
                             onClick={() => handleBuyCosmeticWithCoins(item.id, item.name, item.price)}
                             disabled={loading}
                           >
-                            <ShoppingCart className="w-4 h-4 mr-2" /> Buy
+                            <ShoppingCart className="w-4 h-4 mr-2" /> {t('cosmetics.buy', 'Buy')}
                           </Button>
                         )}
 
                         {!owned && !user && (
                           <Button className="w-full mt-3" variant="secondary" disabled>
-                            Sign in
+                            {t('auth.signIn', 'Sign in')}
                           </Button>
                         )}
                       </div>
@@ -651,8 +673,8 @@ export default function CosmeticsPage() {
               <div className="flex items-start gap-3">
                 <Shield className="w-5 h-5 text-purple-300 flex-shrink-0 mt-1" />
                 <div>
-                  <p className="text-sm font-semibold text-purple-100">Your cosmetics appear in:</p>
-                  <p className="text-slate-300 text-sm mt-1">✓ Your profile • ✓ Leaderboards • ✓ Friend notifications</p>
+                  <p className="text-sm font-semibold text-purple-100">{t('cosmetics.appearIn.title', 'Your cosmetics appear in:')}</p>
+                  <p className="text-slate-300 text-sm mt-1">{t('cosmetics.appearIn.items', '✓ Your profile • ✓ Leaderboards • ✓ Friend notifications')}</p>
                 </div>
               </div>
             </div>
