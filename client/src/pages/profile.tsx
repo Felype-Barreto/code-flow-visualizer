@@ -60,8 +60,28 @@ function displayName(u: Pick<SocialUser, 'firstName' | 'lastName'>) {
 }
 
 const AVATAR_GALLERY = [
-  'default', 'ninja', 'robot', 'wizard', 'alien', 'pirate', 'astronaut', 'detective',
-  'knight', 'samurai', 'viking', 'phantom', 'dragon', 'phoenix', 'tiger', 'eagle'
+  // Keep in sync with store avatar ids (stored in DB without the `avatar_` prefix)
+  'default',
+  'ninja',
+  'robot',
+  'wizard',
+  'alien',
+  'pirate',
+  'astronaut',
+  'cat',
+  'fox',
+  'octopus',
+  'dragon_legend',
+  // legacy/extra (safe fallbacks)
+  'detective',
+  'knight',
+  'samurai',
+  'viking',
+  'phantom',
+  'dragon',
+  'phoenix',
+  'tiger',
+  'eagle',
 ];
 
 const LEVEL_NAMES = [
@@ -77,42 +97,6 @@ function getLevelInfo(xp: number) {
   const level = LEVEL_NAMES.find(l => xp >= l.min && xp < l.max) || LEVEL_NAMES[LEVEL_NAMES.length - 1];
   const progress = level.max === Infinity ? 100 : ((xp - level.min) / (level.max - level.min)) * 100;
   return { ...level, progress };
-}
-
-function getProfileBackgroundClass(theme?: string | null) {
-  switch (String(theme || '')) {
-    case 'theme_vip_gold':
-      return 'bg-gradient-to-br from-amber-950 via-yellow-950 to-slate-950';
-    case 'theme_rainbow':
-      return 'bg-gradient-to-br from-fuchsia-950 via-slate-950 to-cyan-950';
-    case 'theme_dark':
-    case 'dark':
-      return 'bg-gradient-to-br from-black via-slate-950 to-slate-900';
-    case 'theme_love':
-      return 'bg-gradient-to-br from-red-950 via-rose-950 to-slate-950';
-    case 'theme_pink':
-      return 'bg-gradient-to-br from-pink-950 via-fuchsia-950 to-slate-950';
-    case 'theme_rose':
-      return 'bg-gradient-to-br from-rose-950 via-slate-950 to-slate-950';
-    case 'theme_sunset':
-      return 'bg-gradient-to-br from-orange-950 via-amber-950 to-slate-950';
-    case 'theme_aurora':
-      return 'bg-gradient-to-br from-purple-950 via-slate-950 to-emerald-950';
-    case 'theme_neon':
-      return 'bg-gradient-to-br from-cyan-950 via-slate-950 to-indigo-950';
-    case 'theme_ocean':
-      return 'bg-gradient-to-br from-sky-950 via-slate-950 to-blue-950';
-    case 'theme_forest':
-      return 'bg-gradient-to-br from-emerald-950 via-slate-950 to-teal-950';
-    case 'theme_cyberpunk':
-      return 'bg-gradient-to-br from-violet-950 via-slate-950 to-pink-950';
-    case 'theme_matrix':
-      return 'bg-gradient-to-br from-emerald-950 via-slate-950 to-lime-950';
-    case 'theme_obsidian':
-      return 'bg-gradient-to-br from-slate-950 via-slate-950 to-black';
-    default:
-      return 'bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950';
-  }
 }
 
 export default function ProfilePage() {
@@ -523,7 +507,8 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className={`min-h-screen relative overflow-hidden flex items-center justify-center ${getProfileBackgroundClass('dark')}`}>
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-transparent">
+        <div className="absolute inset-0 pointer-events-none themed-bg -z-20" />
         <div className="absolute inset-0 pointer-events-none opacity-55 bg-gradient-to-b from-white/5 via-transparent to-black/50" />
         <div className="relative z-10 text-white text-xl">Loading profile...</div>
       </div>
@@ -577,7 +562,8 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className={`min-h-screen relative overflow-hidden py-8 px-4 ${getProfileBackgroundClass(user?.theme)}`}>
+    <div className="min-h-screen relative overflow-hidden py-8 px-4 bg-transparent">
+      <div className="absolute inset-0 pointer-events-none themed-bg -z-20" />
       <div className="absolute inset-0 pointer-events-none opacity-55 bg-gradient-to-b from-white/5 via-transparent to-black/50" />
       <div className="max-w-6xl mx-auto space-y-6 relative z-10">
         {/* Header with XP & Level */}
@@ -664,10 +650,11 @@ export default function ProfilePage() {
                 <h1
                   className={
                     user.usernameColor
-                      ? 'text-3xl font-bold'
-                      : 'text-3xl font-bold bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent'
+                      ? 'text-3xl font-bold cosmetic-name'
+                      : 'text-3xl font-bold cosmetic-name bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 bg-clip-text text-transparent'
                   }
-                  style={user.usernameColor ? { color: user.usernameColor } : undefined}
+                  data-name-effect={user.equippedNameEffect || undefined}
+                  style={user.usernameColor && !user.equippedNameEffect ? { color: user.usernameColor } : undefined}
                 >
                   {user.firstName} {user.lastName}
                 </h1>
@@ -952,8 +939,8 @@ export default function ProfilePage() {
                     <button
                       onClick={async () => {
                         if (!owned) {
-                          // redirect to pricing store for purchase
-                          window.location.href = `/pricing?product=avatar_${avatar}&returnTo=/profile`;
+                          // redirect to store for purchase
+                          window.location.href = `/store`;
                           return;
                         }
                         // Owned: equip via store API to ensure server-side enforcement
@@ -966,9 +953,10 @@ export default function ProfilePage() {
                             });
                             return;
                           }
-                          const res = await fetch('/api/store/equip', {
+                          const res = await fetch('/api/cosmetics/equip', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                            credentials: 'include',
                             body: JSON.stringify({ itemId: `avatar_${avatar}` }),
                           });
                           const j = await res.json().catch(() => ({}));
@@ -1395,6 +1383,10 @@ function getAvatarEmoji(avatar: string): string {
     alien: '👽',
     pirate: '🏴‍☠️',
     astronaut: '👨‍🚀',
+    cat: '🐱',
+    fox: '🦊',
+    octopus: '🐙',
+    dragon_legend: '🐉',
     detective: '🕵️',
     knight: '🛡️',
     samurai: '⚔️',

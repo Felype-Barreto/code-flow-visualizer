@@ -67,6 +67,11 @@ function App() {
     const theme = user?.theme || 'dark';
     try {
       document.documentElement.setAttribute('data-theme', theme);
+
+      // Cosmetic-driven UI effects (used by CSS only)
+      document.documentElement.setAttribute('data-name-effect', String((user as any)?.equippedNameEffect || ''));
+      document.documentElement.setAttribute('data-tab-border', String((user as any)?.equippedTabBorder || ''));
+
       // Best-effort light/dark toggle for shadcn/tailwind variants.
       if (theme === 'light') document.documentElement.classList.remove('dark');
       else document.documentElement.classList.add('dark');
@@ -85,7 +90,7 @@ function App() {
     } catch {
       // ignore
     }
-  }, [user?.theme, user?.customTheme?.gridColor, user?.customTheme?.gridOpacity]);
+  }, [user?.theme, user?.customTheme?.gridColor, user?.customTheme?.gridOpacity, (user as any)?.equippedNameEffect, (user as any)?.equippedTabBorder]);
 
   return (
     <QueryClientProvider client={queryClient}>

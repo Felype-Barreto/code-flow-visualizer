@@ -660,12 +660,44 @@ function ResourcesDialog({
 }) {
   const youtubeUrl = youtubeSearchQuery ? buildYouTubeSearchUrl(youtubeSearchQuery) : null;
 
+  const extractYouTubeVideoId = (rawUrl: string): string | null => {
+    try {
+      const u = new URL(String(rawUrl || ''));
+
+      // https://youtu.be/<id>
+      if (u.hostname === 'youtu.be') {
+        const id = u.pathname.replace(/^\//, '').trim();
+        return id || null;
+      }
+
+      // https://www.youtube.com/watch?v=<id>
+      if (u.hostname.endsWith('youtube.com') || u.hostname.endsWith('youtube-nocookie.com')) {
+        const v = u.searchParams.get('v');
+        if (v) return v;
+
+        // https://www.youtube.com/embed/<id>
+        const m = u.pathname.match(/\/embed\/([^/]+)/);
+        if (m?.[1]) return m[1];
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  };
+
+  const embeddedVideos = (videos || [])
+    .map((v) => {
+      const id = extractYouTubeVideoId(v.url);
+      return id ? { ...v, videoId: id } : null;
+    })
+    .filter(Boolean) as Array<{ title: string; url: string; videoId: string }>;
+
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" className="text-muted-foreground gap-2">
           <Info className="w-4 h-4" />
-          <span className="hidden md:inline">Resources</span>
+          <span>Resources</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg bg-[#0f172a] border-white/10">
@@ -679,6 +711,31 @@ function ResourcesDialog({
         <div className="space-y-4 mt-4">
           <div className="p-3 rounded-lg bg-white/5 border border-white/10">
             <div className="text-sm font-semibold text-white mb-2">Videos (YouTube)</div>
+
+            {embeddedVideos.length > 0 && (
+              <div className="space-y-3 mb-3">
+                {embeddedVideos.map((v) => (
+                  <div key={v.url} className="space-y-2">
+                    <div className="text-sm text-slate-200 font-medium">{v.title}</div>
+                    <div className="aspect-video w-full overflow-hidden rounded-lg border border-white/10 bg-black/20">
+                      <iframe
+                        className="w-full h-full"
+                        src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.videoId)}`}
+                        title={v.title}
+                        loading="lazy"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      />
+                    </div>
+                    <a className="text-xs text-amber-200 underline" href={v.url} target="_blank" rel="noreferrer">
+                      Open on YouTube
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {videos && videos.length > 0 ? (
               <div className="space-y-2">
                 {videos.map((v) => (

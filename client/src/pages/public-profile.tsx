@@ -19,6 +19,8 @@ type PublicUser = {
   equippedBadge: string | null;
   equippedFrame: string | null;
   frameAnimation: string | null;
+  equippedNameEffect?: string | null;
+  equippedTabBorder?: string | null;
   theme: string | null;
   activePet: string | null;
   featuredUntil: string | null;
@@ -41,6 +43,10 @@ function getAvatarEmoji(avatar: string): string {
     alien: '👽',
     pirate: '🏴‍☠️',
     astronaut: '👨‍🚀',
+    cat: '🐱',
+    fox: '🦊',
+    octopus: '🐙',
+    dragon_legend: '🐉',
     detective: '🕵️',
     knight: '🛡️',
     samurai: '⚔️',
@@ -262,8 +268,9 @@ export default function PublicProfilePage() {
 
             <div className="flex-1 text-center sm:text-left">
               <div
-                className={profile.usernameColor ? 'text-3xl font-bold' : 'text-3xl font-bold text-white'}
-                style={profile.usernameColor ? { color: profile.usernameColor } : undefined}
+                className={profile.usernameColor ? 'text-3xl font-bold cosmetic-name' : 'text-3xl font-bold cosmetic-name text-white'}
+                data-name-effect={profile.equippedNameEffect || undefined}
+                style={profile.usernameColor && !profile.equippedNameEffect ? { color: profile.usernameColor } : undefined}
               >
                 {displayName(profile)} {profile.isPro ? '👑' : ''}
               </div>

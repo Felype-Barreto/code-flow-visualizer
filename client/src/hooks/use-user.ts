@@ -28,8 +28,10 @@ interface User {
   theme?: string;
   equippedFrame?: string | null;
   frameAnimation?: string | null;
+  equippedNameEffect?: string | null;
   equippedBadge?: string | null;
   activePet?: string | null;
+  equippedTabBorder?: string | null;
   language?: string;
   dailyStreak?: number;
   lastActivityDate?: string;

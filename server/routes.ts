@@ -156,6 +156,21 @@ const STORE_CATALOG = [
   { id: 'theme_dark', name: 'Dark Theme', description: 'Deep dark profile background', type: 'cosmetic', category: 'theme', price: 400, icon: '🌑' },
   { id: 'theme_love', name: 'Love Theme', description: 'Red background with heart vibes', type: 'cosmetic', category: 'theme', price: 600, icon: '❤️' },
   { id: 'theme_pink', name: 'Pink Theme', description: 'Cute pink profile background', type: 'cosmetic', category: 'theme', price: 450, icon: '💗' },
+
+  // Pattern / image-like themes (non-emoji icons)
+  { id: 'theme_pattern_scanlines', name: 'Scanlines Theme', description: 'Retro scanline overlay pattern', type: 'cosmetic', category: 'theme', price: 450, icon: 'BG' },
+  { id: 'theme_pattern_stars', name: 'Starfield Theme', description: 'Subtle starfield pattern overlay', type: 'cosmetic', category: 'theme', price: 450, icon: 'BG' },
+  { id: 'theme_pattern_circuit', name: 'Circuit Theme', description: 'Circuit-board inspired pattern overlay', type: 'cosmetic', category: 'theme', price: 500, icon: 'BG' },
+  { id: 'theme_pattern_dots', name: 'Dotted Theme', description: 'Clean dotted pattern overlay', type: 'cosmetic', category: 'theme', price: 400, icon: 'BG' },
+  { id: 'theme_pattern_hex', name: 'Hex Theme', description: 'Hex grid pattern overlay', type: 'cosmetic', category: 'theme', price: 500, icon: 'BG' },
+  { id: 'theme_pattern_wave', name: 'Wave Theme', description: 'Wave pattern overlay', type: 'cosmetic', category: 'theme', price: 450, icon: 'BG' },
+  { id: 'theme_pattern_diagonal', name: 'Diagonal Theme', description: 'Diagonal stripe pattern overlay', type: 'cosmetic', category: 'theme', price: 400, icon: 'BG' },
+  { id: 'theme_pattern_blueprint', name: 'Blueprint Theme', description: 'Blueprint-style grid overlay', type: 'cosmetic', category: 'theme', price: 550, icon: 'BG' },
+  { id: 'theme_pattern_plasma', name: 'Plasma Theme', description: 'Plasma glow background + pattern', type: 'cosmetic', category: 'theme', price: 600, icon: 'BG' },
+  { id: 'theme_pattern_vhs', name: 'VHS Theme', description: 'Retro VHS lines + accents', type: 'cosmetic', category: 'theme', price: 550, icon: 'BG' },
+  { id: 'theme_pattern_glass', name: 'Glass Theme', description: 'Glass-like light streaks overlay', type: 'cosmetic', category: 'theme', price: 550, icon: 'BG' },
+  { id: 'theme_pattern_terminal', name: 'Terminal Theme', description: 'Terminal green overlay pattern', type: 'cosmetic', category: 'theme', price: 500, icon: 'BG' },
+  { id: 'theme_pattern_chess', name: 'Chess Theme', description: 'Checker-like pattern overlay', type: 'cosmetic', category: 'theme', price: 450, icon: 'BG' },
   
   // Profile frames (cosmetics)
   { id: 'frame_gold', name: 'Gold Frame', description: 'Premium golden border', type: 'cosmetic', category: 'frame', price: 250, icon: '🥇' },
@@ -170,6 +185,51 @@ const STORE_CATALOG = [
   { id: 'name_effect_flame', name: 'Flame Name', description: 'Flame flicker text', type: 'cosmetic', category: 'name_effect', price: 700, icon: '🔥' },
   { id: 'name_effect_glitch', name: 'Glitch Name', description: 'Glitchy cyber effect', type: 'cosmetic', category: 'name_effect', price: 600, icon: '🧩' },
   { id: 'name_effect_ice', name: 'Ice Name', description: 'Cool icy glow', type: 'cosmetic', category: 'name_effect', price: 400, icon: '❄️' },
+
+  // Name effects (non-emoji icons)
+  { id: 'name_effect_neon_pulse', name: 'Neon Pulse', description: 'Neon shimmer with pulsing glow', type: 'cosmetic', category: 'name_effect', price: 650, icon: 'FX' },
+  { id: 'name_effect_aurora', name: 'Aurora Flow', description: 'Aurora gradient shimmer', type: 'cosmetic', category: 'name_effect', price: 700, icon: 'FX' },
+  { id: 'name_effect_matrix', name: 'Matrix Scan', description: 'Green scan highlight', type: 'cosmetic', category: 'name_effect', price: 650, icon: 'FX' },
+  { id: 'name_effect_vhs', name: 'VHS Jitter', description: 'Retro jitter + chroma split', type: 'cosmetic', category: 'name_effect', price: 650, icon: 'FX' },
+  { id: 'name_effect_holo', name: 'Holo Prism', description: 'Holographic gradient sweep', type: 'cosmetic', category: 'name_effect', price: 750, icon: 'FX' },
+  { id: 'name_effect_comet', name: 'Comet Sweep', description: 'Bright highlight sweeping across', type: 'cosmetic', category: 'name_effect', price: 700, icon: 'FX' },
+  { id: 'name_effect_shadowfire', name: 'Shadowfire', description: 'Warm flame shimmer with depth', type: 'cosmetic', category: 'name_effect', price: 800, icon: 'FX' },
+  { id: 'name_effect_ember', name: 'Ember Glow', description: 'Soft warm ember pulse', type: 'cosmetic', category: 'name_effect', price: 650, icon: 'FX' },
+  { id: 'name_effect_frostbite', name: 'Frostbite', description: 'Cold shimmer + icy glow', type: 'cosmetic', category: 'name_effect', price: 650, icon: 'FX' },
+  { id: 'name_effect_prism', name: 'Prismatic', description: 'Multi-color prism sweep', type: 'cosmetic', category: 'name_effect', price: 800, icon: 'FX' },
+  { id: 'name_effect_spark', name: 'Spark', description: 'Fast bright highlight', type: 'cosmetic', category: 'name_effect', price: 600, icon: 'FX' },
+  { id: 'name_effect_static', name: 'Static', description: 'Static flicker effect', type: 'cosmetic', category: 'name_effect', price: 550, icon: 'FX' },
+  { id: 'name_effect_outline', name: 'Soft Outline', description: 'Subtle outlined glow look', type: 'cosmetic', category: 'name_effect', price: 500, icon: 'FX' },
+  { id: 'name_effect_chromatic', name: 'Chromatic', description: 'Animated chroma shift', type: 'cosmetic', category: 'name_effect', price: 700, icon: 'FX' },
+  { id: 'name_effect_wave', name: 'Wave', description: 'Gentle wavy highlight motion', type: 'cosmetic', category: 'name_effect', price: 650, icon: 'FX' },
+  { id: 'name_effect_slicer', name: 'Slicer', description: 'Fast slicing scan highlight', type: 'cosmetic', category: 'name_effect', price: 650, icon: 'FX' },
+  { id: 'name_effect_pixel', name: 'Pixel Jump', description: 'Pixel-ish jitter motion', type: 'cosmetic', category: 'name_effect', price: 600, icon: 'FX' },
+  { id: 'name_effect_terminal', name: 'Terminal Glow', description: 'Terminal green shimmer', type: 'cosmetic', category: 'name_effect', price: 650, icon: 'FX' },
+  { id: 'name_effect_solar', name: 'Solar', description: 'Bright golden shimmer', type: 'cosmetic', category: 'name_effect', price: 750, icon: 'FX' },
+  { id: 'name_effect_moonlight', name: 'Moonlight', description: 'Cool purple shimmer', type: 'cosmetic', category: 'name_effect', price: 700, icon: 'FX' },
+
+  // UI tab borders (cosmetics)
+  { id: 'tab_border_flame', name: 'Flame Tabs', description: 'Animated flame border for main tabs', type: 'cosmetic', category: 'tab_border', price: 500, icon: '🔥' },
+  { id: 'tab_border_ice', name: 'Ice Tabs', description: 'Chill animated border for main tabs', type: 'cosmetic', category: 'tab_border', price: 500, icon: '❄️' },
+  { id: 'tab_border_neon', name: 'Neon Tabs', description: 'Neon animated border for main tabs', type: 'cosmetic', category: 'tab_border', price: 650, icon: '💡' },
+  { id: 'tab_border_aurora', name: 'Aurora Tabs', description: 'Aurora animated border for main tabs', type: 'cosmetic', category: 'tab_border', price: 800, icon: '🌌' },
+
+  // UI tab borders (non-emoji icons)
+  { id: 'tab_border_rainbow', name: 'Rainbow Tabs', description: 'Rainbow animated border for main tabs', type: 'cosmetic', category: 'tab_border', price: 750, icon: 'TB' },
+  { id: 'tab_border_gold', name: 'Gold Tabs', description: 'Golden animated border for main tabs', type: 'cosmetic', category: 'tab_border', price: 650, icon: 'TB' },
+  { id: 'tab_border_matrix', name: 'Matrix Tabs', description: 'Green animated border for main tabs', type: 'cosmetic', category: 'tab_border', price: 650, icon: 'TB' },
+  { id: 'tab_border_glitch', name: 'Glitch Tabs', description: 'Jittery animated border for main tabs', type: 'cosmetic', category: 'tab_border', price: 800, icon: 'TB' },
+  { id: 'tab_border_sunset', name: 'Sunset Tabs', description: 'Warm sunset animated border', type: 'cosmetic', category: 'tab_border', price: 700, icon: 'TB' },
+  { id: 'tab_border_rose', name: 'Rose Tabs', description: 'Rose animated border', type: 'cosmetic', category: 'tab_border', price: 700, icon: 'TB' },
+  { id: 'tab_border_ocean', name: 'Ocean Tabs', description: 'Ocean animated border', type: 'cosmetic', category: 'tab_border', price: 700, icon: 'TB' },
+  { id: 'tab_border_forest', name: 'Forest Tabs', description: 'Forest animated border', type: 'cosmetic', category: 'tab_border', price: 650, icon: 'TB' },
+  { id: 'tab_border_cyber', name: 'Cyber Tabs', description: 'Cyberpunk animated border', type: 'cosmetic', category: 'tab_border', price: 800, icon: 'TB' },
+  { id: 'tab_border_prism', name: 'Prism Tabs', description: 'Prismatic animated border', type: 'cosmetic', category: 'tab_border', price: 850, icon: 'TB' },
+  { id: 'tab_border_bolt', name: 'Bolt Tabs', description: 'High-contrast animated border', type: 'cosmetic', category: 'tab_border', price: 750, icon: 'TB' },
+  { id: 'tab_border_plasma', name: 'Plasma Tabs', description: 'Plasma animated border', type: 'cosmetic', category: 'tab_border', price: 850, icon: 'TB' },
+  { id: 'tab_border_void', name: 'Void Tabs', description: 'Subtle animated border', type: 'cosmetic', category: 'tab_border', price: 600, icon: 'TB' },
+  { id: 'tab_border_comet', name: 'Comet Tabs', description: 'Bright animated border', type: 'cosmetic', category: 'tab_border', price: 750, icon: 'TB' },
+  { id: 'tab_border_holo', name: 'Holo Tabs', description: 'Holo animated border', type: 'cosmetic', category: 'tab_border', price: 850, icon: 'TB' },
 
   // Profile: Custom username color (entitlement)
   { id: 'username_color_custom', name: 'Custom Username Color', description: 'Choose a custom color for your username', type: 'cosmetic', category: 'username_color', price: 1000, icon: '🎨' },
@@ -882,6 +942,8 @@ export async function registerRoutes(
       equippedBadge: user.equippedBadge ?? null,
       equippedFrame: user.equippedFrame ?? null,
       frameAnimation: (user as any).frameAnimation ?? null,
+      equippedNameEffect: (user as any).equippedNameEffect ?? null,
+      equippedTabBorder: (user as any).equippedTabBorder ?? null,
       activePet: (user as any).activePet ?? null,
       particleEffects: user.particleEffects ?? false,
       trophyCase,
@@ -975,6 +1037,8 @@ export async function registerRoutes(
           equippedBadge: user.equippedBadge ?? null,
           equippedFrame: user.equippedFrame ?? null,
           frameAnimation: (user as any).frameAnimation ?? null,
+          equippedNameEffect: (user as any).equippedNameEffect ?? null,
+          equippedTabBorder: (user as any).equippedTabBorder ?? null,
           theme: (user as any).theme ?? null,
           activePet: (user as any).activePet ?? null,
           featuredUntil: featuredUntil,
@@ -1729,6 +1793,8 @@ export async function registerRoutes(
         equippedBadge: users.equippedBadge,
         equippedFrame: users.equippedFrame,
         frameAnimation: users.frameAnimation,
+        equippedNameEffect: users.equippedNameEffect,
+        equippedTabBorder: users.equippedTabBorder,
         xp: users.xp,
         level: users.level,
         avatar: users.avatar,
@@ -1845,6 +1911,8 @@ export async function registerRoutes(
         equippedBadge: users.equippedBadge,
         equippedFrame: users.equippedFrame,
         frameAnimation: users.frameAnimation,
+        equippedNameEffect: users.equippedNameEffect,
+        equippedTabBorder: users.equippedTabBorder,
         dailyStreak: users.dailyStreak,
         level: users.level,
         avatar: users.avatar,
@@ -3161,6 +3229,8 @@ export async function registerRoutes(
           frameAnimation: (user as any).frameAnimation || null,
           nameEffect: user.equippedNameEffect || null,
           theme: (user as any).theme || null,
+          tabBorder: (user as any).equippedTabBorder || null,
+          activePet: (user as any).activePet || null,
           badge: user.equippedBadge || null,
         },
       });
@@ -3315,6 +3385,8 @@ export async function registerRoutes(
         updates.theme = itemId;
       } else if (item.category === "pet") {
         updates.activePet = itemId;
+      } else if (item.category === "tab_border") {
+        updates.equippedTabBorder = itemId;
       } else if (item.category === "badge") {
         updates.equippedBadge = itemId;
       }
@@ -3334,6 +3406,7 @@ export async function registerRoutes(
           frameAnimation: (updates.frameAnimation ?? (user as any).frameAnimation) || null,
           nameEffect: updates.equippedNameEffect || user.equippedNameEffect,
           theme: updates.theme || (user as any).theme,
+          tabBorder: (updates.equippedTabBorder ?? (user as any).equippedTabBorder) || null,
           activePet: (updates.activePet ?? (user as any).activePet) || null,
           badge: updates.equippedBadge || user.equippedBadge,
         },

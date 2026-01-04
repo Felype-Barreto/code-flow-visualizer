@@ -54,6 +54,12 @@ async function ensureAuxTables() {
     await db.execute(sql`alter table users add column if not exists equipped_badge text`);
   } catch {}
   try {
+    await db.execute(sql`alter table users add column if not exists equipped_name_effect text`);
+  } catch {}
+  try {
+    await db.execute(sql`alter table users add column if not exists equipped_tab_border text`);
+  } catch {}
+  try {
     await db.execute(sql`alter table users add column if not exists particle_effects boolean default false`);
   } catch {}
   try {

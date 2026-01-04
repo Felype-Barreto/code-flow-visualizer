@@ -63,6 +63,37 @@
    Uses existing theme primitives and avoids introducing new design tokens. */
 :root {
   --bg-grid-line: hsl(217 33% 17% / 0.35);
+
+  /* Theme-driven page background (patterns/images via CSS gradients)
+     Implemented with existing theme primitives. */
+  --app-bg-base:
+    radial-gradient(
+      1200px circle at 20% 10%,
+      color-mix(in srgb, var(--color-primary) 16%, transparent) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      900px circle at 80% 0%,
+      color-mix(in srgb, var(--color-chart-4) 14%, transparent) 0%,
+      transparent 55%
+    ),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+
+  --app-bg-pattern:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--bg-grid-line) 65%, transparent) 0px,
+      color-mix(in srgb, var(--bg-grid-line) 65%, transparent) 1px,
+      transparent 1px,
+      transparent 22px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--bg-grid-line) 65%, transparent) 0px,
+      color-mix(in srgb, var(--bg-grid-line) 65%, transparent) 1px,
+      transparent 1px,
+      transparent 22px
+    );
 }
 
 html[data-theme="theme_neon"] { --bg-grid-line: hsl(190 90% 50% / 0.10); }
@@ -76,6 +107,169 @@ html[data-theme="theme_aurora"] { --bg-grid-line: hsl(340 75% 55% / 0.06); }
 html[data-theme="theme_sunset"] { --bg-grid-line: hsl(30 90% 50% / 0.07); }
 html[data-theme="theme_rose"] { --bg-grid-line: hsl(340 75% 55% / 0.09); }
 html[data-theme="theme_obsidian"] { --bg-grid-line: hsl(217 33% 17% / 0.22); }
+
+/* Pattern/Image themes (rendered as layered CSS gradients) */
+html[data-theme="theme_pattern_scanlines"] {
+  --bg-grid-line: hsl(217 33% 17% / 0.25);
+  --app-bg-base:
+    radial-gradient(
+      1100px circle at 30% 10%,
+      color-mix(in srgb, var(--color-chart-5) 16%, transparent) 0%,
+      transparent 62%
+    ),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+  --app-bg-pattern:
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--color-primary) 10%, transparent) 0px,
+      color-mix(in srgb, var(--color-primary) 10%, transparent) 1px,
+      transparent 1px,
+      transparent 6px
+    );
+}
+
+html[data-theme="theme_pattern_stars"] {
+  --bg-grid-line: hsl(217 33% 17% / 0.20);
+  --app-bg-base:
+    radial-gradient(
+      1200px circle at 70% 0%,
+      color-mix(in srgb, var(--color-chart-4) 18%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px circle at 15% 20%,
+      color-mix(in srgb, var(--color-primary) 14%, transparent) 0%,
+      transparent 58%
+    ),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 65%, #000));
+  --app-bg-pattern:
+    radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--color-foreground) 8%, transparent) 0 1px, transparent 2px),
+    radial-gradient(circle at 74% 24%, color-mix(in srgb, var(--color-foreground) 7%, transparent) 0 1px, transparent 2px),
+    radial-gradient(circle at 36% 62%, color-mix(in srgb, var(--color-foreground) 8%, transparent) 0 1px, transparent 2px),
+    radial-gradient(circle at 86% 78%, color-mix(in srgb, var(--color-foreground) 7%, transparent) 0 1px, transparent 2px);
+}
+
+html[data-theme="theme_pattern_circuit"] {
+  --bg-grid-line: hsl(190 90% 50% / 0.08);
+  --app-bg-base:
+    radial-gradient(1100px circle at 20% 0%, color-mix(in srgb, var(--color-primary) 20%, transparent) 0%, transparent 60%),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+  --app-bg-pattern:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 12%, transparent) 0 2px, transparent 2px 18px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-primary) 10%, transparent) 0 1px, transparent 1px 14px),
+    radial-gradient(circle at 20% 40%, color-mix(in srgb, var(--color-primary) 14%, transparent) 0 2px, transparent 3px),
+    radial-gradient(circle at 80% 65%, color-mix(in srgb, var(--color-chart-4) 12%, transparent) 0 2px, transparent 3px);
+}
+
+html[data-theme="theme_pattern_dots"] {
+  --bg-grid-line: hsl(217 33% 17% / 0.20);
+  --app-bg-base:
+    radial-gradient(1100px circle at 30% 0%, color-mix(in srgb, var(--color-chart-2) 18%, transparent) 0%, transparent 58%),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+  --app-bg-pattern:
+    radial-gradient(circle, color-mix(in srgb, var(--color-primary) 10%, transparent) 1px, transparent 1.5px);
+}
+
+html[data-theme="theme_pattern_hex"] {
+  --bg-grid-line: hsl(217 33% 17% / 0.18);
+  --app-bg-base:
+    radial-gradient(1000px circle at 65% 0%, color-mix(in srgb, var(--color-chart-4) 18%, transparent) 0%, transparent 60%),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+  --app-bg-pattern:
+    repeating-linear-gradient(60deg, color-mix(in srgb, var(--color-primary) 8%, transparent) 0 1px, transparent 1px 18px),
+    repeating-linear-gradient(-60deg, color-mix(in srgb, var(--color-primary) 8%, transparent) 0 1px, transparent 1px 18px);
+}
+
+html[data-theme="theme_pattern_wave"] {
+  --bg-grid-line: hsl(190 90% 50% / 0.07);
+  --app-bg-base:
+    radial-gradient(1200px circle at 50% 0%, color-mix(in srgb, var(--color-primary) 16%, transparent) 0%, transparent 62%),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+  --app-bg-pattern:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-chart-1) 8%, transparent) 0 2px, transparent 2px 26px),
+    repeating-radial-gradient(circle at 10% 20%, color-mix(in srgb, var(--color-chart-1) 8%, transparent) 0 1px, transparent 6px);
+}
+
+html[data-theme="theme_pattern_diagonal"] {
+  --bg-grid-line: hsl(217 33% 17% / 0.18);
+  --app-bg-base:
+    radial-gradient(1100px circle at 30% 0%, color-mix(in srgb, var(--color-chart-3) 16%, transparent) 0%, transparent 62%),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+  --app-bg-pattern:
+    repeating-linear-gradient(135deg, color-mix(in srgb, var(--color-chart-3) 9%, transparent) 0 2px, transparent 2px 16px);
+}
+
+html[data-theme="theme_pattern_blueprint"] {
+  --bg-grid-line: hsl(190 90% 50% / 0.10);
+  --app-bg-base:
+    radial-gradient(1200px circle at 25% 0%, color-mix(in srgb, var(--color-primary) 18%, transparent) 0%, transparent 60%),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+  --app-bg-pattern:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 10%, transparent) 0 1px, transparent 1px 12px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-primary) 10%, transparent) 0 1px, transparent 1px 12px),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 7%, transparent) 0 1px, transparent 1px 48px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-primary) 7%, transparent) 0 1px, transparent 1px 48px);
+}
+
+html[data-theme="theme_pattern_plasma"] {
+  --bg-grid-line: hsl(280 70% 60% / 0.08);
+  --app-bg-base:
+    radial-gradient(1200px circle at 20% 0%, color-mix(in srgb, var(--color-chart-4) 20%, transparent) 0%, transparent 60%),
+    radial-gradient(900px circle at 80% 10%, color-mix(in srgb, var(--color-chart-5) 16%, transparent) 0%, transparent 62%),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+  --app-bg-pattern:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-chart-4) 8%, transparent) 0 2px, transparent 2px 20px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-chart-5) 7%, transparent) 0 1px, transparent 1px 24px);
+}
+
+html[data-theme="theme_pattern_vhs"] {
+  --bg-grid-line: hsl(217 33% 17% / 0.18);
+  --app-bg-base:
+    radial-gradient(1000px circle at 20% 10%, color-mix(in srgb, var(--color-chart-5) 14%, transparent) 0%, transparent 60%),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+  --app-bg-pattern:
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-foreground) 4%, transparent) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-chart-4) 6%, transparent) 0 1px, transparent 1px 90px);
+}
+
+html[data-theme="theme_pattern_glass"] {
+  --bg-grid-line: hsl(217 33% 17% / 0.16);
+  --app-bg-base:
+    radial-gradient(1200px circle at 20% 0%, color-mix(in srgb, var(--color-primary) 14%, transparent) 0%, transparent 60%),
+    radial-gradient(900px circle at 80% 0%, color-mix(in srgb, var(--color-chart-2) 10%, transparent) 0%, transparent 62%),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+  --app-bg-pattern:
+    linear-gradient(135deg, color-mix(in srgb, var(--color-foreground) 4%, transparent) 0%, transparent 55%),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-foreground) 3%, transparent) 0 1px, transparent 1px 18px);
+}
+
+html[data-theme="theme_pattern_terminal"] {
+  --bg-grid-line: hsl(160 84% 39% / 0.10);
+  --app-bg-base:
+    radial-gradient(1100px circle at 22% 0%, color-mix(in srgb, var(--color-chart-2) 18%, transparent) 0%, transparent 60%),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+  --app-bg-pattern:
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--color-chart-2) 9%, transparent) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--color-chart-2) 6%, transparent) 0 1px, transparent 1px 46px);
+}
+
+html[data-theme="theme_pattern_chess"] {
+  --bg-grid-line: hsl(217 33% 17% / 0.20);
+  --app-bg-base:
+    radial-gradient(1000px circle at 80% 0%, color-mix(in srgb, var(--color-chart-3) 14%, transparent) 0%, transparent 62%),
+    linear-gradient(180deg, var(--color-background), color-mix(in srgb, var(--color-background) 70%, #000));
+  --app-bg-pattern:
+    linear-gradient(90deg, color-mix(in srgb, var(--bg-grid-line) 70%, transparent) 25%, transparent 25% 50%, color-mix(in srgb, var(--bg-grid-line) 70%, transparent) 50% 75%, transparent 75%),
+    linear-gradient(0deg, color-mix(in srgb, var(--bg-grid-line) 70%, transparent) 25%, transparent 25% 50%, color-mix(in srgb, var(--bg-grid-line) 70%, transparent) 50% 75%, transparent 75%);
+}
+
+.themed-bg {
+  background-image: var(--app-bg-base), var(--app-bg-pattern);
+  background-repeat: no-repeat, repeat;
+  background-size: cover, 140px 140px;
+  background-position: center, center;
+  opacity: 0.95;
+}
 
 .blueprint-grid {
   background-image: 
@@ -258,6 +452,500 @@ a:focus-visible {
   .frame-anim-tilt,
   .frame-anim-zoom,
   .frame-anim-flicker {
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* Cosmetics: name effects + tab borders
+   Implemented via CSS so it can apply across pages without new UI. */
+
+:root {
+  --tab-border-a: var(--color-primary);
+  --tab-border-b: var(--color-chart-4);
+  --tab-border-c: var(--color-chart-2);
+}
+
+html[data-tab-border="tab_border_flame"] {
+  --tab-border-a: var(--color-chart-3);
+  --tab-border-b: var(--color-destructive);
+  --tab-border-c: var(--color-chart-3);
+}
+
+html[data-tab-border="tab_border_ice"] {
+  --tab-border-a: var(--color-chart-1);
+  --tab-border-b: var(--color-foreground);
+  --tab-border-c: var(--color-chart-1);
+}
+
+html[data-tab-border="tab_border_neon"] {
+  --tab-border-a: var(--color-primary);
+  --tab-border-b: var(--color-chart-4);
+  --tab-border-c: var(--color-chart-5);
+}
+
+html[data-tab-border="tab_border_aurora"] {
+  --tab-border-a: var(--color-chart-4);
+  --tab-border-b: var(--color-chart-2);
+  --tab-border-c: var(--color-chart-5);
+}
+
+html[data-tab-border="tab_border_rainbow"] {
+  --tab-border-a: var(--color-chart-5);
+  --tab-border-b: var(--color-chart-4);
+  --tab-border-c: var(--color-primary);
+}
+
+html[data-tab-border="tab_border_gold"] {
+  --tab-border-a: var(--color-chart-3);
+  --tab-border-b: var(--color-foreground);
+  --tab-border-c: var(--color-chart-3);
+}
+
+html[data-tab-border="tab_border_matrix"] {
+  --tab-border-a: var(--color-chart-2);
+  --tab-border-b: var(--color-foreground);
+  --tab-border-c: var(--color-chart-2);
+}
+
+html[data-tab-border="tab_border_glitch"] {
+  --tab-border-a: var(--color-primary);
+  --tab-border-b: var(--color-chart-4);
+  --tab-border-c: var(--color-chart-5);
+}
+
+html[data-tab-border="tab_border_sunset"] {
+  --tab-border-a: var(--color-chart-3);
+  --tab-border-b: var(--color-chart-5);
+  --tab-border-c: var(--color-chart-3);
+}
+
+html[data-tab-border="tab_border_rose"] {
+  --tab-border-a: var(--color-chart-5);
+  --tab-border-b: var(--color-foreground);
+  --tab-border-c: var(--color-chart-5);
+}
+
+html[data-tab-border="tab_border_ocean"] {
+  --tab-border-a: var(--color-primary);
+  --tab-border-b: var(--color-chart-1);
+  --tab-border-c: var(--color-chart-2);
+}
+
+html[data-tab-border="tab_border_forest"] {
+  --tab-border-a: var(--color-chart-2);
+  --tab-border-b: var(--color-primary);
+  --tab-border-c: var(--color-chart-2);
+}
+
+html[data-tab-border="tab_border_cyber"] {
+  --tab-border-a: var(--color-chart-4);
+  --tab-border-b: var(--color-chart-5);
+  --tab-border-c: var(--color-primary);
+}
+
+html[data-tab-border="tab_border_prism"] {
+  --tab-border-a: var(--color-foreground);
+  --tab-border-b: var(--color-primary);
+  --tab-border-c: var(--color-chart-4);
+}
+
+html[data-tab-border="tab_border_bolt"] {
+  --tab-border-a: var(--color-foreground);
+  --tab-border-b: var(--color-chart-3);
+  --tab-border-c: var(--color-primary);
+}
+
+html[data-tab-border="tab_border_plasma"] {
+  --tab-border-a: var(--color-chart-4);
+  --tab-border-b: var(--color-primary);
+  --tab-border-c: var(--color-chart-5);
+}
+
+html[data-tab-border="tab_border_void"] {
+  --tab-border-a: var(--color-muted-foreground);
+  --tab-border-b: var(--color-foreground);
+  --tab-border-c: var(--color-muted-foreground);
+}
+
+html[data-tab-border="tab_border_comet"] {
+  --tab-border-a: var(--color-foreground);
+  --tab-border-b: var(--color-primary);
+  --tab-border-c: var(--color-chart-1);
+}
+
+html[data-tab-border="tab_border_holo"] {
+  --tab-border-a: var(--color-primary);
+  --tab-border-b: var(--color-foreground);
+  --tab-border-c: var(--color-chart-4);
+}
+
+.cosmetic-tab {
+  position: relative;
+}
+
+.cosmetic-tab::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 0.75rem;
+  padding: 1px;
+  background: linear-gradient(90deg, var(--tab-border-a), var(--tab-border-b), var(--tab-border-c));
+  background-size: 200% 200%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.cosmetic-tab[data-active="true"]::after {
+  opacity: 1;
+  animation: tabBorderShift 2.2s ease-in-out infinite;
+}
+
+html[data-tab-border="tab_border_glitch"] .cosmetic-tab[data-active="true"]::after {
+  animation: tabBorderShift 1.1s steps(2, end) infinite;
+}
+
+@keyframes tabBorderShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.cosmetic-name {
+  display: inline-block;
+}
+
+/* Generic helpers for new name effects */
+html[data-name-effect^="name_effect_"] .cosmetic-name,
+.cosmetic-name[data-name-effect^="name_effect_"] {
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Support both global (your account) and per-element (public/leaderboard) effects */
+html[data-name-effect="name_effect_gold"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_gold"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.85), var(--color-chart-3), rgba(255,255,255,0.75));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 0 14px rgba(255,193,7,0.16);
+  animation: nameShimmer 2.6s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_rainbow"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_rainbow"] {
+  color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    var(--color-chart-5),
+    var(--color-chart-4),
+    var(--color-primary),
+    var(--color-chart-2),
+    var(--color-chart-3),
+    var(--color-chart-5)
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 0 16px rgba(6,182,212,0.10);
+  animation: nameRainbow 2.0s linear infinite;
+}
+
+html[data-name-effect="name_effect_flame"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_flame"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-chart-3), rgba(255,255,255,0.85), var(--color-destructive), var(--color-chart-3));
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 0 12px rgba(255,140,0,0.12), 0 0 20px rgba(255,69,0,0.08);
+  animation: nameFlame 1.35s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_ice"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_ice"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.92), var(--color-primary), rgba(255,255,255,0.82));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 0 18px rgba(6,182,212,0.14);
+  animation: nameShimmer 2.0s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_glitch"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_glitch"] {
+  animation: nameGlitch 1.2s steps(2, end) infinite;
+  text-shadow:
+    1px 0 rgba(6,182,212,0.45),
+    -1px 0 rgba(217,70,239,0.35);
+}
+
+html[data-name-effect="name_effect_neon_pulse"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_neon_pulse"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-primary), rgba(255,255,255,0.85), var(--color-primary));
+  background-size: 220% 100%;
+  text-shadow: 0 0 18px rgba(6,182,212,0.14);
+  animation: namePulse 1.6s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_aurora"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_aurora"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-chart-4), var(--color-chart-2), var(--color-chart-5), var(--color-primary));
+  background-size: 240% 100%;
+  text-shadow: 0 0 18px rgba(217,70,239,0.10);
+  animation: nameShimmer 2.4s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_matrix"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_matrix"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-chart-2), rgba(255,255,255,0.80), var(--color-chart-2));
+  background-size: 220% 100%;
+  text-shadow: 0 0 16px rgba(16,185,129,0.10);
+  animation: nameScan 1.45s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_vhs"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_vhs"] {
+  animation: nameVhs 1.35s steps(2, end) infinite;
+  text-shadow:
+    1px 0 rgba(6,182,212,0.35),
+    -1px 0 rgba(217,70,239,0.25);
+}
+
+html[data-name-effect="name_effect_holo"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_holo"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-foreground), var(--color-primary), var(--color-chart-4), var(--color-foreground));
+  background-size: 260% 100%;
+  text-shadow: 0 0 16px rgba(6,182,212,0.10);
+  animation: nameRainbow 2.4s linear infinite;
+}
+
+html[data-name-effect="name_effect_comet"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_comet"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.90) 30%, var(--color-primary) 55%, transparent 80%);
+  background-size: 260% 100%;
+  text-shadow: 0 0 18px rgba(6,182,212,0.12);
+  animation: nameComet 2.2s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_shadowfire"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_shadowfire"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-destructive), var(--color-chart-3), rgba(255,255,255,0.78));
+  background-size: 220% 100%;
+  text-shadow: 0 0 18px rgba(239,68,68,0.10), 0 0 28px rgba(245,158,11,0.06);
+  animation: nameFlame 1.3s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_ember"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_ember"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-chart-3), rgba(255,255,255,0.86), var(--color-chart-3));
+  background-size: 220% 100%;
+  text-shadow: 0 0 14px rgba(245,158,11,0.12);
+  animation: namePulse 1.9s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_frostbite"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_frostbite"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-foreground), var(--color-primary), var(--color-foreground));
+  background-size: 240% 100%;
+  text-shadow: 0 0 18px rgba(6,182,212,0.16);
+  animation: nameShimmer 1.8s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_prism"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_prism"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-foreground), var(--color-chart-5), var(--color-chart-4), var(--color-primary), var(--color-foreground));
+  background-size: 300% 100%;
+  text-shadow: 0 0 16px rgba(255,255,255,0.06);
+  animation: nameRainbow 2.1s linear infinite;
+}
+
+html[data-name-effect="name_effect_spark"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_spark"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-foreground), var(--color-chart-3), var(--color-foreground));
+  background-size: 220% 100%;
+  text-shadow: 0 0 14px rgba(255,193,7,0.14);
+  animation: nameComet 1.9s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_static"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_static"] {
+  animation: nameStatic 0.55s steps(2, end) infinite;
+  text-shadow:
+    1px 0 rgba(255,255,255,0.18),
+    -1px 0 rgba(255,255,255,0.12);
+}
+
+html[data-name-effect="name_effect_outline"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_outline"] {
+  color: var(--color-foreground);
+  text-shadow:
+    0 0 0 rgba(0,0,0,0),
+    0 0 18px rgba(6,182,212,0.08);
+}
+
+html[data-name-effect="name_effect_chromatic"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_chromatic"] {
+  animation: nameChromatic 1.4s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_wave"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_wave"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-primary), var(--color-foreground), var(--color-primary));
+  background-size: 240% 100%;
+  text-shadow: 0 0 12px rgba(6,182,212,0.10);
+  animation: nameWave 2.0s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_slicer"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_slicer"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, transparent, var(--color-chart-4), transparent);
+  background-size: 260% 100%;
+  text-shadow: 0 0 16px rgba(217,70,239,0.10);
+  animation: nameScan 1.1s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_pixel"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_pixel"] {
+  animation: namePixel 1.0s steps(2, end) infinite;
+  text-shadow: 0 0 14px rgba(255,255,255,0.06);
+}
+
+html[data-name-effect="name_effect_terminal"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_terminal"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-chart-2), rgba(255,255,255,0.80), var(--color-chart-2));
+  background-size: 220% 100%;
+  text-shadow: 0 0 16px rgba(16,185,129,0.10);
+  animation: nameShimmer 2.2s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_solar"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_solar"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-chart-3), rgba(255,255,255,0.92), var(--color-chart-3));
+  background-size: 240% 100%;
+  text-shadow: 0 0 18px rgba(245,158,11,0.12);
+  animation: nameShimmer 1.9s ease-in-out infinite;
+}
+
+html[data-name-effect="name_effect_moonlight"] .cosmetic-name,
+.cosmetic-name[data-name-effect="name_effect_moonlight"] {
+  color: transparent;
+  background-image: linear-gradient(90deg, var(--color-foreground), var(--color-chart-4), var(--color-foreground));
+  background-size: 240% 100%;
+  text-shadow: 0 0 16px rgba(217,70,239,0.08);
+  animation: nameShimmer 2.6s ease-in-out infinite;
+}
+
+@keyframes namePulse {
+  0%, 100% { background-position: 0% 50%; filter: brightness(1); transform: translateY(0); }
+  50% { background-position: 100% 50%; filter: brightness(1.25); transform: translateY(-1px); }
+}
+
+@keyframes nameScan {
+  0% { background-position: 0% 50%; filter: brightness(1); }
+  50% { background-position: 100% 50%; filter: brightness(1.18); }
+  100% { background-position: 0% 50%; filter: brightness(1); }
+}
+
+@keyframes nameComet {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes nameWave {
+  0% { background-position: 0% 50%; transform: translateY(0); }
+  50% { background-position: 100% 50%; transform: translateY(-1px); }
+  100% { background-position: 0% 50%; transform: translateY(0); }
+}
+
+@keyframes nameChromatic {
+  0%, 100% {
+    text-shadow:
+      1px 0 rgba(6,182,212,0.28),
+      -1px 0 rgba(217,70,239,0.20);
+    transform: translate(0, 0);
+  }
+  50% {
+    text-shadow:
+      2px 0 rgba(6,182,212,0.32),
+      -2px 0 rgba(217,70,239,0.24);
+    transform: translate(0, -1px);
+  }
+}
+
+@keyframes nameStatic {
+  0% { opacity: 1; transform: translate(0, 0); }
+  50% { opacity: 0.92; transform: translate(1px, 0); }
+  100% { opacity: 1; transform: translate(0, 0); }
+}
+
+@keyframes nameVhs {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(1px, 0); }
+  50% { transform: translate(-1px, 0); }
+  75% { transform: translate(1px, 0); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes namePixel {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(0, -1px) scale(1.01); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes nameShimmer {
+  0% { background-position: 0% 50%; filter: brightness(1); }
+  50% { background-position: 100% 50%; filter: brightness(1.15); }
+  100% { background-position: 0% 50%; filter: brightness(1); }
+}
+
+@keyframes nameRainbow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+@keyframes nameFlame {
+  0% { background-position: 0% 50%; transform: translateY(0); filter: brightness(1); }
+  50% { background-position: 100% 50%; transform: translateY(-1px); filter: brightness(1.22); }
+  100% { background-position: 0% 50%; transform: translateY(0); filter: brightness(1); }
+}
+
+@keyframes nameGlitch {
+  0% { transform: translate(0, 0) skewX(0deg); }
+  20% { transform: translate(1px, 0) skewX(-2deg); }
+  40% { transform: translate(-1px, 0) skewX(2deg); }
+  60% { transform: translate(1px, 0) skewX(-1deg); }
+  80% { transform: translate(-1px, 0) skewX(1deg); }
+  100% { transform: translate(0, 0) skewX(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cosmetic-tab[data-active="true"]::after,
+  html[data-name-effect] .cosmetic-name,
+  .cosmetic-name[data-name-effect] {
     animation: none !important;
     transform: none !important;
     filter: none !important;

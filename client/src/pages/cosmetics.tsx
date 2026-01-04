@@ -74,6 +74,14 @@ const CATEGORY_META: Array<{
     columns: "grid md:grid-cols-2 lg:grid-cols-3 gap-4",
   },
   {
+    category: "tab_border",
+    title: "Tab Borders",
+    subtitle: "Style your app tabs",
+    icon: <Sparkles className="w-5 h-5 text-emerald-300" />,
+    equipable: true,
+    columns: "grid md:grid-cols-2 lg:grid-cols-3 gap-4",
+  },
+  {
     category: "emote",
     title: "Emotes & Stickers",
     subtitle: "Collectibles for your profile",
@@ -106,6 +114,7 @@ export default function CosmeticsPage() {
     nameEffect: null,
     theme: null,
     badge: null,
+    tabBorder: null,
   });
 
   const FRAME_ANIMATIONS: Array<{ id: string; label: string }> = [
@@ -398,6 +407,7 @@ export default function CosmeticsPage() {
     if (itemId.startsWith("theme_")) return equippedItems.theme === itemId;
     if (itemId.startsWith("avatar_")) return equippedItems.avatar === itemId.replace("avatar_", "");
     if (itemId.startsWith("badge_")) return equippedItems.badge === itemId;
+    if (itemId.startsWith("tab_border_")) return equippedItems.tabBorder === itemId;
     return false;
   };
 
@@ -412,10 +422,11 @@ export default function CosmeticsPage() {
   const equippedNameEffect = equippedItems.nameEffect ? getItem(equippedItems.nameEffect) : null;
   const equippedTheme = equippedItems.theme ? getItem(equippedItems.theme) : null;
   const equippedBadge = equippedItems.badge ? getItem(equippedItems.badge) : null;
+  const equippedTabBorder = equippedItems.tabBorder ? getItem(equippedItems.tabBorder) : null;
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+      <div className="min-h-screen bg-transparent text-white">
         <div className="container mx-auto px-4 py-12 space-y-10">
           {/* Header */}
           <div className="flex items-center justify-between flex-wrap gap-4">
@@ -454,7 +465,10 @@ export default function CosmeticsPage() {
                 </div>
               </div>
               <div className="min-w-0">
-                <div className="text-lg font-semibold text-white truncate">
+                <div
+                  className="text-lg font-semibold text-white truncate cosmetic-name"
+                  data-name-effect={equippedItems.nameEffect || undefined}
+                >
                   {displayName}{" "}
                   {equippedBadge?.icon ? <span className="ml-1">{equippedBadge.icon}</span> : null}
                   <span className="text-slate-400 text-sm font-normal">
@@ -462,7 +476,7 @@ export default function CosmeticsPage() {
                   </span>
                 </div>
                 <div className="text-sm text-slate-300">
-                  {equippedFrame ? `Frame: ${equippedFrame.name}` : "Frame: none"} • {equippedTheme ? `Theme: ${equippedTheme.name}` : "Theme: default"}
+                  {equippedFrame ? `Frame: ${equippedFrame.name}` : "Frame: none"} • {equippedTheme ? `Theme: ${equippedTheme.name}` : "Theme: default"} • {equippedTabBorder ? `Tab border: ${equippedTabBorder.name}` : "Tab border: none"}
                 </div>
                 {equippedItems.frame === "frame_animated" ? (
                   <div className="mt-2 flex items-center gap-2 flex-wrap">

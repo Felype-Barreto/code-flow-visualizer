@@ -67,10 +67,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className={cn(
-                  "flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5",
-                  isLessonActive ? "text-primary bg-primary/10" : "text-muted-foreground"
-                )}>
+                <button
+                  className={cn(
+                    "cosmetic-tab flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5",
+                    isLessonActive ? "text-primary bg-primary/10" : "text-muted-foreground"
+                  )}
+                  data-active={isLessonActive ? "true" : "false"}
+                >
                   <GraduationCap className="w-4 h-4" />
                   {t('nav.learn', 'Learn')}
                   <ChevronDown className="w-3 h-3" />
@@ -96,10 +99,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {/* Exercises dropdown (Sandbox lives inside Exercises) */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className={cn(
-                  "flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5",
-                  location.includes("/exercises") || location.includes("/sandbox") ? "text-primary bg-primary/10" : "text-muted-foreground"
-                )}>
+                <button
+                  className={cn(
+                    "cosmetic-tab flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5",
+                    location.includes("/exercises") || location.includes("/sandbox") ? "text-primary bg-primary/10" : "text-muted-foreground"
+                  )}
+                  data-active={location.includes("/exercises") || location.includes("/sandbox") ? "true" : "false"}
+                >
                   <Dumbbell className="w-4 h-4" />
                   {t('nav.exercises', 'Exercises')}
                   <ChevronDown className="w-3 h-3" />
@@ -119,10 +125,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/sandbox">
-                    <div className={cn(
-                      "flex items-center gap-3 w-full cursor-pointer py-2",
-                      location.includes("/sandbox") ? "text-primary" : ""
-                    )}>
+                    <div
+                      className={cn(
+                        "cosmetic-tab flex items-center gap-3 w-full cursor-pointer py-2",
+                        location.includes("/sandbox") ? "text-primary" : ""
+                      )}
+                      data-active={location.includes("/sandbox") ? "true" : "false"}
+                    >
                       <Blocks className="w-4 h-4" />
                       {t('nav.sandbox', 'Sandbox')}
                     </div>
@@ -166,10 +175,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {/* Gamification dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className={cn(
-                  "flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5",
-                  location.includes("/profile") || location.includes("/history") || location.includes("/journal") || location.includes("/achievements") || location.includes("/store") || location.includes("/leaderboard") || location.includes("/daily-challenges") || location.includes("/challenges") || location.includes("/monetization") ? "text-primary bg-primary/10" : "text-muted-foreground"
-                )}>
+                <button
+                  className={cn(
+                    "cosmetic-tab flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5",
+                    location.includes("/profile") || location.includes("/history") || location.includes("/journal") || location.includes("/achievements") || location.includes("/store") || location.includes("/leaderboard") || location.includes("/daily-challenges") || location.includes("/challenges") || location.includes("/monetization") ? "text-primary bg-primary/10" : "text-muted-foreground"
+                  )}
+                  data-active={location.includes("/profile") || location.includes("/history") || location.includes("/journal") || location.includes("/achievements") || location.includes("/store") || location.includes("/leaderboard") || location.includes("/daily-challenges") || location.includes("/challenges") || location.includes("/monetization") ? "true" : "false"}
+                >
                   <Award className="w-4 h-4" />
                   {t('nav.gamification', 'Gamification')}
                   <ChevronDown className="w-3 h-3" />
@@ -178,7 +190,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <DropdownMenuContent align="start" className="w-56 bg-card border-white/10">
                 <DropdownMenuItem asChild>
                   <Link href="/profile">
-                    <div className={cn("flex items-center gap-3 w-full cursor-pointer py-2", location.includes("/profile") ? "text-primary" : "")}> 
+                    <div
+                      className={cn("cosmetic-tab flex items-center gap-3 w-full cursor-pointer py-2", location.includes("/profile") ? "text-primary" : "")}
+                      data-active={location.includes("/profile") ? "true" : "false"}
+                    > 
                       <UserCircle className="w-4 h-4" />
                       {t('nav.profile', 'Profile')}
                     </div>
@@ -194,7 +209,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/cosmetics">
-                    <div className={cn("flex items-center gap-3 w-full cursor-pointer py-2", location.includes("/cosmetics") ? "text-fuchsia-400" : "")}> 
+                    <div
+                      className={cn("cosmetic-tab flex items-center gap-3 w-full cursor-pointer py-2", location.includes("/cosmetics") ? "text-fuchsia-400" : "")}
+                      data-active={location.includes("/cosmetics") ? "true" : "false"}
+                    > 
                       <Sparkles className="w-4 h-4 text-fuchsia-400" />
                       <span className="font-semibold">{t('nav.cosmetics', 'Cosmetics')}</span>
                     </div>
@@ -320,20 +338,26 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </span>
                   </Link>
                   <Link href="/sandbox" onClick={() => setIsOpen(false)}>
-                    <span className={cn(
-                      "flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                      location.includes("/sandbox") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                    )}>
+                    <span
+                      className={cn(
+                        "cosmetic-tab flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                        location.includes("/sandbox") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                      )}
+                      data-active={location.includes("/sandbox") ? "true" : "false"}
+                    >
                       <Blocks className="w-4 h-4" />
                       {t('nav.sandbox', 'Sandbox')}
                     </span>
                   </Link>
 
                   <Link href="/tracks" onClick={() => setIsOpen(false)}>
-                    <span className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors",
-                      location.includes("/tracks") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                    )}>
+                    <span
+                      className={cn(
+                        "cosmetic-tab flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-colors",
+                        location.includes("/tracks") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                      )}
+                      data-active={location.includes("/tracks") ? "true" : "false"}
+                    >
                       <GraduationCap className="w-4 h-4" />
                       {t('nav.learning', 'Learning')}
                     </span>
@@ -384,7 +408,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     {t('nav.gamification', 'Gamification')}
                   </div>
                   <Link href="/profile" onClick={() => setIsOpen(false)}>
-                    <span className={cn("flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors", location.includes("/profile") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5")}> 
+                    <span
+                      className={cn("cosmetic-tab flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors", location.includes("/profile") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5")}
+                      data-active={location.includes("/profile") ? "true" : "false"}
+                    > 
                       <UserCircle className="w-4 h-4" />
                       {t('nav.profile', 'Profile')}
                     </span>
@@ -396,7 +423,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </span>
                   </Link>
                   <Link href="/cosmetics" onClick={() => setIsOpen(false)}>
-                    <span className={cn("flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-bold transition-colors", location.includes("/cosmetics") ? "bg-fuchsia-500/10 text-fuchsia-300" : "text-muted-foreground hover:text-foreground hover:bg-white/5")}> 
+                    <span
+                      className={cn("cosmetic-tab flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-bold transition-colors", location.includes("/cosmetics") ? "bg-fuchsia-500/10 text-fuchsia-300" : "text-muted-foreground hover:text-foreground hover:bg-white/5")}
+                      data-active={location.includes("/cosmetics") ? "true" : "false"}
+                    > 
                       <Sparkles className="w-4 h-4 text-fuchsia-400" />
                       <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">{t('nav.cosmetics', 'Cosmetics')}</span>
                     </span>
@@ -469,6 +499,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       <main className="flex-1 relative flex flex-col">
+        {/* Theme-driven background (patterns/images via CSS gradients) */}
+        <div className="absolute inset-0 pointer-events-none themed-bg -z-20" />
         {/* Decorative Grid Lines */}
         <div className="absolute inset-0 pointer-events-none blueprint-grid -z-10 opacity-30" />
         
@@ -483,10 +515,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 function NavLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
     <Link href={href}>
-      <span className={cn(
-        "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5 cursor-pointer",
-        active ? "text-primary bg-primary/10" : "text-muted-foreground"
-      )}>
+      <span
+        className={cn(
+          "cosmetic-tab flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:text-primary hover:bg-white/5 cursor-pointer",
+          active ? "text-primary bg-primary/10" : "text-muted-foreground"
+        )}
+        data-active={active ? "true" : "false"}
+      >
         {children}
       </span>
     </Link>

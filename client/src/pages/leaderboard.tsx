@@ -10,6 +10,8 @@ interface LeaderboardEntry {
   firstName?: string;
   lastName?: string;
   usernameColor?: string | null;
+  equippedNameEffect?: string | null;
+  equippedTabBorder?: string | null;
   equippedBadge?: string | null;
   equippedFrame?: string | null;
   frameAnimation?: string | null;
@@ -310,6 +312,10 @@ export default function LeaderboardPage() {
       alien: '👽',
       pirate: '🏴‍☠️',
       astronaut: '👨‍🚀',
+      cat: '🐱',
+      fox: '🦊',
+      octopus: '🐙',
+      dragon_legend: '🐉',
     };
     return map[avatar || 'default'] || '👤';
   };
@@ -426,8 +432,9 @@ export default function LeaderboardPage() {
                   </div>
                   <div className="min-w-0">
                     <div
-                      className={`font-semibold truncate ${entry.usernameColor ? '' : 'text-white'}`}
-                      style={entry.usernameColor ? { color: entry.usernameColor } : undefined}
+                      className={`font-semibold truncate cosmetic-name ${entry.usernameColor ? '' : 'text-white'}`}
+                      data-name-effect={entry.equippedNameEffect || undefined}
+                      style={entry.usernameColor && !entry.equippedNameEffect ? { color: entry.usernameColor } : undefined}
                       title={formatName(entry)}
                     >
                       {formatName(entry)}
@@ -611,8 +618,9 @@ export default function LeaderboardPage() {
                       {/* Info */}
                       <div>
                         <p
-                          className={`font-bold flex items-center gap-2 ${entry.usernameColor ? '' : 'text-white'}`}
-                          style={entry.usernameColor ? { color: entry.usernameColor } : undefined}
+                          className={`font-bold flex items-center gap-2 cosmetic-name ${entry.usernameColor ? '' : 'text-white'}`}
+                          data-name-effect={entry.equippedNameEffect || undefined}
+                          style={entry.usernameColor && !entry.equippedNameEffect ? { color: entry.usernameColor } : undefined}
                         >
                           {entry.firstName || 'User'} {entry.lastName || ''}
                           {entry.equippedBadge ? (
