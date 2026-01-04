@@ -49,7 +49,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <div className="fixed inset-0 pointer-events-none themed-bg -z-20" />
       {/* Navbar */}
       <header className="border-b border-white/10 bg-card/50 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-3 lg:px-4 h-16 flex items-center gap-3 min-w-0">
+        <div className="w-full max-w-screen-2xl mx-auto px-2 sm:px-3 lg:px-6 h-16 flex items-center gap-3 min-w-0 flex-nowrap">
           <Link href="/">
             <div className="flex items-center gap-2 cursor-pointer group">
               <div className="p-2 bg-primary/10 rounded-md border border-primary/20 group-hover:bg-primary/20 transition-colors">
@@ -62,7 +62,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex flex-1 items-center justify-center gap-1 min-w-0">
+          <nav className="hidden md:flex flex-1 items-center justify-center gap-1 min-w-0 flex-nowrap">
             <NavLink href="/" active={location === "/"}>
               {t('nav.home', 'Home')}
             </NavLink>

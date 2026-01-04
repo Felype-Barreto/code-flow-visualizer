@@ -17,7 +17,7 @@ export function UILanguageSelector() {
 
   return (
     <Select value={value} onValueChange={(v) => setLang(v)}>
-      <SelectTrigger className="w-[72px] h-8 bg-white/5 border-white/10 text-xs px-2">
+      <SelectTrigger className="w-[60px] h-8 bg-white/5 border-white/10 text-xs px-2 [&>svg]:hidden">
         <span className="inline-flex items-center gap-1">
           <span className="text-sm">{uiLanguages.find((l) => l.id === value)?.flag}</span>
           <span>{uiLanguages.find((l) => l.id === value)?.label}</span>
