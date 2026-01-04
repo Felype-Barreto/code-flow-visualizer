@@ -45,6 +45,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col font-sans text-foreground">
+      {/* Default global background (not cosmetic-theme driven) */}
+      <div className="fixed inset-0 pointer-events-none themed-bg -z-20" />
       {/* Navbar */}
       <header className="border-b border-white/10 bg-card/50 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">

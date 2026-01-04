@@ -516,6 +516,9 @@ export default function ProfilePage() {
 
   const levelInfo = getLevelInfo(user.xp || 0);
 
+  const selectedTheme = String(user?.theme || '');
+  const cosmeticTheme = selectedTheme && selectedTheme !== 'light' && selectedTheme !== 'dark' ? selectedTheme : '';
+
   const featuredUntilDate = (() => {
     if (!user.featuredUntil) return null;
     const dt = new Date(user.featuredUntil);
@@ -562,6 +565,11 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden py-8 px-4 bg-transparent">
+      {/* Profile-only cosmetic theme background */}
+      <div
+        className="absolute inset-0 pointer-events-none themed-bg -z-10"
+        data-cosmetic-theme={cosmeticTheme || undefined}
+      />
       <div className="absolute inset-0 pointer-events-none opacity-55 bg-gradient-to-b from-white/5 via-transparent to-black/50" />
       <div className="max-w-6xl mx-auto space-y-6 relative z-10">
         {/* Header with XP & Level */}

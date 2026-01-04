@@ -66,13 +66,13 @@ function App() {
   useEffect(() => {
     const selectedTheme = String(user?.theme || '');
     const baseTheme = selectedTheme === 'light' ? 'light' : 'dark';
-    const cosmeticTheme = selectedTheme && selectedTheme !== 'light' && selectedTheme !== 'dark' ? selectedTheme : '';
     try {
       // Reserve data-theme for base light/dark.
       document.documentElement.setAttribute('data-theme', baseTheme);
 
-      // Cosmetic theme selector (patterns/backgrounds). Keep separate so we don't break the base theme system.
-      document.documentElement.setAttribute('data-cosmetic-theme', cosmeticTheme);
+      // Do not apply cosmetic background themes globally.
+      // (Profile page handles its own theme background locally.)
+      document.documentElement.removeAttribute('data-cosmetic-theme');
 
       // Cosmetic-driven UI effects (used by CSS only)
       document.documentElement.setAttribute('data-name-effect', String((user as any)?.equippedNameEffect || ''));
@@ -102,8 +102,6 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <TooltipProvider>
-          {/* Global theme-driven background (applies to all pages, including Profile) */}
-          <div className="fixed inset-0 pointer-events-none themed-bg -z-20" />
           <Toaster />
           <Router />
           <Analytics />

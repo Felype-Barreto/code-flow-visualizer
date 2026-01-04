@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/use-user';
-import { ShoppingBag, Zap, Sparkles, Camera, Award, Palette, HelpCircle, Eye, Clock, Gift } from 'lucide-react';
+import { ShoppingBag, Zap, Sparkles, Camera, Award, Palette, HelpCircle, Eye, Clock, Gift, Shield, Star, PawPrint, Square } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -15,6 +15,30 @@ interface StoreItem {
   icon: string;
   owned?: boolean;
   category: string;
+}
+
+function getItemIcon(item: StoreItem) {
+  const id = String(item.id || '');
+
+  if (id.startsWith('avatar_')) return Camera;
+  if (id.startsWith('badge_')) return Award;
+  if (id.startsWith('frame_')) return Square;
+  if (id.startsWith('pet_')) return PawPrint;
+  if (id.startsWith('emote_') || id.startsWith('sticker_')) return Gift;
+
+  if (id.startsWith('hint_') || id.includes('hint')) return HelpCircle;
+  if (id.startsWith('solution_')) return Eye;
+  if (id === 'skip_cooldown') return Clock;
+  if (id.startsWith('xp_boost_')) return Zap;
+  if (id === 'streak_shield') return Shield;
+  if (id === 'boss_challenge') return Award;
+  if (id.startsWith('featured_profile_')) return Star;
+  if (id === 'custom_theme_creator') return Palette;
+  if (id === 'custom_watermark') return Eye;
+  if (id === 'particle_effects') return Sparkles;
+
+  if (id.startsWith('theme_')) return Palette;
+  return ShoppingBag;
 }
 
 const STORE_CATALOG: StoreItem[] = [
@@ -265,9 +289,10 @@ export default function StorePage() {
             filteredItems.map((item) => {
               const owned = purchases.includes(item.id);
               const canAfford = (user.coins || 0) >= item.price;
+              const Icon = getItemIcon(item);
 
               const visual = (() => {
-                if (item.category === 'theme') {
+                if (item.category === 'theme' || String(item.id || '').startsWith('theme_')) {
                   return (
                     <div className={`w-14 h-14 rounded-xl overflow-hidden border-2 border-white/20 bg-white/5 ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}>
                       <div className="w-full h-full themed-bg" data-cosmetic-theme={item.id} />
@@ -275,7 +300,7 @@ export default function StorePage() {
                   );
                 }
 
-                if (item.category === 'name_effect') {
+                if (String(item.id || '').startsWith('name_effect_')) {
                   return (
                     <div className={`w-14 h-14 rounded-xl border-2 border-white/20 bg-white/5 flex items-center justify-center ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}>
                       <span className="cosmetic-name font-bold text-lg" data-name-effect={item.id}>
@@ -285,7 +310,7 @@ export default function StorePage() {
                   );
                 }
 
-                if (item.category === 'tab_border') {
+                if (String(item.id || '').startsWith('tab_border_')) {
                   return (
                     <div
                       className={`w-14 h-14 rounded-xl border-2 border-white/20 bg-white/5 flex items-center justify-center ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}
@@ -299,8 +324,8 @@ export default function StorePage() {
                 }
 
                 return (
-                  <div className={`text-5xl ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}>
-                    {item.icon}
+                  <div className={`w-14 h-14 rounded-xl border-2 border-white/20 bg-white/5 flex items-center justify-center ${owned ? '' : !canAfford ? 'grayscale opacity-50' : ''}`}>
+                    <Icon className="w-7 h-7 text-white/90" />
                   </div>
                 );
               })();
